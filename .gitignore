@@ -1,0 +1,12 @@
+node_modules/
+out/
+dist/
+playwright-report/
+test-results/
+.DS_Store
+.env
+.env.*
+cortex-webhook/.env
+*.db
+*.db-shm
+*.db-wal

@@ -1,0 +1,48 @@
+{
+  "name": "cortex",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first desktop command center for links, ideas, and notes.",
+  "type": "module",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "playwright test",
+    "test": "npm run test:unit && npm run test:integration"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.53.0",
+    "better-sqlite3": "^11.9.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "electron": "^37.2.0",
+    "electron-vite": "^3.1.0",
+    "express": "^4.21.2",
+    "lucide-react": "^0.511.0",
+    "nanoid": "^5.1.5",
+    "node-cron": "^4.2.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.1",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^24.0.8",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@types/supertest": "^6.0.3",
+    "@vitejs/plugin-react": "^4.6.0",
+    "jsdom": "^26.1.0",
+    "supertest": "^7.1.1",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  }
+}
