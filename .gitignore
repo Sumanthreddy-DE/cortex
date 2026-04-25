@@ -10,3 +10,5 @@ cortex-webhook/.env
 *.db
 *.db-shm
 *.db-wal
+
+*.tsbuildinfo
