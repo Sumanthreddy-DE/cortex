@@ -21,11 +21,19 @@ import {
   getDistinctTags,
   getItemsByPriority,
   restoreItem,
+  touchItem,
   uncompleteItem,
   updateItem
 } from './api/items'
 import { searchItems } from './api/search'
 import { getSettings, patchSettings } from './api/settings'
+import {
+  addItemToSpace,
+  createSpace,
+  getSpaces,
+  removeItemFromSpace,
+  setSpaceItemPinned
+} from './api/spaces'
 import { openQuickAddWindow } from './quick-add-window'
 import { loadRuntimeEnv } from './runtime-env'
 import { startServer } from './server'
@@ -158,6 +166,33 @@ function registerIpcHandlers(): void {
 
   ipcMain.removeHandler('data:get-settings')
   ipcMain.handle('data:get-settings', () => getSettings(getDb()))
+
+  ipcMain.removeHandler('data:get-spaces')
+  ipcMain.handle('data:get-spaces', () => getSpaces(getDb()))
+
+  ipcMain.removeHandler('data:create-space')
+  ipcMain.handle('data:create-space', (_event, name: string) => createSpace(getDb(), name ?? ''))
+
+  ipcMain.removeHandler('data:add-item-to-space')
+  ipcMain.handle('data:add-item-to-space', (_event, spaceId: string, itemId: string, pinned?: boolean) => {
+    addItemToSpace(getDb(), spaceId, itemId, Boolean(pinned))
+    return getAllItems(getDb())
+  })
+
+  ipcMain.removeHandler('data:remove-item-from-space')
+  ipcMain.handle('data:remove-item-from-space', (_event, spaceId: string, itemId: string) => {
+    removeItemFromSpace(getDb(), spaceId, itemId)
+    return getAllItems(getDb())
+  })
+
+  ipcMain.removeHandler('data:set-space-item-pinned')
+  ipcMain.handle('data:set-space-item-pinned', (_event, spaceId: string, itemId: string, pinned: boolean) => {
+    setSpaceItemPinned(getDb(), spaceId, itemId, pinned)
+    return getAllItems(getDb())
+  })
+
+  ipcMain.removeHandler('data:touch-item')
+  ipcMain.handle('data:touch-item', (_event, id: string) => touchItem(getDb(), id))
 
   ipcMain.removeHandler('data:update-settings')
   ipcMain.handle('data:update-settings', (_event, patch: any) => {

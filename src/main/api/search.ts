@@ -16,6 +16,9 @@ function deserialize(row: Record<string, unknown>): Item {
     archived: Number(row.archived ?? 0),
     remind_at: row.remind_at == null ? null : Number(row.remind_at),
     completed_at: row.completed_at == null ? null : Number(row.completed_at),
+    last_opened_at: row.last_opened_at == null ? null : Number(row.last_opened_at),
+    spaces: [],
+    space_pinned: {},
     created_at: Number(row.created_at),
     updated_at: Number(row.updated_at),
     note_entries: []

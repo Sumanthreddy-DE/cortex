@@ -29,6 +29,12 @@ declare global {
         search: (query: string) => Promise<unknown[]>
         getTags: () => Promise<string[]>
         getSettings: () => Promise<unknown>
+        getSpaces: () => Promise<unknown[]>
+        createSpace: (name: string) => Promise<unknown>
+        addItemToSpace: (spaceId: string, itemId: string, pinned?: boolean) => Promise<unknown[]>
+        removeItemFromSpace: (spaceId: string, itemId: string) => Promise<unknown[]>
+        setSpaceItemPinned: (spaceId: string, itemId: string, pinned: boolean) => Promise<unknown[]>
+        touchItem: (id: string) => Promise<unknown>
         updateSettings: (patch: unknown) => Promise<unknown>
       }
       autostart: {

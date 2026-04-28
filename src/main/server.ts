@@ -6,6 +6,7 @@ import { API_PORT } from '../shared/constants'
 import { itemsRouter, ItemsRouterOptions } from './api/items'
 import { searchRouter } from './api/search'
 import { settingsRouter } from './api/settings'
+import { spacesRouter } from './api/spaces'
 import { getDb } from './db/connection'
 
 let activeServer: Server | null = null
@@ -15,7 +16,17 @@ export function createApiApp(db: Database.Database, options: ItemsRouterOptions 
 
   app.use(
     cors({
-      origin: true,
+      origin: (origin, callback) => {
+        if (
+          !origin ||
+          origin.startsWith('chrome-extension://') ||
+          /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
+        ) {
+          callback(null, true)
+        } else {
+          callback(new Error('Not allowed by CORS'))
+        }
+      },
       credentials: true
     })
   )
@@ -27,6 +38,7 @@ export function createApiApp(db: Database.Database, options: ItemsRouterOptions 
 
   app.use('/api/items', itemsRouter(db, options))
   app.use('/api/settings', settingsRouter(db))
+  app.use('/api/spaces', spacesRouter(db))
   app.use('/api', searchRouter(db))
 
   return app

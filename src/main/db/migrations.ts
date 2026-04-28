@@ -20,6 +20,7 @@ export function runMigrations(db: Database.Database): void {
       archived    INTEGER NOT NULL DEFAULT 0,
       remind_at   INTEGER,
       completed_at INTEGER,
+      last_opened_at INTEGER,
       created_at  INTEGER NOT NULL,
       updated_at  INTEGER NOT NULL
     );
@@ -62,6 +63,21 @@ export function runMigrations(db: Database.Database): void {
       updated_at INTEGER NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS spaces (
+      id         TEXT PRIMARY KEY,
+      name       TEXT NOT NULL,
+      position   INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS space_items (
+      space_id TEXT NOT NULL REFERENCES spaces(id) ON DELETE CASCADE,
+      item_id  TEXT NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+      pinned   INTEGER NOT NULL DEFAULT 0,
+      added_at INTEGER NOT NULL,
+      PRIMARY KEY (space_id, item_id)
+    );
+
     INSERT OR IGNORE INTO meta(key, value) VALUES ('last_midnight_run', '0');
     INSERT OR IGNORE INTO meta(key, value) VALUES ('morning_digest_time', '${DEFAULT_MORNING_DIGEST_TIME}');
     INSERT OR IGNORE INTO meta(key, value) VALUES ('last_digest_date', '');
@@ -70,6 +86,18 @@ export function runMigrations(db: Database.Database): void {
   if (!hasColumn(db, 'items', 'completed_at')) {
     db.prepare(`ALTER TABLE items ADD COLUMN completed_at INTEGER`).run()
   }
+  if (!hasColumn(db, 'items', 'last_opened_at')) {
+    db.prepare(`ALTER TABLE items ADD COLUMN last_opened_at INTEGER`).run()
+  }
+
+  const now = Date.now()
+  db.prepare(`
+    INSERT OR IGNORE INTO spaces (id, name, position, created_at)
+    VALUES
+      ('daily', 'Daily', 0, ?),
+      ('groceries', 'Groceries', 1, ?),
+      ('ai-tools', 'AI Tools', 2, ?)
+  `).run(now, now, now)
 
   db.prepare(`
     INSERT INTO item_notes (id, item_id, content, created_at, updated_at)

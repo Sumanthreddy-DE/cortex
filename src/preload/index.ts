@@ -24,6 +24,15 @@ contextBridge.exposeInMainWorld('cortex', {
     search: (query: string) => ipcRenderer.invoke('data:search', query),
     getTags: () => ipcRenderer.invoke('data:get-tags'),
     getSettings: () => ipcRenderer.invoke('data:get-settings'),
+    getSpaces: () => ipcRenderer.invoke('data:get-spaces'),
+    createSpace: (name: string) => ipcRenderer.invoke('data:create-space', name),
+    addItemToSpace: (spaceId: string, itemId: string, pinned?: boolean) =>
+      ipcRenderer.invoke('data:add-item-to-space', spaceId, itemId, pinned),
+    removeItemFromSpace: (spaceId: string, itemId: string) =>
+      ipcRenderer.invoke('data:remove-item-from-space', spaceId, itemId),
+    setSpaceItemPinned: (spaceId: string, itemId: string, pinned: boolean) =>
+      ipcRenderer.invoke('data:set-space-item-pinned', spaceId, itemId, pinned),
+    touchItem: (id: string) => ipcRenderer.invoke('data:touch-item', id),
     updateSettings: (patch: unknown) => ipcRenderer.invoke('data:update-settings', patch)
   },
   autostart: {

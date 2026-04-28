@@ -23,6 +23,9 @@ export interface Item {
   archived: number
   remind_at: number | null
   completed_at: number | null
+  last_opened_at: number | null
+  spaces: string[]
+  space_pinned: Record<string, boolean>
   created_at: number
   updated_at: number
   note_entries: ItemNoteEntry[]
@@ -45,6 +48,13 @@ export interface Settings {
   morning_digest_time: string
   last_midnight_run: string
   last_digest_date: string
+}
+
+export interface Space {
+  id: string
+  name: string
+  position: number
+  created_at: number
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -185,6 +195,55 @@ export const api = {
     return request<Settings>('/api/settings', {
       method: 'PATCH',
       body: JSON.stringify(patch)
+    })
+  },
+  getSpaces() {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.getSpaces() as Promise<Space[]>
+    }
+    return request<Space[]>('/api/spaces')
+  },
+  createSpace(name: string) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.createSpace(name) as Promise<Space>
+    }
+    return request<Space>('/api/spaces', {
+      method: 'POST',
+      body: JSON.stringify({ name })
+    })
+  },
+  addItemToSpace(spaceId: string, itemId: string, pinned = false) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.addItemToSpace(spaceId, itemId, pinned) as Promise<Item[]>
+    }
+    return request<{ ok: boolean }>(`/api/spaces/${spaceId}/items`, {
+      method: 'POST',
+      body: JSON.stringify({ itemId, pinned })
+    })
+  },
+  removeItemFromSpace(spaceId: string, itemId: string) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.removeItemFromSpace(spaceId, itemId) as Promise<Item[]>
+    }
+    return request<{ ok: boolean }>(`/api/spaces/${spaceId}/items/${itemId}`, {
+      method: 'DELETE'
+    })
+  },
+  setSpaceItemPinned(spaceId: string, itemId: string, pinned: boolean) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.setSpaceItemPinned(spaceId, itemId, pinned) as Promise<Item[]>
+    }
+    return request<{ ok: boolean }>(`/api/spaces/${spaceId}/items/${itemId}/pin`, {
+      method: 'PATCH',
+      body: JSON.stringify({ pinned })
+    })
+  },
+  touchItem(id: string) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.touchItem(id) as Promise<Item>
+    }
+    return request<Item>(`/api/items/${id}/touch`, {
+      method: 'POST'
     })
   }
 }

@@ -908,6 +908,152 @@ a {
   font-size: 11px;
 }
 
+.spaces-view {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.spaces-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.spaces-header h1 {
+  margin: 0 0 6px;
+  font-size: 24px;
+}
+
+.spaces-header p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.spaces-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.space-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 260px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.72);
+  padding: 14px;
+}
+
+.space-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.space-card-header h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.active-badge {
+  display: inline-flex;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.12);
+  color: #86efac;
+  padding: 2px 7px;
+  font-size: 10px;
+}
+
+.space-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.space-section h4 {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.space-item-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 30px 30px;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid rgba(51, 65, 85, 0.7);
+  border-radius: 10px;
+  background: rgba(2, 6, 23, 0.22);
+  padding: 8px;
+}
+
+.space-item-main {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.space-item-main > span:last-child {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.space-item-title {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.space-item-meta {
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+.space-row-action {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+.add-to-space {
+  margin-top: auto;
+}
+
+.space-chooser {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--border-dim);
+  padding-top: 10px;
+}
+
+.space-choice {
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.72);
+  color: var(--text-muted);
+  padding: 8px 10px;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .modal-footer {
   display: flex;
   align-items: center;

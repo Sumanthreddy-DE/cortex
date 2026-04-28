@@ -14,6 +14,7 @@ import PriorityView from './components/PriorityView'
 import CategoryView from './components/CategoryView'
 import ArchiveView from './components/ArchiveView'
 import CompletedView from './components/CompletedView'
+import SpacesView from './components/SpacesView'
 import EditModal from './components/EditModal'
 import SearchResults from './components/SearchResults'
 import SettingsView from './components/SettingsView'
@@ -61,6 +62,7 @@ export default function App() {
   const {
     items,
     completedItems,
+    spaces,
     loading,
     error,
     create,
@@ -71,6 +73,11 @@ export default function App() {
     restore,
     complete,
     uncomplete,
+    createSpace,
+    addItemToSpace,
+    removeItemFromSpace,
+    setSpaceItemPinned,
+    touch,
     refresh
   } = useItems()
   const { results, loading: searchLoading } = useSearch(searchQuery)
@@ -191,6 +198,11 @@ export default function App() {
     }
   }
 
+  function handleCardClick(item: Item) {
+    void touch(item.id)
+    setEditItem(item)
+  }
+
   return (
     <div className="app-shell">
       <TopBar
@@ -220,14 +232,14 @@ export default function App() {
           query={searchQuery}
           results={results}
           loading={searchLoading}
-          onCardClick={(item) => setEditItem(item)}
+          onCardClick={handleCardClick}
         />
       ) : loading ? (
         <LoadingPriorityView />
       ) : view === 'priority' ? (
         <PriorityView
           items={items}
-          onCardClick={(item) => setEditItem(item)}
+          onCardClick={handleCardClick}
           onArchiveAll={handleArchiveAll}
           onPriorityChange={handlePriorityChange}
           onBucketChange={handleBucketChange}
@@ -242,13 +254,31 @@ export default function App() {
           onAppendNote={async (item, content) => {
             await appendNote(item.id, content)
           }}
-          onCardClick={(item) => setEditItem(item)}
+          onCardClick={handleCardClick}
         />
       ) : view === 'completed' ? (
         <CompletedView
           items={completedItems}
           onRestore={handleUncomplete}
-          onCardClick={(item) => setEditItem(item)}
+          onCardClick={handleCardClick}
+        />
+      ) : view === 'spaces' ? (
+        <SpacesView
+          spaces={spaces}
+          items={items}
+          onCreateSpace={async (name) => {
+            await createSpace(name)
+          }}
+          onAddItem={async (spaceId, itemId, pinned) => {
+            await addItemToSpace(spaceId, itemId, pinned)
+          }}
+          onRemoveItem={async (spaceId, itemId) => {
+            await removeItemFromSpace(spaceId, itemId)
+          }}
+          onSetPinned={async (spaceId, itemId, pinned) => {
+            await setSpaceItemPinned(spaceId, itemId, pinned)
+          }}
+          onOpenItem={handleCardClick}
         />
       ) : view === 'settings' ? (
         <SettingsView />

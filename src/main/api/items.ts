@@ -24,6 +24,9 @@ export interface Item {
   archived: number
   remind_at: number | null
   completed_at: number | null
+  last_opened_at: number | null
+  spaces: string[]
+  space_pinned: Record<string, boolean>
   created_at: number
   updated_at: number
   note_entries: ItemNoteEntry[]
@@ -58,6 +61,9 @@ function deserialize(row: Record<string, unknown>): Item {
     archived: Number(row.archived ?? 0),
     remind_at: row.remind_at == null ? null : Number(row.remind_at),
     completed_at: row.completed_at == null ? null : Number(row.completed_at),
+    last_opened_at: row.last_opened_at == null ? null : Number(row.last_opened_at),
+    spaces: [],
+    space_pinned: {},
     created_at: Number(row.created_at),
     updated_at: Number(row.updated_at),
     note_entries: []
@@ -207,10 +213,44 @@ function attachNoteEntries(db: Database.Database, items: Item[]): Item[] {
     entriesByItemId.set(entry.item_id, [...(entriesByItemId.get(entry.item_id) ?? []), entry])
   }
 
-  return items.map((item) => ({
+  return attachSpaceEntries(db, items.map((item) => ({
     ...item,
     note_entries: entriesByItemId.get(item.id) ?? []
-  }))
+  })))
+}
+
+function attachSpaceEntries(db: Database.Database, items: Item[]): Item[] {
+  if (items.length === 0) {
+    return items
+  }
+
+  const placeholders = items.map(() => '?').join(', ')
+  const rows = db
+    .prepare(`
+      SELECT space_id, item_id, pinned
+      FROM space_items
+      WHERE item_id IN (${placeholders})
+      ORDER BY added_at ASC
+    `)
+    .all(...items.map((item) => item.id)) as Array<{
+      space_id: string
+      item_id: string
+      pinned: number
+    }>
+
+  const byItemId = new Map<string, Array<{ space_id: string; pinned: number }>>()
+  for (const row of rows) {
+    byItemId.set(row.item_id, [...(byItemId.get(row.item_id) ?? []), row])
+  }
+
+  return items.map((item) => {
+    const spaces = byItemId.get(item.id) ?? []
+    return {
+      ...item,
+      spaces: spaces.map((entry) => entry.space_id),
+      space_pinned: Object.fromEntries(spaces.map((entry) => [entry.space_id, entry.pinned === 1]))
+    }
+  })
 }
 
 function appendInitialIdeaNote(
@@ -279,6 +319,7 @@ export function createItem(db: Database.Database, input: ItemMutationInput): Ite
       archived,
       remind_at,
       completed_at,
+      last_opened_at,
       created_at,
       updated_at
     )
@@ -293,6 +334,7 @@ export function createItem(db: Database.Database, input: ItemMutationInput): Ite
       @favicon_url,
       0,
       @remind_at,
+      NULL,
       NULL,
       @created_at,
       @updated_at
@@ -491,6 +533,15 @@ export function restoreItem(db: Database.Database, id: string): boolean {
   return result.changes > 0
 }
 
+export function touchItem(db: Database.Database, id: string): Item | null {
+  const now = Date.now()
+  const result = db
+    .prepare('UPDATE items SET last_opened_at = ?, updated_at = ? WHERE id = ?')
+    .run(now, now, id)
+
+  return result.changes > 0 ? getItemById(db, id) : null
+}
+
 export function completeItem(db: Database.Database, id: string): Item | null {
   const now = Date.now()
   const result = db
@@ -686,6 +737,16 @@ export function itemsRouter(db: Database.Database, options: ItemsRouterOptions =
 
     options.onItemsChanged?.()
     res.status(204).send()
+  })
+
+  router.post('/:id/touch', (req, res) => {
+    const item = touchItem(db, req.params.id)
+    if (!item) {
+      res.status(404).json({ error: 'Item not found' })
+      return
+    }
+
+    res.json(item)
   })
 
   return router

@@ -1,9 +1,10 @@
 import { startTransition, useEffect, useState } from 'react'
-import { api, Item, ItemPatch, ItemPayload } from '../lib/api'
+import { api, Item, ItemPatch, ItemPayload, Space } from '../lib/api'
 
 export function useItems() {
   const [items, setItems] = useState<Item[]>([])
   const [completedItems, setCompletedItems] = useState<Item[]>([])
+  const [spaces, setSpaces] = useState<Space[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -13,10 +14,15 @@ export function useItems() {
     }
 
     try {
-      const [nextItems, nextCompletedItems] = await Promise.all([api.getItems(), api.getCompleted()])
+      const [nextItems, nextCompletedItems, nextSpaces] = await Promise.all([
+        api.getItems(),
+        api.getCompleted(),
+        api.getSpaces()
+      ])
       startTransition(() => {
         setItems(nextItems)
         setCompletedItems(nextCompletedItems)
+        setSpaces(nextSpaces)
       })
       setError(null)
     } catch (err) {
@@ -87,6 +93,38 @@ export function useItems() {
     return item
   }
 
+  async function createSpace(name: string) {
+    const space = await api.createSpace(name)
+    startTransition(() => {
+      setSpaces((current) => [...current, space].sort((left, right) => left.position - right.position))
+    })
+    return space
+  }
+
+  async function addItemToSpace(spaceId: string, itemId: string, pinned = false) {
+    await api.addItemToSpace(spaceId, itemId, pinned)
+    await refresh({ silent: true })
+  }
+
+  async function removeItemFromSpace(spaceId: string, itemId: string) {
+    await api.removeItemFromSpace(spaceId, itemId)
+    await refresh({ silent: true })
+  }
+
+  async function setSpaceItemPinned(spaceId: string, itemId: string, pinned: boolean) {
+    await api.setSpaceItemPinned(spaceId, itemId, pinned)
+    await refresh({ silent: true })
+  }
+
+  async function touch(id: string) {
+    const item = await api.touchItem(id)
+    startTransition(() => {
+      setItems((current) => current.map((existing) => (existing.id === id ? item : existing)))
+      setCompletedItems((current) => current.map((existing) => (existing.id === id ? item : existing)))
+    })
+    return item
+  }
+
   useEffect(() => {
     void refresh()
 
@@ -110,6 +148,7 @@ export function useItems() {
   return {
     items,
     completedItems,
+    spaces,
     loading,
     error,
     refresh,
@@ -120,6 +159,11 @@ export function useItems() {
     deletePermanently,
     restore,
     complete,
-    uncomplete
+    uncomplete,
+    createSpace,
+    addItemToSpace,
+    removeItemFromSpace,
+    setSpaceItemPinned,
+    touch
   }
 }
