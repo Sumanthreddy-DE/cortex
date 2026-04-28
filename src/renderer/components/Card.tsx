@@ -2,7 +2,7 @@ import type { CSSProperties, DragEventHandler, MouseEvent } from 'react'
 import { X } from 'lucide-react'
 import { PRIORITY_COLORS } from '../../shared/constants'
 import type { Item } from '../lib/api'
-import { tagColor } from '../lib/utils'
+import TagPill from './TagPill'
 
 interface Props {
   item: Item
@@ -107,14 +107,9 @@ export function Card({
 
       {showMeta && item.tags.length > 0 ? (
         <div className="tag-row">
-          {item.tags.map((tag) => {
-            const [background, color] = tagColor(tag)
-            return (
-              <span key={tag} className="tag-pill" style={{ background, color }}>
-                {tag}
-              </span>
-            )
-          })}
+          {item.tags.map((tag) => (
+            <TagPill key={tag} tag={tag} />
+          ))}
         </div>
       ) : null}
     </button>

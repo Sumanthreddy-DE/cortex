@@ -15,3 +15,26 @@ export function tagColor(tag: string): [string, string] {
 
   return TAG_COLORS[hash % TAG_COLORS.length]
 }
+
+export interface ParsedTag {
+  parent: string
+  child: string | null
+  raw: string
+}
+
+export function parseTag(tag: string): ParsedTag {
+  const index = tag.indexOf('/')
+  if (index === -1) {
+    return {
+      parent: tag.trim(),
+      child: null,
+      raw: tag
+    }
+  }
+
+  return {
+    parent: tag.slice(0, index).trim(),
+    child: tag.slice(index + 1).trim() || null,
+    raw: tag
+  }
+}
