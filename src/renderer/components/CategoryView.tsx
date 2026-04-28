@@ -8,6 +8,7 @@ interface Props {
   items: Item[]
   onTagChange: (item: Item, nextTags: string[]) => Promise<void> | void
   onAppendNote: (item: Item, content: string) => Promise<void> | void
+  onComplete: (item: Item) => Promise<void> | void
   onCardClick: (item: Item) => void
 }
 
@@ -53,6 +54,7 @@ function getDisplayEntries(item: Item): ItemNoteEntry[] {
 function renderCard(
   item: Item,
   onCardClick: (item: Item) => void,
+  onComplete: (item: Item) => void,
   onDragStart: () => void,
   onDragEnd: () => void
 ) {
@@ -65,6 +67,7 @@ function renderCard(
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         showMeta
+        onComplete={onComplete}
       />
     )
   }
@@ -77,11 +80,12 @@ function renderCard(
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
+      onComplete={onComplete}
     />
   )
 }
 
-export function CategoryView({ items, onTagChange, onAppendNote, onCardClick }: Props) {
+export function CategoryView({ items, onTagChange, onAppendNote, onComplete, onCardClick }: Props) {
   const [dragSource, setDragSource] = useState<DragSource>(null)
   const [dropTag, setDropTag] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
@@ -185,6 +189,9 @@ export function CategoryView({ items, onTagChange, onAppendNote, onCardClick }: 
           {renderCard(
             item,
             onCardClick,
+            (target) => {
+              void onComplete(target)
+            },
             () => setDragSource({ item, fromTag: tag }),
             () => {
               setDragSource(null)
@@ -203,6 +210,9 @@ export function CategoryView({ items, onTagChange, onAppendNote, onCardClick }: 
         {renderCard(
           item,
           onCardClick,
+          (target) => {
+            void onComplete(target)
+          },
           () => setDragSource({ item, fromTag: tag }),
           () => {
             setDragSource(null)

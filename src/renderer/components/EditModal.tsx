@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react'
-import { CalendarPlus, Check, Link2, PenLine, Trash2, X } from 'lucide-react'
-import { PRIORITIES, PRIORITY_LABELS, type Priority } from '../../shared/constants'
+import { CalendarPlus, Check, CheckCircle2, Link2, PenLine, RotateCcw, Trash2, X } from 'lucide-react'
+import { BOARD_PRIORITIES, PRIORITY_LABELS, type Priority } from '../../shared/constants'
 import { api, Item, ItemPayload } from '../lib/api'
+import { hasCalendarSupport } from '../lib/desktop'
+import { formatExact, formatRelative } from '../lib/utils'
 
 interface Props {
   item: Item | null
   onSave: (payload: ItemPayload, itemId?: string) => Promise<void>
+  onArchive?: (id: string) => Promise<void>
   onDelete?: (id: string) => Promise<void>
+  onComplete?: (id: string) => Promise<void>
+  onUncomplete?: (id: string) => Promise<void>
   onClose: () => void
 }
 
@@ -47,8 +52,36 @@ function defaultReminderFor(priority: Priority): string {
   return toLocalInputValue(date.getTime())
 }
 
-export function EditModal({ item, onSave, onDelete, onClose }: Props) {
-  const [type, setType] = useState<'link' | 'idea'>('idea')
+function deriveIdeaDraft(title: string, note: string): { title: string; note: string | null } {
+  const cleanTitle = title.trim()
+  const cleanNote = note.trim()
+
+  if (cleanTitle) {
+    return {
+      title: cleanTitle,
+      note: cleanNote || null
+    }
+  }
+
+  if (!cleanNote) {
+    return {
+      title: '',
+      note: null
+    }
+  }
+
+  const lines = cleanNote
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+
+  return {
+    title: (lines[0] ?? cleanNote).slice(0, 120),
+    note: lines.slice(1).join('\n').trim() || null
+  }
+}
+
+export function EditModal({ item, onSave, onArchive, onDelete, onComplete, onUncomplete, onClose }: Props) {
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
   const [note, setNote] = useState('')
@@ -59,9 +92,12 @@ export function EditModal({ item, onSave, onDelete, onClose }: Props) {
   const [existingTags, setExistingTags] = useState<string[]>([])
   const [calendarState, setCalendarState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [calendarError, setCalendarError] = useState('')
+  const calendarSupported = hasCalendarSupport()
+  const ideaDraft = deriveIdeaDraft(title, note)
+  const resolvedType = url.trim() ? 'link' : 'idea'
+  const canSave = Boolean(url.trim()) || Boolean(ideaDraft.title)
 
   useEffect(() => {
-    setType(item?.type ?? 'idea')
     setTitle(item?.title ?? '')
     setUrl(item?.url ?? '')
     setNote(item?.note ?? '')
@@ -75,21 +111,23 @@ export function EditModal({ item, onSave, onDelete, onClose }: Props) {
   }, [])
 
   async function handleSubmit() {
-    const normalizedTitle =
-      title.trim() || (type === 'link' && url.trim() ? url.trim().replace(/^https?:\/\//, '') : '')
-
-    if (!normalizedTitle) {
+    if (!canSave) {
       return
     }
 
     setSaving(true)
     try {
+      const normalizedUrl = url.trim()
+      const nextType = normalizedUrl ? 'link' : 'idea'
+      const normalizedTitle =
+        nextType === 'link' ? title.trim() || normalizedUrl.replace(/^https?:\/\//i, '') : ideaDraft.title
+
       await onSave(
         {
-          type,
+          type: nextType,
           title: normalizedTitle,
-          url: type === 'link' ? url.trim() || null : null,
-          note: type === 'idea' ? note.trim() || null : note.trim() || null,
+          url: nextType === 'link' ? normalizedUrl : null,
+          note: nextType === 'idea' ? ideaDraft.note : note.trim() || null,
           priority,
           tags: tagsInput
             .split(',')
@@ -105,7 +143,11 @@ export function EditModal({ item, onSave, onDelete, onClose }: Props) {
   }
 
   async function handleAddToCalendar() {
-    const calendarTitle = title.trim() || url.trim()
+    if (!calendarSupported) {
+      return
+    }
+
+    const calendarTitle = title.trim() || url.trim() || ideaDraft.title
     setCalendarState('loading')
     setCalendarError('')
 
@@ -132,12 +174,12 @@ export function EditModal({ item, onSave, onDelete, onClose }: Props) {
       <div className="modal-panel" onClick={(event) => event.stopPropagation()}>
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {type === 'link' ? <Link2 size={16} /> : <PenLine size={16} color="#f97316" />}
+            {resolvedType === 'link' ? <Link2 size={16} /> : <PenLine size={16} color="#f97316" />}
             <div>
               <div className="brand-title" style={{ fontSize: 12 }}>
-                {item ? `Edit ${type}` : `New ${type}`}
+                {item ? 'Edit capture' : 'New capture'}
               </div>
-              <div className="brand-subtitle">Shape the card before it drifts into the backlog.</div>
+              <div className="brand-subtitle">Idea, link, or both. Add a URL if you want it saved as a link.</div>
             </div>
           </div>
           <button type="button" className="button-ghost" onClick={onClose} aria-label="Close">
@@ -146,46 +188,51 @@ export function EditModal({ item, onSave, onDelete, onClose }: Props) {
         </div>
 
         <div className="modal-body">
-          <div className="segmented" style={{ width: 'fit-content' }}>
-            <button type="button" data-active={type === 'idea'} onClick={() => setType('idea')}>
-              Idea
-            </button>
-            <button type="button" data-active={type === 'link'} onClick={() => setType('link')}>
-              Link
-            </button>
-          </div>
+          {item?.completed_at ? (
+            <div className="completed-banner">
+              <CheckCircle2 size={18} />
+              <div>
+                <div>Completed {formatRelative(item.completed_at)}</div>
+                <div>{formatExact(item.completed_at)}</div>
+              </div>
+            </div>
+          ) : null}
 
           <label className="field-group">
-            <span className="field-label">Title</span>
+            <span className="field-label">Title (optional)</span>
             <input
               className="text-input"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              placeholder="What should Future You see first?"
+              placeholder="Optional short label"
             />
           </label>
 
-          {type === 'link' ? (
-            <label className="field-group">
-              <span className="field-label">URL</span>
-              <input
-                className="text-input"
-                value={url}
-                onChange={(event) => setUrl(event.target.value)}
-                placeholder="https://example.com"
-              />
-            </label>
-          ) : (
-            <label className="field-group">
-              <span className="field-label">Notes</span>
-              <textarea
-                className="text-area"
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                placeholder="Context, angle, next step..."
-              />
-            </label>
-          )}
+          <label className="field-group">
+            <span className="field-label">Link (optional)</span>
+            <input
+              className="text-input"
+              value={url}
+              onChange={(event) => setUrl(event.target.value)}
+              placeholder="https://example.com"
+            />
+          </label>
+
+          <label className="field-group">
+            <span className="field-label">Notes</span>
+            <textarea
+              className="text-area"
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              placeholder="Context, angle, next step..."
+            />
+          </label>
+
+          <div className="card-meta">
+            {resolvedType === 'link'
+              ? 'This will save as a link card because a URL is present.'
+              : 'No URL yet, so this will save as an idea card.'}
+          </div>
 
           <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
             <label className="field-group">
@@ -201,7 +248,7 @@ export function EditModal({ item, onSave, onDelete, onClose }: Props) {
                   }
                 }}
               >
-                {PRIORITIES.map((value) => (
+                {BOARD_PRIORITIES.map((value) => (
                   <option key={value} value={value}>
                     {PRIORITY_LABELS[value]}
                   </option>
@@ -239,48 +286,86 @@ export function EditModal({ item, onSave, onDelete, onClose }: Props) {
 
         <div className="modal-footer">
           <div>
-            {item && onDelete ? (
-              <button
-                type="button"
-                className="button-danger"
-                onClick={() => onDelete(item.id)}
-              >
-                <Trash2 size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
-                Delete
-              </button>
+            {item ? (
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                {onArchive ? (
+                  <button
+                    type="button"
+                    className="button-secondary"
+                    onClick={() => onArchive(item.id)}
+                  >
+                    Archive
+                  </button>
+                ) : null}
+                {onDelete ? (
+                  <button
+                    type="button"
+                    className="button-danger"
+                    onClick={() => {
+                      if (window.confirm(`Delete "${item.title}" permanently?`)) {
+                        void onDelete(item.id)
+                      }
+                    }}
+                  >
+                    <Trash2 size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+                    Delete Forever
+                  </button>
+                ) : null}
+                {item.completed_at && onUncomplete ? (
+                  <button
+                    type="button"
+                    className="button-secondary"
+                    onClick={() => void onUncomplete(item.id)}
+                  >
+                    <RotateCcw size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+                    Mark Not Completed
+                  </button>
+                ) : !item.completed_at && onComplete ? (
+                  <button
+                    type="button"
+                    className="button-secondary button-success"
+                    onClick={() => void onComplete(item.id)}
+                  >
+                    <CheckCircle2 size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+                    Mark Complete
+                  </button>
+                ) : null}
+              </div>
             ) : null}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                type="button"
-                className={`button-secondary ${calendarState === 'success' ? 'button-success' : ''}`}
-                disabled={
-                  calendarState === 'loading' ||
-                  calendarState === 'success' ||
-                  !(title.trim() || url.trim())
-                }
-                onClick={() => void handleAddToCalendar()}
-                title="Add to Google Calendar via gws CLI"
-              >
-                {calendarState === 'success' ? (
-                  <>
-                    <Check size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
-                    Added
-                  </>
-                ) : calendarState === 'loading' ? (
-                  'Adding...'
-                ) : (
-                  <>
-                    <CalendarPlus size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
-                    Add to Calendar
-                  </>
-                )}
-              </button>
+              {calendarSupported ? (
+                <button
+                  type="button"
+                  className={`button-secondary ${calendarState === 'success' ? 'button-success' : ''}`}
+                  disabled={
+                    calendarState === 'loading' ||
+                    calendarState === 'success' ||
+                    !(title.trim() || url.trim() || ideaDraft.title)
+                  }
+                  onClick={() => void handleAddToCalendar()}
+                  title="Add to Google Calendar via gws CLI"
+                >
+                  {calendarState === 'success' ? (
+                    <>
+                      <Check size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+                      Added
+                    </>
+                  ) : calendarState === 'loading' ? (
+                    'Adding...'
+                  ) : (
+                    <>
+                      <CalendarPlus size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+                      Add to Calendar
+                    </>
+                  )}
+                </button>
+              ) : null}
               <button type="button" className="button-secondary" onClick={onClose}>
                 Cancel
               </button>
-              <button type="button" className="button-primary" disabled={saving} onClick={handleSubmit}>
+              <button type="button" className="button-primary" disabled={saving || !canSave} onClick={handleSubmit}>
                 {saving ? 'Saving...' : 'Save'}
               </button>
             </div>

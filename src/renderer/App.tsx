@@ -1,15 +1,23 @@
 import { useEffect, useState } from 'react'
 import type { Item, ItemPayload } from './lib/api'
-import type { View } from '../shared/constants'
+import {
+  getFixedBucketTag,
+  stripFixedBucketTags,
+  type BoardPriority,
+  type FixedBucketTag,
+  type View
+} from '../shared/constants'
 import { useItems } from './hooks/useItems'
 import { useSearch } from './hooks/useSearch'
 import TopBar from './components/TopBar'
 import PriorityView from './components/PriorityView'
 import CategoryView from './components/CategoryView'
 import ArchiveView from './components/ArchiveView'
+import CompletedView from './components/CompletedView'
 import EditModal from './components/EditModal'
 import SearchResults from './components/SearchResults'
 import SettingsView from './components/SettingsView'
+import { hasDesktopBridge } from './lib/desktop'
 
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -50,11 +58,26 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [editItem, setEditItem] = useState<Item | null | undefined>(undefined)
 
-  const { items, loading, error, create, update, remove, restore, refresh } = useItems()
+  const {
+    items,
+    completedItems,
+    loading,
+    error,
+    create,
+    update,
+    appendNote,
+    archive,
+    deletePermanently,
+    restore,
+    complete,
+    uncomplete,
+    refresh
+  } = useItems()
   const { results, loading: searchLoading } = useSearch(searchQuery)
 
-  const inboxCount = items.filter((item) => item.priority === 'inbox').length
+  const inboxCount = items.filter((item) => item.priority === 'inbox' && !getFixedBucketTag(item.tags)).length
   const showSearch = (view === 'priority' || view === 'category') && searchQuery.trim().length > 0
+  const isBrowserPreview = !hasDesktopBridge()
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -103,8 +126,23 @@ export default function App() {
     setEditItem(undefined)
   }
 
+  function focusInboxColumn() {
+    window.requestAnimationFrame(() => {
+      document.getElementById('priority-column-inbox')?.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'start',
+        block: 'nearest'
+      })
+    })
+  }
+
+  async function handleArchive(id: string) {
+    await archive(id)
+    setEditItem(undefined)
+  }
+
   async function handleDelete(id: string) {
-    await remove(id)
+    await deletePermanently(id)
     setEditItem(undefined)
   }
 
@@ -112,9 +150,44 @@ export default function App() {
     await update(item.id, { tags: nextTags })
   }
 
+  async function handlePriorityChange(item: Item, nextPriority: BoardPriority) {
+    await update(item.id, {
+      priority: nextPriority,
+      tags: stripFixedBucketTags(item.tags)
+    })
+  }
+
+  async function handleBucketChange(item: Item, nextBucket: FixedBucketTag) {
+    await update(item.id, {
+      tags: [...stripFixedBucketTags(item.tags), nextBucket]
+    })
+  }
+
+  async function handleQuickDelete(item: Item) {
+    if (!window.confirm(`Delete "${item.title}" permanently?`)) {
+      return
+    }
+
+    await deletePermanently(item.id)
+  }
+
   async function handleArchiveAll(ids: string[]) {
     for (const id of ids) {
-      await remove(id)
+      await archive(id)
+    }
+  }
+
+  async function handleComplete(item: Item) {
+    await complete(item.id)
+    if (editItem?.id === item.id) {
+      setEditItem(undefined)
+    }
+  }
+
+  async function handleUncomplete(item: Item) {
+    await uncomplete(item.id)
+    if (editItem?.id === item.id) {
+      setEditItem(undefined)
     }
   }
 
@@ -127,7 +200,18 @@ export default function App() {
         onSearchChange={setSearchQuery}
         onAddClick={() => setEditItem(null)}
         inboxCount={inboxCount}
+        onInboxClick={() => {
+          setView('priority')
+          focusInboxColumn()
+        }}
       />
+
+      {isBrowserPreview ? (
+        <div className="info-banner">
+          Browser preview mode: board, search, tags, archive, and settings are live here. Desktop-only features such
+          as tray, global shortcuts, Windows startup, and calendar automation stay in the Electron build.
+        </div>
+      ) : null}
 
       {error ? <div className="status-banner">{error}</div> : null}
 
@@ -145,17 +229,34 @@ export default function App() {
           items={items}
           onCardClick={(item) => setEditItem(item)}
           onArchiveAll={handleArchiveAll}
+          onPriorityChange={handlePriorityChange}
+          onBucketChange={handleBucketChange}
+          onDelete={handleQuickDelete}
+          onComplete={handleComplete}
         />
       ) : view === 'category' ? (
         <CategoryView
           items={items}
           onTagChange={handleTagChange}
+          onComplete={handleComplete}
+          onAppendNote={async (item, content) => {
+            await appendNote(item.id, content)
+          }}
+          onCardClick={(item) => setEditItem(item)}
+        />
+      ) : view === 'completed' ? (
+        <CompletedView
+          items={completedItems}
+          onRestore={handleUncomplete}
           onCardClick={(item) => setEditItem(item)}
         />
       ) : view === 'settings' ? (
         <SettingsView />
       ) : (
         <ArchiveView
+          onDelete={async (id) => {
+            await deletePermanently(id)
+          }}
           onRestore={async (id) => {
             await restore(id)
             await refresh({ silent: true })
@@ -167,7 +268,24 @@ export default function App() {
         <EditModal
           item={editItem}
           onSave={handleSave}
+          onArchive={editItem ? handleArchive : undefined}
           onDelete={editItem ? handleDelete : undefined}
+          onComplete={
+            editItem
+              ? async (id) => {
+                  await complete(id)
+                  setEditItem(undefined)
+                }
+              : undefined
+          }
+          onUncomplete={
+            editItem
+              ? async (id) => {
+                  await uncomplete(id)
+                  setEditItem(undefined)
+                }
+              : undefined
+          }
           onClose={() => setEditItem(undefined)}
         />
       ) : null}

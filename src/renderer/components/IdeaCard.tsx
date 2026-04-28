@@ -1,5 +1,5 @@
 import type { CSSProperties, DragEventHandler, MouseEvent } from 'react'
-import { PenLine, X } from 'lucide-react'
+import { Check, PenLine, X } from 'lucide-react'
 import { PRIORITY_COLORS } from '../../shared/constants'
 import type { Item } from '../lib/api'
 import TagPill from './TagPill'
@@ -12,6 +12,7 @@ interface Props {
   onDragStart?: DragEventHandler<HTMLButtonElement>
   onDragEnd?: DragEventHandler<HTMLButtonElement>
   onDelete?: (item: Item) => void
+  onComplete?: (item: Item) => void
 }
 
 export function IdeaCard({
@@ -21,7 +22,8 @@ export function IdeaCard({
   draggable,
   onDragStart,
   onDragEnd,
-  onDelete
+  onDelete,
+  onComplete
 }: Props) {
   const cardStyle = {
     '--mouse-x': '50%',
@@ -57,6 +59,21 @@ export function IdeaCard({
       }}
       onDragEnd={onDragEnd}
     >
+      {!item.completed_at && onComplete ? (
+        <span
+          className="complete-checkbox"
+          role="button"
+          aria-label={`Mark ${item.title} complete`}
+          title="Mark complete"
+          onClick={(event) => {
+            event.stopPropagation()
+            onComplete(item)
+          }}
+        >
+          <Check size={12} />
+        </span>
+      ) : null}
+
       {onDelete ? (
         <span
           className="card-delete-button"

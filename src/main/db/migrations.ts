@@ -1,6 +1,11 @@
 import Database from 'better-sqlite3'
 import { DEFAULT_MORNING_DIGEST_TIME } from '../../shared/constants'
 
+function hasColumn(db: Database.Database, table: string, column: string): boolean {
+  const columns = db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>
+  return columns.some((entry) => entry.name === column)
+}
+
 export function runMigrations(db: Database.Database): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS items (
@@ -14,6 +19,7 @@ export function runMigrations(db: Database.Database): void {
       favicon_url TEXT,
       archived    INTEGER NOT NULL DEFAULT 0,
       remind_at   INTEGER,
+      completed_at INTEGER,
       created_at  INTEGER NOT NULL,
       updated_at  INTEGER NOT NULL
     );
@@ -48,10 +54,40 @@ export function runMigrations(db: Database.Database): void {
       value TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS item_notes (
+      id         TEXT PRIMARY KEY,
+      item_id    TEXT NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+      content    TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    );
+
     INSERT OR IGNORE INTO meta(key, value) VALUES ('last_midnight_run', '0');
     INSERT OR IGNORE INTO meta(key, value) VALUES ('morning_digest_time', '${DEFAULT_MORNING_DIGEST_TIME}');
     INSERT OR IGNORE INTO meta(key, value) VALUES ('last_digest_date', '');
   `)
 
+  if (!hasColumn(db, 'items', 'completed_at')) {
+    db.prepare(`ALTER TABLE items ADD COLUMN completed_at INTEGER`).run()
+  }
+
+  db.prepare(`
+    INSERT INTO item_notes (id, item_id, content, created_at, updated_at)
+    SELECT
+      'legacy-' || items.id,
+      items.id,
+      items.note,
+      items.created_at,
+      items.updated_at
+    FROM items
+    WHERE items.type = 'idea'
+      AND items.note IS NOT NULL
+      AND TRIM(items.note) <> ''
+      AND NOT EXISTS (
+        SELECT 1 FROM item_notes WHERE item_notes.item_id = items.id
+      )
+  `).run()
+
+  db.prepare(`UPDATE items SET priority = 'today' WHERE priority = 'for-now'`).run()
   db.prepare(`INSERT INTO items_fts(items_fts) VALUES ('rebuild')`).run()
 }

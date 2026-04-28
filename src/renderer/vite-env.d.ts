@@ -14,6 +14,23 @@ declare global {
         priority: string,
         date?: string
       ) => Promise<{ ok: boolean; error?: string }>
+      data: {
+        getItems: () => Promise<unknown[]>
+        getArchived: () => Promise<unknown[]>
+        getCompleted: () => Promise<unknown[]>
+        createItem: (payload: unknown) => Promise<unknown>
+        updateItem: (id: string, patch: unknown) => Promise<unknown>
+        appendItemNote: (id: string, content: string) => Promise<unknown>
+        archiveItem: (id: string) => Promise<void>
+        deleteItem: (id: string) => Promise<void>
+        restoreItem: (id: string) => Promise<void>
+        completeItem: (id: string) => Promise<unknown>
+        uncompleteItem: (id: string) => Promise<unknown>
+        search: (query: string) => Promise<unknown[]>
+        getTags: () => Promise<string[]>
+        getSettings: () => Promise<unknown>
+        updateSettings: (patch: unknown) => Promise<unknown>
+      }
       autostart: {
         get: () => Promise<boolean>
         set: (enabled: boolean) => Promise<void>

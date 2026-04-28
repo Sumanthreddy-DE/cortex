@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3'
 import { Router } from 'express'
-import { getDistinctTags, Item } from './items'
+import { normalizePriority } from '../../shared/constants'
+import { getDistinctTags, getItemById, Item } from './items'
 
 function deserialize(row: Record<string, unknown>): Item {
   return {
@@ -9,13 +10,15 @@ function deserialize(row: Record<string, unknown>): Item {
     title: row.title as string,
     url: (row.url as string | null) ?? null,
     note: (row.note as string | null) ?? null,
-    priority: row.priority as Item['priority'],
+    priority: normalizePriority(row.priority as Item['priority']),
     tags: JSON.parse((row.tags as string) ?? '[]'),
     favicon_url: (row.favicon_url as string | null) ?? null,
     archived: Number(row.archived ?? 0),
     remind_at: row.remind_at == null ? null : Number(row.remind_at),
+    completed_at: row.completed_at == null ? null : Number(row.completed_at),
     created_at: Number(row.created_at),
-    updated_at: Number(row.updated_at)
+    updated_at: Number(row.updated_at),
+    note_entries: []
   }
 }
 
@@ -37,7 +40,9 @@ export function searchItems(db: Database.Database, query: string): Item[] {
     `)
     .all(`"${safe}"*`) as Record<string, unknown>[]
 
-  return rows.map(deserialize)
+  return rows
+    .map(deserialize)
+    .map((item) => getItemById(db, item.id) ?? item)
 }
 
 export function searchRouter(db: Database.Database): Router {

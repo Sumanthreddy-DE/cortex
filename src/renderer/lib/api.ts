@@ -1,6 +1,15 @@
 import { API_BASE, type Priority, PRIORITIES, type View } from '../../shared/constants'
+import { hasDesktopBridge } from './desktop'
 
 export type ItemType = 'link' | 'idea'
+
+export interface ItemNoteEntry {
+  id: string
+  item_id: string
+  content: string
+  created_at: number
+  updated_at: number
+}
 
 export interface Item {
   id: string
@@ -13,8 +22,10 @@ export interface Item {
   favicon_url: string | null
   archived: number
   remind_at: number | null
+  completed_at: number | null
   created_at: number
   updated_at: number
+  note_entries: ItemNoteEntry[]
 }
 
 export interface ItemPayload {
@@ -59,10 +70,22 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   getItems() {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.getItems() as Promise<Item[]>
+    }
     return request<Item[]>('/api/items')
   },
   getArchived() {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.getArchived() as Promise<Item[]>
+    }
     return request<Item[]>('/api/items/archived')
+  },
+  getCompleted() {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.getCompleted() as Promise<Item[]>
+    }
+    return request<Item[]>('/api/items/completed')
   },
   getItemsByPriority(priority: Priority) {
     return request<Item[]>(`/api/items/priority/${priority}`)
@@ -71,37 +94,94 @@ export const api = {
     return request<Item[]>(`/api/items/tag/${encodeURIComponent(tag)}`)
   },
   createItem(payload: ItemPayload) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.createItem(payload) as Promise<Item>
+    }
     return request<Item>('/api/items', {
       method: 'POST',
       body: JSON.stringify(payload)
     })
   },
   updateItem(id: string, patch: ItemPatch) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.updateItem(id, patch) as Promise<Item>
+    }
     return request<Item>(`/api/items/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(patch)
     })
   },
+  appendItemNote(id: string, content: string) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.appendItemNote(id, content) as Promise<Item>
+    }
+    return request<Item>(`/api/items/${id}/notes`, {
+      method: 'POST',
+      body: JSON.stringify({ content })
+    })
+  },
+  archiveItem(id: string) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.archiveItem(id)
+    }
+    return request<void>(`/api/items/${id}/archive`, {
+      method: 'POST'
+    })
+  },
   deleteItem(id: string) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.deleteItem(id)
+    }
     return request<void>(`/api/items/${id}`, {
       method: 'DELETE'
     })
   },
   restoreItem(id: string) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.restoreItem(id)
+    }
     return request<void>(`/api/items/${id}/restore`, {
       method: 'POST'
     })
   },
+  completeItem(id: string) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.completeItem(id) as Promise<Item>
+    }
+    return request<Item>(`/api/items/${id}/complete`, {
+      method: 'POST'
+    })
+  },
+  uncompleteItem(id: string) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.uncompleteItem(id) as Promise<Item>
+    }
+    return request<Item>(`/api/items/${id}/uncomplete`, {
+      method: 'POST'
+    })
+  },
   search(query: string) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.search(query) as Promise<Item[]>
+    }
     return request<Item[]>(`/api/search?q=${encodeURIComponent(query)}`)
   },
   getTags() {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.getTags()
+    }
     return request<string[]>('/api/tags')
   },
   getSettings() {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.getSettings() as Promise<Settings>
+    }
     return request<Settings>('/api/settings')
   },
   updateSettings(patch: Partial<Pick<Settings, 'morning_digest_time'>>) {
+    if (hasDesktopBridge()) {
+      return window.cortex.data.updateSettings(patch) as Promise<Settings>
+    }
     return request<Settings>('/api/settings', {
       method: 'PATCH',
       body: JSON.stringify(patch)

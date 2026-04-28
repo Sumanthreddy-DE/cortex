@@ -1,5 +1,5 @@
 import type { CSSProperties, DragEventHandler, MouseEvent } from 'react'
-import { X } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import { PRIORITY_COLORS } from '../../shared/constants'
 import type { Item } from '../lib/api'
 import TagPill from './TagPill'
@@ -12,6 +12,7 @@ interface Props {
   onDragStart?: DragEventHandler<HTMLButtonElement>
   onDragEnd?: DragEventHandler<HTMLButtonElement>
   onDelete?: (item: Item) => void
+  onComplete?: (item: Item) => void
 }
 
 function getHostname(url: string | null): string {
@@ -33,7 +34,8 @@ export function Card({
   draggable,
   onDragStart,
   onDragEnd,
-  onDelete
+  onDelete,
+  onComplete
 }: Props) {
   const hostname = getHostname(item.url)
   const letter = (hostname[0] ?? item.title[0] ?? '?').toUpperCase()
@@ -71,6 +73,21 @@ export function Card({
       }}
       onDragEnd={onDragEnd}
     >
+      {!item.completed_at && onComplete ? (
+        <span
+          className="complete-checkbox"
+          role="button"
+          aria-label={`Mark ${item.title} complete`}
+          title="Mark complete"
+          onClick={(event) => {
+            event.stopPropagation()
+            onComplete(item)
+          }}
+        >
+          <Check size={12} />
+        </span>
+      ) : null}
+
       {onDelete ? (
         <span
           className="card-delete-button"

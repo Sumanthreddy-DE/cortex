@@ -20,6 +20,7 @@ interface Props {
   onPriorityChange: (item: Item, nextPriority: BoardPriority) => Promise<void> | void
   onBucketChange: (item: Item, nextBucket: FixedBucketTag) => Promise<void> | void
   onDelete: (item: Item) => Promise<void> | void
+  onComplete: (item: Item) => Promise<void> | void
 }
 
 const STALE_THRESHOLD = 30 * 24 * 60 * 60 * 1000
@@ -33,6 +34,7 @@ function renderCard(
     onDragStart?: () => void
     onDragEnd?: () => void
     onDelete?: (item: Item) => void
+    onComplete?: (item: Item) => void
   }
 ) {
   if (item.type === 'idea') {
@@ -45,6 +47,7 @@ function renderCard(
         onDragStart={() => options?.onDragStart?.()}
         onDragEnd={() => options?.onDragEnd?.()}
         onDelete={options?.onDelete}
+        onComplete={options?.onComplete}
       />
     )
   }
@@ -58,6 +61,7 @@ function renderCard(
       onDragStart={() => options?.onDragStart?.()}
       onDragEnd={() => options?.onDragEnd?.()}
       onDelete={options?.onDelete}
+      onComplete={options?.onComplete}
     />
   )
 }
@@ -68,7 +72,8 @@ export function PriorityView({
   onArchiveAll,
   onPriorityChange,
   onBucketChange,
-  onDelete
+  onDelete,
+  onComplete
 }: Props) {
   const [dragSource, setDragSource] = useState<Item | null>(null)
   const [dropPriority, setDropPriority] = useState<BoardPriority | null>(null)
@@ -154,6 +159,9 @@ export function PriorityView({
                           onDragEnd: clearDragState,
                           onDelete: (target) => {
                             void onDelete(target)
+                          },
+                          onComplete: (target) => {
+                            void onComplete(target)
                           }
                         })}
                       </div>
@@ -227,6 +235,9 @@ export function PriorityView({
                           onDragEnd: clearDragState,
                           onDelete: (target) => {
                             void onDelete(target)
+                          },
+                          onComplete: (target) => {
+                            void onComplete(target)
                           }
                         })}
                       </div>
