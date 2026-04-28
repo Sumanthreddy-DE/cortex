@@ -15,9 +15,12 @@ export const PRIORITIES = [
   'someday'
 ] as const
 
+export const BOARD_PRIORITIES = ['inbox', 'today', 'tomorrow', 'this-week', 'someday'] as const
+export const FIXED_BUCKET_TAGS = ['Daily', 'Groceries', 'Tools'] as const
+
 export const PRIORITY_LABELS: Record<(typeof PRIORITIES)[number], string> = {
   inbox: 'Inbox',
-  'for-now': 'For Now',
+  'for-now': 'Today',
   today: 'Today',
   tomorrow: 'Tomorrow',
   'this-week': 'This Week',
@@ -26,7 +29,7 @@ export const PRIORITY_LABELS: Record<(typeof PRIORITIES)[number], string> = {
 
 export const PRIORITY_COLORS: Record<(typeof PRIORITIES)[number], string> = {
   inbox: '#6b7280',
-  'for-now': '#ef4444',
+  'for-now': '#f97316',
   today: '#f97316',
   tomorrow: '#6366f1',
   'this-week': '#38bdf8',
@@ -34,4 +37,29 @@ export const PRIORITY_COLORS: Record<(typeof PRIORITIES)[number], string> = {
 }
 
 export type Priority = (typeof PRIORITIES)[number]
-export type View = 'priority' | 'category' | 'archive' | 'settings'
+export type BoardPriority = (typeof BOARD_PRIORITIES)[number]
+export type FixedBucketTag = (typeof FIXED_BUCKET_TAGS)[number]
+export type View = 'priority' | 'category' | 'completed' | 'archive' | 'settings'
+
+export function normalizePriority(priority: Priority): Priority {
+  return priority === 'for-now' ? 'today' : priority
+}
+
+export function isFixedBucketTag(tag: string): tag is FixedBucketTag {
+  return FIXED_BUCKET_TAGS.some((entry) => entry.toLowerCase() === tag.toLowerCase())
+}
+
+export function getFixedBucketTag(tags: string[]): FixedBucketTag | null {
+  for (const tag of tags) {
+    const matched = FIXED_BUCKET_TAGS.find((entry) => entry.toLowerCase() === tag.toLowerCase())
+    if (matched) {
+      return matched
+    }
+  }
+
+  return null
+}
+
+export function stripFixedBucketTags(tags: string[]): string[] {
+  return tags.filter((tag) => !isFixedBucketTag(tag))
+}

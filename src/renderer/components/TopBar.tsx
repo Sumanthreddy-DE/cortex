@@ -1,4 +1,5 @@
-import { Archive, LayoutGrid, ListFilter, Plus, Search, Settings } from 'lucide-react'
+import { Archive, CheckCircle2, LayoutGrid, ListFilter, Plus, Search, Settings } from 'lucide-react'
+import { useState } from 'react'
 import type { View } from '../../shared/constants'
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
   onSearchChange: (value: string) => void
   onAddClick: () => void
   inboxCount: number
+  onInboxClick: () => void
 }
 
 export function TopBar({
@@ -16,15 +18,18 @@ export function TopBar({
   searchQuery,
   onSearchChange,
   onAddClick,
-  inboxCount
+  inboxCount,
+  onInboxClick
 }: Props) {
+  const [searchExpanded, setSearchExpanded] = useState(Boolean(searchQuery))
+  const searchOpen = searchExpanded || Boolean(searchQuery)
+
   return (
     <header className="topbar">
       <div className="brand-lockup">
         <div className="brand-mark" />
         <div className="brand-copy">
           <div className="brand-title">Cortex</div>
-          <div className="brand-subtitle">Local-first command center</div>
         </div>
       </div>
 
@@ -47,6 +52,14 @@ export function TopBar({
         </button>
         <button
           type="button"
+          data-active={view === 'completed'}
+          onClick={() => onViewChange('completed')}
+        >
+          <CheckCircle2 size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+          Completed
+        </button>
+        <button
+          type="button"
           data-active={view === 'archive'}
           onClick={() => onViewChange('archive')}
         >
@@ -56,30 +69,43 @@ export function TopBar({
       </div>
 
       {inboxCount > 0 ? (
-        <button type="button" className="button-ghost" onClick={() => onViewChange('priority')}>
-          Inbox ({inboxCount})
+        <button
+          type="button"
+          className="button-ghost button-attention"
+          onClick={onInboxClick}
+          title={`${inboxCount} item${inboxCount === 1 ? '' : 's'} waiting in Inbox`}
+        >
+          <span className="inbox-dot" aria-hidden="true" /> {inboxCount} in inbox
         </button>
       ) : null}
 
       <div className="topbar-spacer" />
 
-      <div className="search-wrap" style={{ position: 'relative' }}>
-        <Search
-          size={16}
-          style={{
-            position: 'absolute',
-            top: 12,
-            left: 12,
-            color: 'var(--text-dim)'
+      <div className={`search-wrap ${searchOpen ? 'search-wrap-expanded' : ''}`}>
+        <button
+          type="button"
+          className="search-toggle"
+          aria-label="Search"
+          onClick={() => {
+            setSearchExpanded(true)
+            window.requestAnimationFrame(() => document.getElementById('cortex-search-input')?.focus())
           }}
-        />
+        >
+          <Search size={16} />
+        </button>
         <input
           id="cortex-search-input"
           className="search-input"
           value={searchQuery}
+          tabIndex={searchOpen ? 0 : -1}
+          onFocus={() => setSearchExpanded(true)}
+          onBlur={() => {
+            if (!searchQuery) {
+              setSearchExpanded(false)
+            }
+          }}
           onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Search links, notes, tags... (/ or Ctrl+K)"
-          style={{ paddingLeft: 36 }}
+          placeholder="Search... (/ or Ctrl+K)"
         />
       </div>
 

@@ -1,14 +1,17 @@
-import type { CSSProperties, MouseEvent } from 'react'
-import { PenLine } from 'lucide-react'
+import type { CSSProperties, DragEventHandler, MouseEvent } from 'react'
+import { PenLine, X } from 'lucide-react'
+import { PRIORITY_COLORS } from '../../shared/constants'
 import type { Item } from '../lib/api'
+import { tagColor } from '../lib/utils'
 
 interface Props {
   item: Item
   onClick: (item: Item) => void
   showMeta?: boolean
   draggable?: boolean
-  onDragStart?: () => void
-  onDragEnd?: () => void
+  onDragStart?: DragEventHandler<HTMLButtonElement>
+  onDragEnd?: DragEventHandler<HTMLButtonElement>
+  onDelete?: (item: Item) => void
 }
 
 export function IdeaCard({
@@ -17,7 +20,8 @@ export function IdeaCard({
   showMeta = false,
   draggable,
   onDragStart,
-  onDragEnd
+  onDragEnd,
+  onDelete
 }: Props) {
   const cardStyle = {
     '--mouse-x': '50%',
@@ -41,14 +45,32 @@ export function IdeaCard({
       style={{
         ...cardStyle,
         textAlign: 'left',
-        borderLeft: '2px solid #f97316'
+        borderLeft: `2px solid ${PRIORITY_COLORS[item.priority] ?? '#f97316'}`
       }}
       onMouseMove={handleMouseMove}
       onClick={() => onClick(item)}
       draggable={draggable}
-      onDragStart={onDragStart}
+      onDragStart={(event) => {
+        event.dataTransfer.effectAllowed = 'move'
+        event.dataTransfer.setData('text/plain', item.id)
+        onDragStart?.(event)
+      }}
       onDragEnd={onDragEnd}
     >
+      {onDelete ? (
+        <span
+          className="card-delete-button"
+          role="button"
+          aria-label={`Delete ${item.title}`}
+          onClick={(event) => {
+            event.stopPropagation()
+            onDelete(item)
+          }}
+        >
+          <X size={12} />
+        </span>
+      ) : null}
+
       <div className="card-header">
         <div
           className="favicon-stack"
@@ -70,11 +92,14 @@ export function IdeaCard({
 
       {showMeta && item.tags.length > 0 ? (
         <div className="tag-row">
-          {item.tags.map((tag) => (
-            <span key={tag} className="tag-pill">
-              {tag}
-            </span>
-          ))}
+          {item.tags.map((tag) => {
+            const [background, color] = tagColor(tag)
+            return (
+              <span key={tag} className="tag-pill" style={{ background, color }}>
+                {tag}
+              </span>
+            )
+          })}
         </div>
       ) : null}
     </button>
