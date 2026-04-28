@@ -274,7 +274,7 @@ export function EditModal({ item, onSave, onArchive, onDelete, onComplete, onUnc
               list="cortex-tag-options"
               value={tagsInput}
               onChange={(event) => setTagsInput(event.target.value)}
-              placeholder="GitHub, YouTube, Research"
+              placeholder="GitHub/Codex, AI, Research"
             />
             <datalist id="cortex-tag-options">
               {existingTags.map((tag) => (
