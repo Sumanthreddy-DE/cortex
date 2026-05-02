@@ -30,12 +30,57 @@ npm run dev
 
 App starts at `localhost:51204` (embedded Express). Electron window opens automatically.
 
+### Browser Preview
+
+If you want to test the board in Chrome before packaging or reinstalling:
+
+```bash
+npm run web:dev
+```
+
+Then open [http://127.0.0.1:5173](http://127.0.0.1:5173) in Chrome.
+
+On Windows, you can also just double-click:
+- [Start-Cortex-Preview.cmd](./Start-Cortex-Preview.cmd)
+- [Stop-Cortex-Preview.cmd](./Stop-Cortex-Preview.cmd)
+
+If you need to clear the preview servers and start fresh:
+
+```bash
+npm run web:stop
+```
+
+This preview mode uses a local SQLite database inside:
+
+```text
+.cortex-local/cortex.db
+```
+
+So it will not interfere with your installed app data unless you explicitly point `CORTEX_DATA_DIR` somewhere else.
+
+What works in browser preview:
+- board views
+- add/edit/archive/delete
+- tags and search
+- settings stored in the local preview database
+
+What stays desktop-only:
+- system tray
+- global shortcuts
+- Windows auto-start
+- quick-add floating window
+- calendar button via Electron IPC
+
 ### All Scripts
 
 | Command | What it does |
 |---------|-------------|
 | `npm run dev` | Start Electron + Vite in dev mode with hot reload |
+| `npm run web:dev` | Start local API + Chrome-friendly Vite UI for browser testing |
+| `npm run web:build` | Build the browser preview bundle |
 | `npm run build` | Build for production |
+| `npm run pack:win` | Build an unpacked Windows app folder for packaging smoke tests |
+| `npm run dist:win` | Build a Windows installer plus a portable `Cortex.exe` |
 | `npm run typecheck` | TypeScript check (both main + renderer tsconfigs) |
 | `npm test` | Unit + integration tests |
 | `npm run test:unit` | Unit tests only |
@@ -188,6 +233,10 @@ cortex/
    ```
 6. Restart Cortex. Items appear in Inbox within 60 seconds.
 
+For packaged Windows builds, the desktop app also checks:
+- a `.env` file next to the portable `Cortex.exe`
+- `%APPDATA%\cortex\.env` for the installed app
+
 **Bot commands:**
 - Any text → Inbox idea
 - Any URL → Inbox link
@@ -214,6 +263,8 @@ After that the "Add to Calendar" button in any card's edit modal works immediate
 SUPABASE_URL=https://xxxx.supabase.co
 SUPABASE_ANON_KEY=eyJ...
 ```
+
+For packaged Windows builds, place the same file either next to `Cortex.exe` or in `%APPDATA%\cortex\.env`.
 
 All other features work without any environment variables.
 

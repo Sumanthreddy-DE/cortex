@@ -2,6 +2,8 @@ import Database from 'better-sqlite3'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { nanoid } from 'nanoid'
 import { PRIORITIES, type Priority } from '../../shared/constants'
+import { getDomainTag } from '../../shared/domain-rules'
+import { fetchAndUpdateLinkTitle } from '../api/link-fetch'
 import { createItem } from '../api/items'
 
 interface BotQueueRow {
@@ -67,27 +69,39 @@ export async function drainBotQueue(db: Database.Database): Promise<number> {
     const url = extractUrl(row.message_text)
     const priority = isPriority(row.parsed_priority) ? row.parsed_priority : 'inbox'
 
+    // Mark processed FIRST so re-polls on network failure don't duplicate
+    const { error: markError } = await supabase
+      .from('bot_queue')
+      .update({ processed_at: new Date().toISOString() })
+      .eq('id', row.id)
+      .is('processed_at', null)
+
+    if (markError) {
+      console.error('[telegram] Failed to mark row processed, skipping to avoid duplicate:', row.id, markError.message)
+      continue
+    }
+
     try {
-      createItem(db, {
+      const domainTag = url ? getDomainTag(url) : null
+      const autoTags = domainTag ? [domainTag] : []
+      const created = createItem(db, {
         id: nanoid(),
         type: url ? 'link' : 'idea',
         title: row.message_text,
         url,
         note: null,
         priority,
-        tags: [],
+        tags: autoTags,
         favicon_url: null,
         remind_at: row.parsed_remind_at ?? null
       })
 
-      await supabase
-        .from('bot_queue')
-        .update({ processed_at: new Date().toISOString() })
-        .eq('id', row.id)
-
+      if (url) {
+        void fetchAndUpdateLinkTitle(db, created.id, url)
+      }
       insertedCount += 1
     } catch (insertError) {
-      console.error('[telegram] Failed to insert queue row:', insertError)
+      console.error('[telegram] Failed to insert queue row into SQLite:', row.id, insertError)
     }
   }
 

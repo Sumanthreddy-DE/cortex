@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Cortex v4 — Categories with folders</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f7f1e6;
+        --paper-raised: #fcf8f0;
+        --paper-deep: #ede5d3;
+        --ink: #2a241d;
+        --ink-soft: #6c5e4e;
+        --ink-dim: #9b8d7d;
+        --rule: #d8cdb9;
+        --ink-stamp: #3d4691;
+        --idea-warm: #e89066;
+        --shadow-card: 0 8px 20px rgba(42, 36, 29, 0.08);
+        --font-display: 'Fraunces', Georgia, serif;
+        --font-body: 'Inter', system-ui, sans-serif;
+        --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.4; }
+
+      .topbar { display: flex; align-items: center; gap: 24px; padding: 14px 28px 0; border-bottom: 1px solid var(--rule); background: var(--paper-raised); }
+      .brand { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; }
+      .brand-mark { width: 14px; height: 14px; background: var(--ink-stamp); border-radius: 2px; }
+      .brand-name { font-family: var(--font-display); font-size: 16px; font-weight: 500; }
+      .tabs { display: flex; gap: 4px; }
+      .tab { padding: 12px 14px 10px; font-size: 13px; font-weight: 500; color: var(--ink-soft); background: transparent; border: 0; cursor: pointer; position: relative; font-family: var(--font-body); }
+      .tab[data-active='true'] { color: var(--ink); }
+      .tab[data-active='true']::after { content: ''; position: absolute; left: 14px; right: 14px; bottom: -1px; height: 2px; background: var(--ink-stamp); }
+      .topbar-spacer { flex: 1; }
+      .topbar-actions { display: flex; gap: 8px; padding-bottom: 10px; }
+      .icon-button { width: 30px; height: 30px; border-radius: 6px; background: transparent; border: 1px solid var(--rule); color: var(--ink-soft); display: grid; place-items: center; cursor: pointer; }
+      .button-primary { padding: 7px 14px; background: var(--ink); color: var(--paper-raised); border: 0; border-radius: 6px; font-family: var(--font-body); font-weight: 500; font-size: 13px; cursor: pointer; }
+
+      .page { padding: 24px 28px 40px; max-width: 1280px; }
+      .page-intro { font-family: var(--font-display); font-style: italic; font-size: 14px; color: var(--ink-soft); margin: 0 0 28px; }
+
+      .folders { display: flex; flex-direction: column; gap: 32px; }
+
+      /* Parent folder = chapter */
+      .folder { display: flex; flex-direction: column; }
+      .folder-head {
+        display: flex; align-items: baseline; gap: 12px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--rule);
+        margin-bottom: 18px;
+      }
+      .folder-glyph {
+        font-family: var(--font-display); font-style: italic;
+        font-size: 22px; font-weight: 500; color: var(--ink-soft);
+        margin-right: 2px;
+      }
+      .folder-name {
+        font-family: var(--font-display);
+        font-size: 22px; font-weight: 500;
+        margin: 0;
+      }
+      .folder-count {
+        font-family: var(--font-mono); font-size: 11px;
+        color: var(--ink-dim);
+      }
+      .folder-spacer { flex: 1; }
+      .folder-add {
+        font-family: var(--font-body); font-size: 12px;
+        color: var(--ink-soft);
+        background: transparent;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        padding: 4px 10px;
+        cursor: pointer;
+      }
+      .folder-add:hover { color: var(--ink); border-color: var(--ink-stamp); }
+
+      /* Drop-target state on folder */
+      .folder[data-drop-active='true'] .folder-head {
+        border-bottom: 1.5px dashed var(--ink-stamp);
+      }
+      .folder[data-drop-active='true'] .folder-body {
+        background: var(--paper-deep);
+        border-radius: 6px;
+        padding: 8px;
+        margin: -8px;
+      }
+
+      /* Subfolders row inside a folder */
+      .subfolders {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+      }
+
+      /* Single subfolder = sub-section with a hairline rule */
+      .subfolder { display: flex; flex-direction: column; }
+      .subfolder-head {
+        display: flex; align-items: center; gap: 8px;
+        padding-bottom: 4px;
+        border-bottom: 1px dashed var(--rule);
+        margin-bottom: 10px;
+      }
+      .subfolder-kicker {
+        font-family: var(--font-mono); font-size: 10px;
+        letter-spacing: 0.1em; text-transform: uppercase;
+        color: var(--ink-dim);
+      }
+      .subfolder-name {
+        font-family: var(--font-display);
+        font-size: 16px; font-weight: 500;
+        margin: 0;
+      }
+      .subfolder-count {
+        font-family: var(--font-mono); font-size: 10px;
+        color: var(--ink-dim);
+        margin-left: auto;
+      }
+
+      .subfolder[data-drop-active='true'] .subfolder-head {
+        border-bottom-color: var(--ink-stamp);
+        border-bottom-style: solid;
+        border-bottom-width: 1.5px;
+      }
+
+      /* "Add subfolder" stub (last cell) */
+      .subfolder-add {
+        display: grid; place-items: center;
+        min-height: 100px;
+        border: 1px dashed var(--rule);
+        border-radius: 6px;
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: 13px;
+        color: var(--ink-dim);
+        cursor: pointer;
+        transition: color 180ms cubic-bezier(0.22, 1, 0.36, 1), border-color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .subfolder-add:hover {
+        color: var(--ink);
+        border-color: var(--ink-stamp);
+      }
+
+      .subfolder-body { display: flex; flex-direction: column; gap: 10px; }
+      .folder-body-direct { display: flex; flex-direction: column; gap: 10px; }
+
+      .card { background: var(--paper-raised); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1); }
+      .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+      .card-kicker { font-family: var(--font-mono); font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--idea-warm); }
+      .card-title { font-family: var(--font-body); font-size: 14px; font-weight: 600; line-height: 1.3; }
+      .card-host { font-family: var(--font-mono); font-size: 11px; color: var(--ink-dim); }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark"></span><span class="brand-name">Cortex</span></div>
+      <nav class="tabs">
+        <button class="tab">Priority</button>
+        <button class="tab" data-active="true">Category</button>
+        <button class="tab">Completed</button>
+        <button class="tab">Spaces</button>
+        <button class="tab">Archive</button>
+      </nav>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-actions">
+        <button class="icon-button">⌕</button>
+        <button class="icon-button">⚙</button>
+        <button class="button-primary">+ Add</button>
+      </div>
+    </header>
+
+    <main class="page">
+      <p class="page-intro">Categories are your shelves. Drag a card onto a folder to file it; into a subfolder to file it deeper.</p>
+
+      <div class="folders">
+
+        <!-- GitHub: parent with two subfolders -->
+        <section class="folder" data-drop-active="false">
+          <header class="folder-head">
+            <span class="folder-glyph">¶</span>
+            <h2 class="folder-name">GitHub</h2>
+            <span class="folder-count">12 items · 2 subfolders</span>
+            <span class="folder-spacer"></span>
+            <button class="folder-add">+ subfolder</button>
+          </header>
+
+          <div class="subfolders">
+            <section class="subfolder" data-drop-active="true">
+              <header class="subfolder-head">
+                <span class="subfolder-kicker">01</span>
+                <h3 class="subfolder-name">Codex</h3>
+                <span class="subfolder-count">5 items</span>
+              </header>
+              <div class="subfolder-body">
+                <article class="card">
+                  <div class="card-title">openai/codex — README</div>
+                  <div class="card-host">github.com</div>
+                </article>
+                <article class="card">
+                  <div class="card-title">codex / agent SDK examples</div>
+                  <div class="card-host">github.com</div>
+                </article>
+                <article class="card">
+                  <div class="card-title">codex prompt templates</div>
+                  <div class="card-host">github.com</div>
+                </article>
+              </div>
+            </section>
+
+            <section class="subfolder">
+              <header class="subfolder-head">
+                <span class="subfolder-kicker">02</span>
+                <h3 class="subfolder-name">Claude</h3>
+                <span class="subfolder-count">7 items</span>
+              </header>
+              <div class="subfolder-body">
+                <article class="card">
+                  <div class="card-title">anthropic/claude-code</div>
+                  <div class="card-host">github.com</div>
+                </article>
+                <article class="card">
+                  <div class="card-title">claude-mem plugin</div>
+                  <div class="card-host">github.com</div>
+                </article>
+                <article class="card">
+                  <div class="card-title">superpowers — skill catalog</div>
+                  <div class="card-host">github.com</div>
+                </article>
+              </div>
+            </section>
+
+            <button class="subfolder-add">+ new subfolder</button>
+          </div>
+        </section>
+
+        <!-- Reading: flat folder, no subfolders, items live directly -->
+        <section class="folder">
+          <header class="folder-head">
+            <span class="folder-glyph">¶</span>
+            <h2 class="folder-name">Reading</h2>
+            <span class="folder-count">3 items</span>
+            <span class="folder-spacer"></span>
+            <button class="folder-add">+ subfolder</button>
+          </header>
+          <div class="folder-body-direct">
+            <article class="card">
+              <div class="card-title">A pattern language — Christopher Alexander</div>
+              <div class="card-host">en.wikipedia.org</div>
+            </article>
+            <article class="card">
+              <div class="card-title">Why are buildings ugly</div>
+              <div class="card-host">aeon.co</div>
+            </article>
+            <article class="card">
+              <div class="card-title">The making of Prince of Persia</div>
+              <div class="card-host">jordanmechner.com</div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Design: parent with one subfolder + direct items -->
+        <section class="folder">
+          <header class="folder-head">
+            <span class="folder-glyph">¶</span>
+            <h2 class="folder-name">Design</h2>
+            <span class="folder-count">4 items · 1 subfolder</span>
+            <span class="folder-spacer"></span>
+            <button class="folder-add">+ subfolder</button>
+          </header>
+
+          <div class="subfolders">
+            <section class="subfolder">
+              <header class="subfolder-head">
+                <span class="subfolder-kicker">↳</span>
+                <h3 class="subfolder-name">Direct in Design</h3>
+                <span class="subfolder-count">2 items</span>
+              </header>
+              <div class="subfolder-body">
+                <article class="card">
+                  <div class="card-title">Refactoring UI — book</div>
+                  <div class="card-host">refactoringui.com</div>
+                </article>
+                <article class="card">
+                  <div class="card-title">Inter font specimen</div>
+                  <div class="card-host">rsms.me</div>
+                </article>
+              </div>
+            </section>
+
+            <section class="subfolder">
+              <header class="subfolder-head">
+                <span class="subfolder-kicker">01</span>
+                <h3 class="subfolder-name">Typography</h3>
+                <span class="subfolder-count">2 items</span>
+              </header>
+              <div class="subfolder-body">
+                <article class="card">
+                  <div class="card-title">Fraunces — variable font playground</div>
+                  <div class="card-host">fonts.google.com</div>
+                </article>
+                <article class="card">
+                  <div class="card-title">JetBrains Mono — ligatures</div>
+                  <div class="card-host">jetbrains.com</div>
+                </article>
+              </div>
+            </section>
+
+            <button class="subfolder-add">+ new subfolder</button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </body>
+</html>

@@ -68,6 +68,16 @@ These were already discussed and agreed on during design. Not fully specced yet 
 
 ---
 
+### Phase 6: Replace Railway Webhook with Direct Telegram Polling
+
+**What:** Remove the hosted Railway webhook and let the Electron app poll Telegram directly using the Bot API.
+**Why:** Railway is not a forever-free dependency, so long-term the Telegram capture path should work without paid hosting.
+**How I imagine it:** Keep the current bot commands (`/today`, `/now`, `/remind`) but fetch updates from Telegram on an interval inside the desktop app and write them straight to SQLite.
+**Priority:** High
+**Notes:** This trades off always-on webhook delivery for zero hosting cost. Good fallback if the Railway trial ends or if hosted deployment becomes annoying.
+
+---
+
 ## Ideas to Explore
 
 Add your new ideas below this line. No format required — anything from a one-liner to a paragraph.
@@ -75,4 +85,3 @@ Add your new ideas below this line. No format required — anything from a one-l
 ---
 
 <!-- Add new ideas below here -->
-

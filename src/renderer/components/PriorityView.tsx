@@ -3,7 +3,6 @@ import {
   BOARD_PRIORITIES,
   FIXED_BUCKET_TAGS,
   getFixedBucketTag,
-  PRIORITY_COLORS,
   PRIORITY_LABELS,
   normalizePriority,
   type BoardPriority,
@@ -75,6 +74,7 @@ export function PriorityView({
   onDelete,
   onComplete
 }: Props) {
+  const [expandedBucket, setExpandedBucket] = useState<FixedBucketTag | null>(null)
   const [dragSource, setDragSource] = useState<Item | null>(null)
   const [dropPriority, setDropPriority] = useState<BoardPriority | null>(null)
   const [dropBucket, setDropBucket] = useState<FixedBucketTag | null>(null)
@@ -118,15 +118,19 @@ export function PriorityView({
   return (
     <div className="board-scroll">
       <div className="priority-board">
-        <section className="landing-buckets">
+        <section className="buckets-bar" aria-label="Recurring buckets">
+          <span className="buckets-bar-label">Drop into</span>
           {FIXED_BUCKET_TAGS.map((tag) => {
             const bucketItems = sortedItems.filter((item) => getFixedBucketTag(item.tags) === tag)
+            const isExpanded = expandedBucket === tag
 
             return (
-              <section
+              <div
                 key={tag}
-                className="landing-bucket"
+                className="bucket-pill"
                 data-drop-active={dropBucket === tag}
+                data-expanded={isExpanded}
+                onClick={() => setExpandedBucket(isExpanded ? null : tag)}
                 onDragOver={(event) => {
                   event.preventDefault()
                   setDropPriority(null)
@@ -142,33 +146,33 @@ export function PriorityView({
                   await handleBucketDrop(tag)
                 }}
               >
-                <header className="column-header">
-                  <span className="column-title">{tag}</span>
-                  {bucketItems.length > 0 ? <span className="column-count">{bucketItems.length}</span> : null}
-                </header>
-
-                <div className="landing-bucket-body">
-                  {bucketItems.length === 0 ? (
-                    <div className="empty-state">Nothing here</div>
-                  ) : (
-                    bucketItems.map((item) => (
-                      <div key={`${tag}-${item.id}`}>
-                        {renderCard(item, onCardClick, {
-                          draggable: true,
-                          onDragStart: () => setDragSource(item),
-                          onDragEnd: clearDragState,
-                          onDelete: (target) => {
-                            void onDelete(target)
-                          },
-                          onComplete: (target) => {
-                            void onComplete(target)
-                          }
-                        })}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </section>
+                <span className="bucket-glyph">{tag.charAt(0)}</span>
+                <span className="bucket-name">{tag}</span>
+                <span className="bucket-count">{bucketItems.length}</span>
+                {isExpanded ? (
+                  <div className="bucket-body" onClick={(event) => event.stopPropagation()}>
+                    {bucketItems.length === 0 ? (
+                      <div className="empty-state">Nothing here</div>
+                    ) : (
+                      bucketItems.map((item) => (
+                        <div key={`${tag}-${item.id}`}>
+                          {renderCard(item, onCardClick, {
+                            draggable: true,
+                            onDragStart: () => setDragSource(item),
+                            onDragEnd: clearDragState,
+                            onDelete: (target) => {
+                              void onDelete(target)
+                            },
+                            onComplete: (target) => {
+                              void onComplete(target)
+                            }
+                          })}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                ) : null}
+              </div>
             )
           })}
         </section>
@@ -185,6 +189,7 @@ export function PriorityView({
                 key={priority}
                 id={`priority-column-${priority}`}
                 className="board-column"
+                data-hero={priority === 'today'}
                 data-drop-active={dropPriority === priority}
                 onDragOver={(event) => {
                   event.preventDefault()
@@ -201,11 +206,15 @@ export function PriorityView({
                   await handlePriorityDrop(priority)
                 }}
               >
-                <header className="column-header">
-                  <span className="column-bar" style={{ background: PRIORITY_COLORS[priority] }} />
-                  <span className="column-title">{PRIORITY_LABELS[priority]}</span>
-                  {columnItems.length > 0 ? <span className="column-count">{columnItems.length}</span> : null}
+                <header className="lane-head">
+                  <h3 className={`lane-title ${priority === 'today' ? 'lane-title-hero' : 'lane-title-small'}`}>
+                    {PRIORITY_LABELS[priority]}
+                  </h3>
+                  <span className={`lane-meta lane-meta-${priority}`}>
+                    {String(columnItems.length).padStart(2, '0')} {columnItems.length === 1 ? 'ITEM' : 'ITEMS'}
+                  </span>
                 </header>
+                <div className="lane-rule" />
 
                 <div className="column-body">
                   {isSomeday && staleSomeday.length > 0 ? (

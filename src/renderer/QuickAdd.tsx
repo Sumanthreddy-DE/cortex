@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { BOARD_PRIORITIES, PRIORITY_LABELS } from '../shared/constants'
+import { getDomainTag } from '../shared/domain-rules'
+import { TagAutocomplete } from './components/TagAutocomplete'
 import { api, Space } from './lib/api'
 
 function isUrl(value: string) {
@@ -28,6 +30,7 @@ export function QuickAdd() {
   const [priority, setPriority] = useState<(typeof BOARD_PRIORITIES)[number]>('inbox')
   const [tags, setTags] = useState('')
   const [expanded, setExpanded] = useState(false)
+  const [existingTags, setExistingTags] = useState<string[]>([])
   const [spaces, setSpaces] = useState<Space[]>([])
   const [selectedSpaces, setSelectedSpaces] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -40,6 +43,7 @@ export function QuickAdd() {
     inputRef.current?.focus()
     inputRef.current?.select()
     void api.getSpaces().then(setSpaces).catch(() => setSpaces([]))
+    void api.getTags().then(setExistingTags).catch(() => setExistingTags([]))
 
     return () => {
       document.body.classList.remove('quick-add-body')
@@ -125,8 +129,17 @@ export function QuickAdd() {
             className="quick-add-main-input"
             value={value}
             onChange={(event) => {
-              setValue(event.target.value)
+              const nextValue = event.target.value
+              setValue(nextValue)
               setError(null)
+
+              if (isUrl(nextValue.trim()) && !tags.trim()) {
+                const domainTag = getDomainTag(nextValue.trim())
+                if (domainTag) {
+                  setTags(domainTag)
+                  setExpanded(true)
+                }
+              }
             }}
             placeholder="Type a note or paste a link..."
           />
@@ -152,11 +165,12 @@ export function QuickAdd() {
 
         {expanded ? (
           <div className="quick-add-expanded">
-            <input
-              className="text-input"
+            <TagAutocomplete
               value={tags}
-              onChange={(event) => setTags(event.target.value)}
-              placeholder="Tags (comma-separated, e.g. GitHub/Codex, AI)"
+              onChange={setTags}
+              existingTags={existingTags}
+              placeholder="Tags - type # to search (comma-separated)"
+              className="text-input"
             />
 
             {spaces.length > 0 ? (

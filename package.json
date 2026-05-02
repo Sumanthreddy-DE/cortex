@@ -2,26 +2,30 @@
   "name": "cortex",
   "version": "0.1.0",
   "private": true,
+  "productName": "Cortex",
   "description": "Local-first desktop command center for links, ideas, and notes.",
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {
-    "dev": "electron-vite dev",
+    "native:node": "npm rebuild better-sqlite3",
+    "native:electron": "electron-rebuild -f -w better-sqlite3",
+    "dev": "npm run native:electron && electron-vite dev",
     "build": "electron-vite build",
+    "pack:win": "npm run build && electron-builder --win --dir",
+    "dist:win": "npm run build && electron-builder --win nsis",
+    "dist:win:portable": "npm run build && electron-builder --win portable",
     "preview": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
-    "test:unit": "vitest run tests/unit",
-    "test:integration": "vitest run tests/integration",
+    "test:unit": "npm run native:node && vitest run tests/unit",
+    "test:integration": "npm run native:node && vitest run tests/integration",
     "test:e2e": "playwright test",
     "test": "npm run test:unit && npm run test:integration"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.53.0",
-    "better-sqlite3": "^11.9.1",
+    "better-sqlite3": "^11.10.0",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
-    "electron": "^37.2.0",
-    "electron-vite": "^3.1.0",
     "express": "^4.21.2",
     "lucide-react": "^0.511.0",
     "nanoid": "^5.1.5",
@@ -30,6 +34,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.0.4",
     "@playwright/test": "^1.54.1",
     "@types/better-sqlite3": "^7.6.12",
     "@types/cors": "^2.8.17",
@@ -39,10 +44,49 @@
     "@types/react-dom": "^18.3.0",
     "@types/supertest": "^6.0.3",
     "@vitejs/plugin-react": "^4.6.0",
+    "electron": "^37.2.0",
+    "electron-builder": "^26.8.1",
+    "electron-vite": "^3.1.0",
     "jsdom": "^26.1.0",
     "supertest": "^7.1.1",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"
+  },
+  "build": {
+    "appId": "com.suman.cortex",
+    "productName": "Cortex",
+    "directories": {
+      "output": "dist",
+      "buildResources": "resources"
+    },
+    "files": [
+      "out/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "asarUnpack": [
+      "**/*.node"
+    ],
+    "win": {
+      "signAndEditExecutable": false,
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "${productName}-Setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable.${ext}"
+    }
   }
 }

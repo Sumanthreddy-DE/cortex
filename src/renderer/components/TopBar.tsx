@@ -1,4 +1,4 @@
-import { Archive, Boxes, CheckCircle2, LayoutGrid, ListFilter, Plus, Search, Settings } from 'lucide-react'
+import { Plus, Search, Settings } from 'lucide-react'
 import { useState } from 'react'
 import type { View } from '../../shared/constants'
 
@@ -27,51 +27,24 @@ export function TopBar({
   return (
     <header className="topbar">
       <div className="brand-lockup">
-        <div className="brand-mark" />
-        <div className="brand-copy">
-          <div className="brand-title">Cortex</div>
-        </div>
+        <span className="brand-mark" />
+        <span className="brand-name">Cortex</span>
       </div>
 
       <div className="segmented" role="tablist" aria-label="View switcher">
-        <button
-          type="button"
-          data-active={view === 'priority'}
-          onClick={() => onViewChange('priority')}
-        >
-          <ListFilter size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+        <button type="button" data-active={view === 'priority'} onClick={() => onViewChange('priority')}>
           Priority
         </button>
-        <button
-          type="button"
-          data-active={view === 'category'}
-          onClick={() => onViewChange('category')}
-        >
-          <LayoutGrid size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+        <button type="button" data-active={view === 'category'} onClick={() => onViewChange('category')}>
           Category
         </button>
-        <button
-          type="button"
-          data-active={view === 'completed'}
-          onClick={() => onViewChange('completed')}
-        >
-          <CheckCircle2 size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+        <button type="button" data-active={view === 'completed'} onClick={() => onViewChange('completed')}>
           Completed
         </button>
-        <button
-          type="button"
-          data-active={view === 'spaces'}
-          onClick={() => onViewChange('spaces')}
-        >
-          <Boxes size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+        <button type="button" data-active={view === 'spaces'} onClick={() => onViewChange('spaces')}>
           Spaces
         </button>
-        <button
-          type="button"
-          data-active={view === 'archive'}
-          onClick={() => onViewChange('archive')}
-        >
-          <Archive size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+        <button type="button" data-active={view === 'archive'} onClick={() => onViewChange('archive')}>
           Archive
         </button>
       </div>

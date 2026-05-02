@@ -67,7 +67,6 @@ export default function App() {
     error,
     create,
     update,
-    appendNote,
     archive,
     deletePermanently,
     restore,
@@ -251,10 +250,8 @@ export default function App() {
           items={items}
           onTagChange={handleTagChange}
           onComplete={handleComplete}
-          onAppendNote={async (item, content) => {
-            await appendNote(item.id, content)
-          }}
           onCardClick={handleCardClick}
+          onCreate={create}
         />
       ) : view === 'completed' ? (
         <CompletedView

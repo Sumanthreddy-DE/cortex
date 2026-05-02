@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react'
-import { RotateCcw } from 'lucide-react'
+import { RotateCcw, Trash2 } from 'lucide-react'
+import { PRIORITY_LABELS } from '../../shared/constants'
 import { api, Item } from '../lib/api'
 
 interface Props {
   onRestore: (id: string) => Promise<void>
+  onDelete: (id: string) => Promise<void>
 }
 
 function formatTimestamp(timestamp: number) {
   return new Date(timestamp).toLocaleString()
 }
 
-export function ArchiveView({ onRestore }: Props) {
+export function ArchiveView({ onRestore, onDelete }: Props) {
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -36,7 +38,7 @@ export function ArchiveView({ onRestore }: Props) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div className="card-title">{item.title}</div>
                 <div className="card-meta">
-                  Archived {formatTimestamp(item.updated_at)} - {item.priority}
+                  Archived {formatTimestamp(item.updated_at)} - {PRIORITY_LABELS[item.priority]}
                 </div>
                 {item.note ? <div className="card-note">{item.note}</div> : null}
                 {item.tags.length > 0 ? (
@@ -50,7 +52,7 @@ export function ArchiveView({ onRestore }: Props) {
                 ) : null}
               </div>
 
-              <div>
+              <div className="archive-actions">
                 <button
                   type="button"
                   className="button-secondary"
@@ -61,6 +63,21 @@ export function ArchiveView({ onRestore }: Props) {
                 >
                   <RotateCcw size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
                   Restore
+                </button>
+                <button
+                  type="button"
+                  className="button-danger"
+                  onClick={async () => {
+                    if (!window.confirm(`Delete "${item.title}" permanently?`)) {
+                      return
+                    }
+
+                    await onDelete(item.id)
+                    setItems((current) => current.filter((entry) => entry.id !== item.id))
+                  }}
+                >
+                  <Trash2 size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+                  Delete Forever
                 </button>
               </div>
             </article>

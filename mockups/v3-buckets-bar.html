@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Cortex v3 — Buckets bar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f7f1e6;
+        --paper-raised: #fcf8f0;
+        --paper-deep: #ede5d3;
+        --ink: #2a241d;
+        --ink-soft: #6c5e4e;
+        --ink-dim: #9b8d7d;
+        --rule: #d8cdb9;
+        --ink-stamp: #3d4691;
+        --teal: #3a8c91;
+        --butter: #c9a23a;
+        --sage: #6b8c5d;
+        --violet-slate: #7c7393;
+        --idea-warm: #e89066;
+        --inbox: #8a7d6a;
+        --shadow-card: 0 8px 20px rgba(42, 36, 29, 0.08);
+        --font-display: 'Fraunces', Georgia, serif;
+        --font-body: 'Inter', system-ui, sans-serif;
+        --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.4; }
+
+      .topbar { display: flex; align-items: center; gap: 24px; padding: 14px 28px 0; border-bottom: 1px solid var(--rule); background: var(--paper-raised); }
+      .brand { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; }
+      .brand-mark { width: 14px; height: 14px; background: var(--ink-stamp); border-radius: 2px; }
+      .brand-name { font-family: var(--font-display); font-size: 16px; font-weight: 500; }
+      .tabs { display: flex; gap: 4px; }
+      .tab { padding: 12px 14px 10px; font-size: 13px; font-weight: 500; color: var(--ink-soft); background: transparent; border: 0; cursor: pointer; position: relative; font-family: var(--font-body); }
+      .tab[data-active='true'] { color: var(--ink); }
+      .tab[data-active='true']::after { content: ''; position: absolute; left: 14px; right: 14px; bottom: -1px; height: 2px; background: var(--ink-stamp); }
+      .topbar-spacer { flex: 1; }
+      .topbar-actions { display: flex; gap: 8px; padding-bottom: 10px; }
+      .icon-button { width: 30px; height: 30px; border-radius: 6px; background: transparent; border: 1px solid var(--rule); color: var(--ink-soft); display: grid; place-items: center; cursor: pointer; }
+      .button-primary { padding: 7px 14px; background: var(--ink); color: var(--paper-raised); border: 0; border-radius: 6px; font-family: var(--font-body); font-weight: 500; font-size: 13px; cursor: pointer; }
+
+      .page { padding: 22px 28px 40px; display: flex; flex-direction: column; gap: 26px; }
+
+      /* Buckets bar — drop targets */
+      .buckets-bar {
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+      }
+      .buckets-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-dim);
+        align-self: center;
+        padding-right: 4px;
+      }
+      .bucket-pill {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        background: var(--paper-raised);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: border-color 180ms cubic-bezier(0.22, 1, 0.36, 1), background 180ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .bucket-pill:hover { border-color: var(--ink-stamp); }
+      .bucket-pill[data-drop-active='true'] { border: 1.5px dashed var(--ink-stamp); background: var(--paper-deep); }
+      .bucket-glyph {
+        width: 22px; height: 22px;
+        display: grid; place-items: center;
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: 14px;
+        color: var(--ink-soft);
+      }
+      .bucket-name {
+        font-family: var(--font-display);
+        font-size: 15px;
+        font-weight: 500;
+      }
+      .bucket-count {
+        margin-left: auto;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--ink-dim);
+        background: var(--paper-deep);
+        padding: 2px 8px;
+        border-radius: 999px;
+      }
+      .bucket-pill[data-expanded='true'] {
+        flex-basis: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        background: var(--paper-raised);
+        gap: 12px;
+      }
+
+      /* Drop hint shown on the active drop pill */
+      .drop-hint {
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: 12px;
+        color: var(--ink-stamp);
+      }
+
+      /* Lanes */
+      .lanes { display: grid; grid-template-columns: 240px 360px 240px 240px 240px; gap: 24px; align-items: start; }
+      .lane-head { margin-bottom: 14px; }
+      .lane-title-small { font-family: var(--font-body); font-size: 13px; font-weight: 600; margin: 0 0 4px; }
+      .lane-title-hero { font-family: var(--font-display); font-size: 28px; font-weight: 500; letter-spacing: -0.01em; line-height: 1; margin: 0 0 6px; }
+      .lane-meta { font-family: var(--font-mono); font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; }
+      .lane-rule { height: 1px; background: var(--rule); margin-bottom: 14px; }
+      .lane-body { display: flex; flex-direction: column; gap: 12px; }
+
+      .card { background: var(--paper-raised); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1); }
+      .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+      .card-kicker { font-family: var(--font-mono); font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; }
+      .card-title { font-family: var(--font-body); font-size: 14px; font-weight: 600; line-height: 1.3; }
+      .card-host { font-family: var(--font-mono); font-size: 11px; color: var(--ink-dim); }
+      .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+      .tag { font-family: var(--font-mono); font-size: 10px; color: var(--ink-soft); background: var(--paper-deep); padding: 2px 6px; border-radius: 3px; }
+      .empty-lane { font-family: var(--font-display); font-style: italic; font-size: 13px; color: var(--ink-dim); padding: 8px 0; }
+
+      .k-idea { color: var(--idea-warm); }
+      .k-inbox { color: var(--inbox); }
+      .k-today { color: var(--teal); }
+      .k-tomorrow { color: var(--butter); }
+      .k-week { color: var(--sage); }
+      .k-someday { color: var(--violet-slate); }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark"></span><span class="brand-name">Cortex</span></div>
+      <nav class="tabs">
+        <button class="tab" data-active="true">Priority</button>
+        <button class="tab">Category</button>
+        <button class="tab">Completed</button>
+        <button class="tab">Spaces</button>
+        <button class="tab">Archive</button>
+      </nav>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-actions">
+        <button class="icon-button">⌕</button>
+        <button class="icon-button">⚙</button>
+        <button class="button-primary">+ Add</button>
+      </div>
+    </header>
+
+    <main class="page">
+      <!-- Buckets bar — compact, drop targets, drag here from any lane -->
+      <section class="buckets-bar" aria-label="Recurring buckets">
+        <span class="buckets-label">Drop into</span>
+        <div class="bucket-pill" data-drop-active="true">
+          <span class="bucket-glyph">D</span>
+          <span class="bucket-name">Daily</span>
+          <span class="drop-hint">drop to add</span>
+          <span class="bucket-count">02</span>
+        </div>
+        <div class="bucket-pill">
+          <span class="bucket-glyph">G</span>
+          <span class="bucket-name">Groceries</span>
+          <span class="bucket-count">03</span>
+        </div>
+        <div class="bucket-pill">
+          <span class="bucket-glyph">T</span>
+          <span class="bucket-name">Tools</span>
+          <span class="bucket-count">02</span>
+        </div>
+      </section>
+
+      <!-- 5 priority lanes, Today as hero -->
+      <section class="lanes">
+        <section>
+          <header class="lane-head">
+            <h3 class="lane-title-small">Inbox</h3>
+            <span class="lane-meta k-inbox">02 ITEMS</span>
+          </header>
+          <div class="lane-rule"></div>
+          <div class="lane-body">
+            <article class="card"><div class="card-title">A pattern language — Christopher Alexander</div><div class="card-host">en.wikipedia.org</div></article>
+            <article class="card"><div class="card-title">Why are buildings ugly</div><div class="card-host">aeon.co</div></article>
+          </div>
+        </section>
+
+        <section>
+          <header class="lane-head">
+            <h3 class="lane-title-hero">Today</h3>
+            <span class="lane-meta k-today">04 ITEMS</span>
+          </header>
+          <div class="lane-rule"></div>
+          <div class="lane-body">
+            <article class="card">
+              <div class="card-title">Finish: notebook redesign mockup</div>
+              <div class="card-host">cortex.local</div>
+              <div class="card-tags"><span class="tag">design</span><span class="tag">cortex</span></div>
+            </article>
+            <article class="card">
+              <div class="card-kicker k-idea">IDEA</div>
+              <div class="card-title">Lane color = info, not decoration. Move stripe to mono kicker.</div>
+            </article>
+            <article class="card"><div class="card-title">Reply: Anna re. Friday plans</div></article>
+            <article class="card"><div class="card-title">Pick up package — DHL locker</div></article>
+          </div>
+        </section>
+
+        <section>
+          <header class="lane-head">
+            <h3 class="lane-title-small">Tomorrow</h3>
+            <span class="lane-meta k-tomorrow">02 ITEMS</span>
+          </header>
+          <div class="lane-rule"></div>
+          <div class="lane-body">
+            <article class="card"><div class="card-title">Standup demo: Cortex notebook tabs</div></article>
+            <article class="card"><div class="card-title">Dentist — 14:30</div></article>
+          </div>
+        </section>
+
+        <section>
+          <header class="lane-head">
+            <h3 class="lane-title-small">This week</h3>
+            <span class="lane-meta k-week">02 ITEMS</span>
+          </header>
+          <div class="lane-rule"></div>
+          <div class="lane-body">
+            <article class="card"><div class="card-title">Refactor: drop mouse-tracking glow on cards</div><div class="card-host">github.com</div></article>
+            <article class="card"><div class="card-title">Migrate :root tokens — phase 1 plan</div></article>
+          </div>
+        </section>
+
+        <section>
+          <header class="lane-head">
+            <h3 class="lane-title-small">Someday</h3>
+            <span class="lane-meta k-someday">01 ITEM</span>
+          </header>
+          <div class="lane-rule"></div>
+          <div class="lane-body">
+            <article class="card"><div class="card-title">Build a Hugo theme for old letters</div><div class="card-host">gohugo.io</div></article>
+            <div class="empty-lane">Nothing else here yet.</div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

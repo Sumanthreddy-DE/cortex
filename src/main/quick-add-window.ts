@@ -1,26 +1,44 @@
 import { BrowserWindow, ipcMain } from 'electron'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 let quickAddWindow: BrowserWindow | null = null
+const moduleDir = dirname(fileURLToPath(import.meta.url))
 
-function getQuickAddUrl(): string {
-  const rendererUrl = process.env.ELECTRON_RENDERER_URL
-  if (rendererUrl) {
-    return `${rendererUrl}/quick-add.html`
-  }
-
-  return join(__dirname, '../renderer/quick-add.html')
+interface OpenQuickAddWindowOptions {
+  value?: string
 }
 
-export function openQuickAddWindow(): void {
+function loadQuickAddWindow(
+  window: BrowserWindow,
+  { value = '' }: OpenQuickAddWindowOptions = {}
+): void {
+  const rendererUrl = process.env.ELECTRON_RENDERER_URL
+  const query = new URLSearchParams()
+  if (value) {
+    query.set('value', value)
+  }
+
+  if (rendererUrl) {
+    void window.loadURL(`${rendererUrl}/quick-add.html?${query.toString()}`)
+    return
+  }
+
+  void window.loadFile(join(moduleDir, '../renderer/quick-add.html'), {
+    search: `?${query.toString()}`
+  })
+}
+
+export function openQuickAddWindow(options: OpenQuickAddWindowOptions = {}): void {
   if (quickAddWindow && !quickAddWindow.isDestroyed()) {
+    loadQuickAddWindow(quickAddWindow, options)
     quickAddWindow.focus()
     return
   }
 
   quickAddWindow = new BrowserWindow({
-    width: 340,
-    height: 180,
+    width: 480,
+    height: 440,
     frame: false,
     resizable: false,
     transparent: false,
@@ -29,18 +47,13 @@ export function openQuickAddWindow(): void {
     show: false,
     backgroundColor: '#0f172a',
     webPreferences: {
-      preload: join(__dirname, '../preload/index.mjs'),
+      preload: join(moduleDir, '../preload/index.mjs'),
       contextIsolation: true,
       sandbox: false
     }
   })
 
-  const target = getQuickAddUrl()
-  if (process.env.ELECTRON_RENDERER_URL) {
-    void quickAddWindow.loadURL(target)
-  } else {
-    void quickAddWindow.loadFile(target)
-  }
+  loadQuickAddWindow(quickAddWindow, options)
 
   quickAddWindow.once('ready-to-show', () => {
     quickAddWindow?.show()

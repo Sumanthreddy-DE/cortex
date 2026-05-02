@@ -4,6 +4,7 @@ import cron from 'node-cron'
 import { BrowserWindow, app, clipboard, globalShortcut, ipcMain, shell } from 'electron'
 import { nanoid } from 'nanoid'
 import { MIDNIGHT_CRON, REMINDER_CHECK_CRON } from '../shared/constants'
+import { fetchAndUpdateLinkTitle } from './api/link-fetch'
 import { addToCalendar } from './calendar'
 import { fireMorningDigest, shouldFireDigest } from './cron/morning-digest'
 import { notifyMidnight, runMidnightPromotion } from './cron/midnight'
@@ -90,8 +91,16 @@ function registerIpcHandlers(): void {
       favicon_url: typeof payload?.favicon_url === 'string' ? payload.favicon_url : null,
       remind_at: typeof payload?.remind_at === 'number' ? payload.remind_at : null
     })
+    if (item.type === 'link' && item.url) {
+      void fetchAndUpdateLinkTitle(db, item.id, item.url)
+    }
     updateTrayCounts()
     return item
+  })
+
+  ipcMain.removeHandler('data:fetch-link-title')
+  ipcMain.handle('data:fetch-link-title', async (_event, id: string, url: string) => {
+    await fetchAndUpdateLinkTitle(getDb(), id, url)
   })
 
   ipcMain.removeHandler('data:update-item')
@@ -329,6 +338,27 @@ if (!hasSingleInstanceLock) {
   })
 
   createMainWindow()
+
+  // Backfill og:title for existing link items that still have raw URLs as titles
+  void (async () => {
+    const db = getDb()
+    const stale = db
+      .prepare(
+        `SELECT id, url FROM items
+         WHERE type = 'link' AND url IS NOT NULL
+           AND (title LIKE 'http://%' OR title LIKE 'https://%' OR title LIKE 'www.%')
+           AND archived = 0`
+      )
+      .all() as Array<{ id: string; url: string }>
+    if (stale.length > 0) {
+      console.log(`[link-fetch] Backfilling ${stale.length} item(s) with missing titles...`)
+      for (const row of stale) {
+        await fetchAndUpdateLinkTitle(db, row.id, row.url)
+      }
+      console.log('[link-fetch] Backfill complete')
+    }
+  })()
+
   stopTelegramPoller = startTelegramPoller(getDb(), (count) => {
     updateTrayCounts()
     console.log(`[telegram] ${count} new item(s) from Telegram`)

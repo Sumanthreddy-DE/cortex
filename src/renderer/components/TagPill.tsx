@@ -1,4 +1,4 @@
-import { parseTag, tagColor } from '../lib/utils'
+import { parseTag } from '../lib/utils'
 
 interface Props {
   tag: string
@@ -7,13 +7,9 @@ interface Props {
 
 export function TagPill({ tag, dim = false }: Props) {
   const { parent, child } = parseTag(tag)
-  const [background, color] = tagColor(parent)
 
   return (
-    <span
-      className={`tag-pill ${dim ? 'tag-pill-dim' : ''}`}
-      style={{ background, color }}
-    >
+    <span className={`tag-pill ${dim ? 'tag-pill-dim' : ''}`}>
       {child ? (
         <>
           <span className="tag-pill-parent">{parent}/</span>

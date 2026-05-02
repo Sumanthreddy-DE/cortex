@@ -34,7 +34,7 @@ describe('Cortex API', () => {
     expect(listResponse.body).toHaveLength(1)
   })
 
-  it('updates, archives, and restores an item', async () => {
+  it('updates, archives, restores, and permanently deletes an item', async () => {
     const createResponse = await request(app).post('/api/items').send({
       type: 'idea',
       title: 'Ship Cortex',
@@ -54,7 +54,15 @@ describe('Cortex API', () => {
     expect(patchResponse.status).toBe(200)
     expect(patchResponse.body.tags).toEqual(['Roadmap', 'Focus'])
 
-    const archiveResponse = await request(app).delete(`/api/items/${id}`)
+    const appendResponse = await request(app).post(`/api/items/${id}/notes`).send({
+      content: 'Add the onboarding checklist next'
+    })
+
+    expect(appendResponse.status).toBe(201)
+    expect(appendResponse.body.note_entries).toHaveLength(2)
+    expect(appendResponse.body.note_entries[1].content).toContain('onboarding checklist')
+
+    const archiveResponse = await request(app).post(`/api/items/${id}/archive`)
     expect(archiveResponse.status).toBe(204)
 
     const archived = await request(app).get('/api/items/archived')
@@ -65,6 +73,12 @@ describe('Cortex API', () => {
 
     const restored = await request(app).get('/api/items')
     expect(restored.body).toHaveLength(1)
+
+    const deleteResponse = await request(app).delete(`/api/items/${id}`)
+    expect(deleteResponse.status).toBe(204)
+
+    const afterDelete = await request(app).get('/api/items')
+    expect(afterDelete.body).toHaveLength(0)
   })
 
   it('supports prefix search and tag lookup', async () => {

@@ -295,6 +295,11 @@ export function getDistinctTags(db: Database.Database): string[] {
   return rows.map((row) => row.tag)
 }
 
+export function updateItemTitle(db: Database.Database, id: string, title: string): void {
+  db.prepare('UPDATE items SET title = ?, updated_at = ? WHERE id = ?')
+    .run(title.slice(0, 200), Date.now(), id)
+}
+
 export function createItem(db: Database.Database, input: ItemMutationInput): Item {
   const now = Date.now()
   const tags = normalizeTags(db, input.tags)

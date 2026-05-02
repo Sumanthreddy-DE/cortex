@@ -19,7 +19,7 @@ const TRAY_ICON_BASE64 =
 function buildMenu(options: CreateTrayOptions): Menu {
   return Menu.buildFromTemplate([
     { label: 'Show App', click: options.showMainWindow },
-    { label: 'Quick Add', click: options.openQuickAdd },
+    { label: 'Quick Capture', click: options.openQuickAdd },
     { type: 'separator' },
     { label: 'Quit', click: options.quit }
   ])

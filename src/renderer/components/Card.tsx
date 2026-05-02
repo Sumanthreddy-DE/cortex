@@ -1,6 +1,5 @@
-import type { CSSProperties, DragEventHandler, MouseEvent } from 'react'
+import type { DragEventHandler } from 'react'
 import { Check, X } from 'lucide-react'
-import { PRIORITY_COLORS } from '../../shared/constants'
 import type { Item } from '../lib/api'
 import TagPill from './TagPill'
 
@@ -40,30 +39,10 @@ export function Card({
   const hostname = getHostname(item.url)
   const letter = (hostname[0] ?? item.title[0] ?? '?').toUpperCase()
 
-  const cardStyle = {
-    '--mouse-x': '50%',
-    '--mouse-y': '50%'
-  } as CSSProperties
-
-  function handleMouseMove(event: MouseEvent<HTMLButtonElement>) {
-    const bounds = event.currentTarget.getBoundingClientRect()
-    const x = ((event.clientX - bounds.left) / bounds.width) * 100
-    const y = ((event.clientY - bounds.top) / bounds.height) * 100
-
-    event.currentTarget.style.setProperty('--mouse-x', `${x.toFixed(1)}%`)
-    event.currentTarget.style.setProperty('--mouse-y', `${y.toFixed(1)}%`)
-  }
-
   return (
     <button
       type="button"
       className="card-shell cortex-card"
-      style={{
-        ...cardStyle,
-        textAlign: 'left',
-        borderLeft: `2px solid ${PRIORITY_COLORS[item.priority] ?? '#6b7280'}`
-      }}
-      onMouseMove={handleMouseMove}
       onClick={() => onClick(item)}
       draggable={draggable}
       onDragStart={(event) => {

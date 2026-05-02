@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { API_PORT } from '../../shared/constants'
 import { api, type Settings } from '../lib/api'
+import { hasAutoStartSupport } from '../lib/desktop'
 
 function formatMidnightRun(value: string): string {
   if (!value || value === '0') {
@@ -22,6 +23,7 @@ export function SettingsView() {
   const [saving, setSaving] = useState(false)
   const [savedMessage, setSavedMessage] = useState('')
   const [error, setError] = useState('')
+  const autoStartSupported = hasAutoStartSupport()
 
   useEffect(() => {
     void api
@@ -32,11 +34,15 @@ export function SettingsView() {
       })
       .catch(() => setError('Failed to load settings'))
 
+    if (!autoStartSupported) {
+      return
+    }
+
     void window.cortex.autostart
       .get()
       .then((enabled) => setAutoStart(enabled))
       .catch(() => setAutoStart(false))
-  }, [])
+  }, [autoStartSupported])
 
   async function handleSave() {
     setSaving(true)
@@ -56,6 +62,10 @@ export function SettingsView() {
   }
 
   async function handleAutoStartChange(enabled: boolean) {
+    if (!autoStartSupported) {
+      return
+    }
+
     setAutoStart(enabled)
     try {
       await window.cortex.autostart.set(enabled)
@@ -77,18 +87,22 @@ export function SettingsView() {
         <section className="settings-section">
           <h3 className="settings-heading">Startup</h3>
           {isWindows ? (
-            <label className="settings-row">
-              <span className="settings-label">
-                Launch at Windows login
-                <span className="settings-sublabel">Keep Cortex in the tray without opening it manually.</span>
-              </span>
-              <input
-                className="settings-checkbox"
-                type="checkbox"
-                checked={autoStart}
-                onChange={(event) => void handleAutoStartChange(event.target.checked)}
-              />
-            </label>
+            autoStartSupported ? (
+              <label className="settings-row">
+                <span className="settings-label">
+                  Launch at Windows login
+                  <span className="settings-sublabel">Keep Cortex in the tray without opening it manually.</span>
+                </span>
+                <input
+                  className="settings-checkbox"
+                  type="checkbox"
+                  checked={autoStart}
+                  onChange={(event) => void handleAutoStartChange(event.target.checked)}
+                />
+              </label>
+            ) : (
+              <p className="card-meta">Auto-start is available in the desktop app, not the browser preview.</p>
+            )
           ) : (
             <p className="card-meta">Auto-start is only supported on Windows.</p>
           )}
@@ -99,7 +113,7 @@ export function SettingsView() {
           <div className="settings-row">
             <label className="settings-label" htmlFor="digest-time">
               Morning digest time
-              <span className="settings-sublabel">Daily summary of your For Now and Today items.</span>
+              <span className="settings-sublabel">Daily summary of your Today items.</span>
             </label>
             <input
               id="digest-time"

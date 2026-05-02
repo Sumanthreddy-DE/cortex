@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { PRIORITY_LABELS } from '../../shared/constants'
 import type { Item } from '../lib/api'
 
 interface Props {
@@ -50,7 +51,7 @@ export function SearchResults({ query, results, loading, onCardClick }: Props) {
               {item.url ? <div className="card-meta">{highlight(item.url, query)}</div> : null}
               {item.note ? <div className="card-note">{highlight(item.note, query)}</div> : null}
               <div className="tag-row">
-                <span className="tag-pill">{item.priority}</span>
+                <span className="tag-pill">{PRIORITY_LABELS[item.priority]}</span>
                 {item.tags.map((tag) => (
                   <span key={tag} className="tag-pill">
                     {highlight(tag, query)}

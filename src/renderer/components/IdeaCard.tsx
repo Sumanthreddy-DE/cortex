@@ -1,6 +1,5 @@
-import type { CSSProperties, DragEventHandler, MouseEvent } from 'react'
-import { Check, PenLine, X } from 'lucide-react'
-import { PRIORITY_COLORS } from '../../shared/constants'
+import type { DragEventHandler } from 'react'
+import { Check, X } from 'lucide-react'
 import type { Item } from '../lib/api'
 import TagPill from './TagPill'
 
@@ -25,31 +24,10 @@ export function IdeaCard({
   onDelete,
   onComplete
 }: Props) {
-  const cardStyle = {
-    '--mouse-x': '50%',
-    '--mouse-y': '50%'
-  } as CSSProperties
-
-  function handleMouseMove(event: MouseEvent<HTMLButtonElement>) {
-    const bounds = event.currentTarget.getBoundingClientRect()
-    const x = ((event.clientX - bounds.left) / bounds.width) * 100
-    const y = ((event.clientY - bounds.top) / bounds.height) * 100
-
-    event.currentTarget.style.setProperty('--mouse-x', `${x.toFixed(1)}%`)
-    event.currentTarget.style.setProperty('--mouse-y', `${y.toFixed(1)}%`)
-  }
-
   return (
     <button
       type="button"
       className="card-shell cortex-card"
-      data-card-kind="idea"
-      style={{
-        ...cardStyle,
-        textAlign: 'left',
-        borderLeft: `2px solid ${PRIORITY_COLORS[item.priority] ?? '#f97316'}`
-      }}
-      onMouseMove={handleMouseMove}
       onClick={() => onClick(item)}
       draggable={draggable}
       onDragStart={(event) => {
@@ -88,19 +66,9 @@ export function IdeaCard({
         </span>
       ) : null}
 
-      <div className="card-header">
-        <div
-          className="favicon-stack"
-          aria-hidden="true"
-          style={{ display: 'grid', placeItems: 'center' }}
-        >
-          <div
-            className="favicon-fallback"
-            style={{ background: 'rgba(249, 115, 22, 0.12)', color: '#f97316' }}
-          >
-            <PenLine size={12} />
-          </div>
-        </div>
+      <div className="card-kicker idea">IDEA</div>
+
+      <div className="card-body">
         <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div className="card-title">{item.title}</div>
           {item.note ? <div className="card-note">{item.note}</div> : null}
