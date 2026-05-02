@@ -86,21 +86,10 @@ export function CompletedView({ items, onRestore, onCardClick }: Props) {
       <header className="completed-header">
         <div>
           <h1>Completed</h1>
-          <p>Finished captures, grouped by when you checked them off.</p>
-        </div>
-        <div className="completed-stats">
-          <div className="stat-card stat-today">
-            <div className="stat-value">{todayCount}</div>
-            <div className="stat-label">today</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{weekCount}</div>
-            <div className="stat-label">this week</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{completed.length}</div>
-            <div className="stat-label">all time</div>
-          </div>
+          <p className="card-meta">
+            {todayCount > 0 ? `${todayCount} completed today` : 'Nothing completed today'},{' '}
+            {weekCount} this week, {completed.length} all time.
+          </p>
         </div>
       </header>
 

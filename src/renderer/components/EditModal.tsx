@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CalendarPlus, Check, CheckCircle2, Link2, PenLine, RotateCcw, Trash2, X } from 'lucide-react'
+import { TagAutocomplete } from './TagAutocomplete'
 import { BOARD_PRIORITIES, PRIORITY_LABELS, type Priority } from '../../shared/constants'
 import { api, Item, ItemPayload } from '../lib/api'
 import { hasCalendarSupport } from '../lib/desktop'
@@ -269,18 +270,13 @@ export function EditModal({ item, onSave, onArchive, onDelete, onComplete, onUnc
 
           <label className="field-group">
             <span className="field-label">Tags</span>
-            <input
-              className="text-input"
-              list="cortex-tag-options"
+            <TagAutocomplete
               value={tagsInput}
-              onChange={(event) => setTagsInput(event.target.value)}
+              onChange={setTagsInput}
+              existingTags={existingTags}
               placeholder="GitHub/Codex, AI, Research"
+              className="text-input"
             />
-            <datalist id="cortex-tag-options">
-              {existingTags.map((tag) => (
-                <option key={tag} value={tag} />
-              ))}
-            </datalist>
           </label>
         </div>
 
