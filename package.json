@@ -10,6 +10,9 @@
     "native:node": "npm rebuild better-sqlite3",
     "native:electron": "electron-rebuild -f -w better-sqlite3",
     "dev": "npm run native:electron && electron-vite dev",
+    "web:api": "node --import tsx/esm server-web.ts",
+    "web:start": "bash start-web.sh",
+    "web:frontend": "vite --config vite.web.config.ts",
     "build": "electron-vite build",
     "pack:win": "npm run build && electron-builder --win --dir",
     "dist:win": "npm run build && electron-builder --win nsis",
@@ -49,6 +52,7 @@
     "electron-vite": "^3.1.0",
     "jsdom": "^26.1.0",
     "supertest": "^7.1.1",
+    "tsx": "^4.21.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"

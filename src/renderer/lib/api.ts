@@ -1,6 +1,13 @@
 import { API_BASE, type Priority, PRIORITIES, type View } from '../../shared/constants'
 import { hasDesktopBridge } from './desktop'
 
+function getApiBase(): string {
+  if (hasDesktopBridge()) {
+    return API_BASE
+  }
+  return ''
+}
+
 export type ItemType = 'link' | 'idea'
 
 export interface ItemNoteEntry {
@@ -58,7 +65,7 @@ export interface Space {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
+  const response = await fetch(`${getApiBase()}${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
