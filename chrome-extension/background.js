@@ -28,6 +28,7 @@ chrome.commands.onCommand.addListener(async (command) => {
         type: 'link',
         title: tab.title || tab.url,
         url: tab.url,
+        note: null,
         priority: 'inbox',
         tags: []
       })

@@ -266,6 +266,40 @@ export function PriorityView({
                 </header>
                 <div className="lane-rule" />
 
+                {isInbox && selectMode && selectedIds.size > 0 && (
+                  <div className="batch-bar">
+                    <span className="batch-bar-count">{selectedIds.size} selected</span>
+                    <span className="batch-bar-label">→ move to</span>
+                    <div className="batch-bar-targets">
+                      {BATCH_TARGETS.map((target) => (
+                        <button
+                          key={target}
+                          type="button"
+                          className="batch-bar-btn"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            void handleBatchMove(target)
+                          }}
+                        >
+                          {BATCH_LABELS[target]}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      className="batch-bar-cancel"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSelectedIds(new Set())
+                        setSelectMode(false)
+                      }}
+                      title="Cancel"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+
                 <div className="column-body">
                   {isSomeday && staleSomeday.length > 0 ? (
                     <div className="column-banner">
@@ -326,39 +360,6 @@ export function PriorityView({
                     })
                   )}
 
-                  {isInbox && selectMode && selectedIds.size > 0 && (
-                    <div className="batch-bar">
-                      <span className="batch-bar-count">{selectedIds.size} selected</span>
-                      <span className="batch-bar-label">→ move to</span>
-                      <div className="batch-bar-targets">
-                        {BATCH_TARGETS.map((target) => (
-                          <button
-                            key={target}
-                            type="button"
-                            className="batch-bar-btn"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              void handleBatchMove(target)
-                            }}
-                          >
-                            {BATCH_LABELS[target]}
-                          </button>
-                        ))}
-                      </div>
-                      <button
-                        type="button"
-                        className="batch-bar-cancel"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedIds(new Set())
-                          setSelectMode(false)
-                        }}
-                        title="Cancel"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
                 </div>
               </section>
             )

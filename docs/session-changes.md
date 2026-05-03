@@ -265,3 +265,89 @@ docs/
 | Package | Version | Purpose |
 |---------|---------|---------|
 | `web-push` | latest | Server-side Web Push / VAPID notification dispatch |
+
+---
+
+## 7. Bug Fixes & Polish (Review Pass)
+
+**Files touched:** `src/renderer/index.html`, `src/renderer/components/CategoryView.tsx`, `src/renderer/App.tsx`, `chrome-extension/background.js`
+
+### 7.1 favicon.ico 404 eliminated
+- Browser was requesting `/favicon.ico` by default and getting a 404 logged on every page load
+- Added `<link rel="icon" href="/icon-192.svg" type="image/svg+xml">` to `index.html`
+- Browser now uses the existing SVG icon instead of requesting the missing `.ico` file
+
+### 7.2 Ctrl+click to open URLs — CategoryView fixed
+- `Card.tsx` and `IdeaCard.tsx` had Ctrl+click URL handling, but `CategoryView`'s `ItemList` did not
+- The `cat-item-row` click handler was calling `onCardClick(item)` unconditionally
+- Added `event.ctrlKey || event.metaKey` check: if true and item has a URL, opens in new tab
+- Now consistent across all three card surfaces
+
+### 7.3 Batch move — parallel API calls
+- `handleBatchPriorityChange` in `App.tsx` was updating items one at a time with `await` in a `for` loop
+- Changed to `Promise.all(ids.map(id => update(id, { priority })))` — all PATCH requests fire simultaneously
+- Batch moves of 5 items now complete in ~1 request time instead of ~5×
+
+### 7.4 Chrome extension `note` field
+- `background.js` POST body for Ctrl+Shift+S was missing `note: null`
+- Added to match the full API schema expected by `items.ts`
+
+---
+
+## 8. Inline Delete Confirmation (No More window.confirm)
+
+**Files touched:** `src/renderer/components/Card.tsx`, `src/renderer/components/IdeaCard.tsx`, `src/renderer/components/EditModal.tsx`, `src/renderer/components/ArchiveView.tsx`, `src/renderer/App.tsx`, `src/renderer/styles/globals.css`
+
+### Problem
+Three places used `window.confirm()` for permanent delete — a native browser dialog that freezes all JS, looks inconsistent, and cannot be styled.
+
+### Solution: two-click "armed" pattern on cards, inline confirm rows in modals
+
+#### Card / IdeaCard (quick delete from board)
+- Added `deleteArmed` local state (boolean)
+- First click on the X button: arms the delete — button turns solid red and shows `?` instead of the X icon
+- Second click: fires `onDelete(item)`, resets state
+- Auto-disarms after 2.5 seconds if no second click
+- CSS: `.card-delete-button[data-armed]` — red fill, white text
+
+#### EditModal (Delete Forever)
+- Added `deleteConfirm` boolean state, reset whenever `item` prop changes
+- First click on "Delete Forever": sets `deleteConfirm = true`, button is replaced with an inline row:
+  `Delete permanently? [Yes, delete] [Cancel]`
+- Clicking "Yes, delete" calls `onDelete(item.id)` immediately (no confirm dialog)
+- Clicking "Cancel" resets back to the button
+
+#### ArchiveView (Delete Forever per row)
+- Added `confirmingId: string | null` state
+- First click on "Delete Forever" in any row: sets `confirmingId = item.id`
+- That row's actions area shows: `Delete permanently? [Yes, delete] [Cancel]`
+- Confirming deletes the item from local state and clears `confirmingId`
+- Other rows are unaffected
+
+#### New CSS classes
+- `.card-delete-button[data-armed]` / `.card-delete-button[data-armed]:hover`
+- `.delete-confirm-row` / `.delete-confirm-label`
+- `.archive-confirm-row`
+
+#### App.tsx
+- Removed the `window.confirm` call from `handleQuickDelete` — the card itself now handles the two-click confirmation before calling `onDelete`
+
+---
+
+## 9. Batch-Bar Repositioned Above Cards
+
+**Files touched:** `src/renderer/components/PriorityView.tsx`, `src/renderer/styles/globals.css`
+
+### Problem
+The batch action bar (move selected inbox items to Today/Tomorrow/etc.) was rendered at the **bottom** of the inbox column's card list — inside `column-body`. Since `.board-column` has `overflow: hidden`, `position: sticky` on the bar was ineffective. With many inbox items the bar was out of view.
+
+### Fix
+Moved the batch-bar JSX from inside `<div className="column-body">` to a sibling position between `<div className="lane-rule">` and `<div className="column-body">`. It now renders **above** the card list, immediately below the column header.
+
+**Behaviour change:**
+- Selecting the checkbox in the Inbox header now shows the dark action bar instantly at the top of the card area — always visible, no scrolling required
+- The bar disappears when selection is cleared or move is confirmed
+
+**CSS change:**
+- Removed `position: sticky; bottom: 0; margin-top: 8px` from `.batch-bar`
+- Added `margin-bottom: 2px` and adjusted `box-shadow` direction to match new position (shadow falls downward)

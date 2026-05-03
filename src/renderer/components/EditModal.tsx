@@ -90,6 +90,7 @@ export function EditModal({ item, onSave, onArchive, onDelete, onComplete, onUnc
   const [tagsInput, setTagsInput] = useState('')
   const [remindAt, setRemindAt] = useState('')
   const [saving, setSaving] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [existingTags, setExistingTags] = useState<string[]>([])
   const [calendarState, setCalendarState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [calendarError, setCalendarError] = useState('')
@@ -105,6 +106,7 @@ export function EditModal({ item, onSave, onArchive, onDelete, onComplete, onUnc
     setPriority(item?.priority ?? 'inbox')
     setTagsInput(item?.tags.join(', ') ?? '')
     setRemindAt(toLocalInputValue(item?.remind_at ?? null))
+    setDeleteConfirm(false)
   }, [item])
 
   useEffect(() => {
@@ -294,18 +296,34 @@ export function EditModal({ item, onSave, onArchive, onDelete, onComplete, onUnc
                   </button>
                 ) : null}
                 {onDelete ? (
-                  <button
-                    type="button"
-                    className="button-danger"
-                    onClick={() => {
-                      if (window.confirm(`Delete "${item.title}" permanently?`)) {
-                        void onDelete(item.id)
-                      }
-                    }}
-                  >
-                    <Trash2 size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
-                    Delete Forever
-                  </button>
+                  deleteConfirm ? (
+                    <div className="delete-confirm-row">
+                      <span className="delete-confirm-label">Delete permanently?</span>
+                      <button
+                        type="button"
+                        className="button-danger"
+                        onClick={() => void onDelete(item.id)}
+                      >
+                        Yes, delete
+                      </button>
+                      <button
+                        type="button"
+                        className="button-ghost"
+                        onClick={() => setDeleteConfirm(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      className="button-danger"
+                      onClick={() => setDeleteConfirm(true)}
+                    >
+                      <Trash2 size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+                      Delete Forever
+                    </button>
+                  )
                 ) : null}
                 {item.completed_at && onUncomplete ? (
                   <button

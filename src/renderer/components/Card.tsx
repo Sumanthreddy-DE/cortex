@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { DragEventHandler } from 'react'
 import { Check, Link, X } from 'lucide-react'
 import type { Item } from '../lib/api'
@@ -36,6 +37,7 @@ export function Card({
   onDelete,
   onComplete
 }: Props) {
+  const [deleteArmed, setDeleteArmed] = useState(false)
   const hostname = getHostname(item.url)
   const letter = (hostname[0] ?? item.title[0] ?? '?').toUpperCase()
 
@@ -77,13 +79,21 @@ export function Card({
         <span
           className="card-delete-button"
           role="button"
-          aria-label={`Delete ${item.title}`}
+          data-armed={deleteArmed || undefined}
+          aria-label={deleteArmed ? `Confirm delete ${item.title}` : `Delete ${item.title}`}
+          title={deleteArmed ? 'Click again to confirm' : 'Delete'}
           onClick={(event) => {
             event.stopPropagation()
-            onDelete(item)
+            if (!deleteArmed) {
+              setDeleteArmed(true)
+              setTimeout(() => setDeleteArmed(false), 2500)
+            } else {
+              setDeleteArmed(false)
+              onDelete(item)
+            }
           }}
         >
-          <X size={12} />
+          {deleteArmed ? '?' : <X size={12} />}
         </span>
       ) : null}
 

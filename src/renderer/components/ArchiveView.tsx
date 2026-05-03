@@ -15,6 +15,7 @@ function formatTimestamp(timestamp: number) {
 export function ArchiveView({ onRestore, onDelete }: Props) {
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
+  const [confirmingId, setConfirmingId] = useState<string | null>(null)
 
   useEffect(() => {
     void api
@@ -64,21 +65,38 @@ export function ArchiveView({ onRestore, onDelete }: Props) {
                   <RotateCcw size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
                   Restore
                 </button>
-                <button
-                  type="button"
-                  className="button-danger"
-                  onClick={async () => {
-                    if (!window.confirm(`Delete "${item.title}" permanently?`)) {
-                      return
-                    }
-
-                    await onDelete(item.id)
-                    setItems((current) => current.filter((entry) => entry.id !== item.id))
-                  }}
-                >
-                  <Trash2 size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
-                  Delete Forever
-                </button>
+                {confirmingId === item.id ? (
+                  <div className="archive-confirm-row">
+                    <span className="delete-confirm-label">Delete permanently?</span>
+                    <button
+                      type="button"
+                      className="button-danger"
+                      onClick={async () => {
+                        await onDelete(item.id)
+                        setItems((current) => current.filter((entry) => entry.id !== item.id))
+                        setConfirmingId(null)
+                      }}
+                    >
+                      Yes, delete
+                    </button>
+                    <button
+                      type="button"
+                      className="button-ghost"
+                      onClick={() => setConfirmingId(null)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="button-danger"
+                    onClick={() => setConfirmingId(item.id)}
+                  >
+                    <Trash2 size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+                    Delete Forever
+                  </button>
+                )}
               </div>
             </article>
           ))

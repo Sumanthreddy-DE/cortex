@@ -177,10 +177,6 @@ export default function App() {
   }
 
   async function handleQuickDelete(item: Item) {
-    if (!window.confirm(`Delete "${item.title}" permanently?`)) {
-      return
-    }
-
     await deletePermanently(item.id)
   }
 
@@ -191,9 +187,7 @@ export default function App() {
   }
 
   async function handleBatchPriorityChange(ids: string[], priority: BoardPriority) {
-    for (const id of ids) {
-      await update(id, { priority })
-    }
+    await Promise.all(ids.map((id) => update(id, { priority })))
   }
 
   async function handleComplete(item: Item) {

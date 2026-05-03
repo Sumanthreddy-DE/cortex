@@ -72,7 +72,13 @@ function ItemList({
           <div
             key={item.id}
             className="cat-item-row"
-            onClick={() => onCardClick(item)}
+            onClick={(event) => {
+              if ((event.ctrlKey || event.metaKey) && item.url) {
+                window.open(item.url, '_blank', 'noopener,noreferrer')
+                return
+              }
+              onCardClick(item)
+            }}
             draggable
             onDragStart={() => onDragStart(item)}
             onDragEnd={onDragEnd}
