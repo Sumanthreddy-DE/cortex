@@ -559,8 +559,9 @@ a {
   text-align: center;
   padding: 20px 12px;
   background: transparent;
-  font-family: var(--font-display);
-  font-style: italic;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
 }
 
 .card-shell {
