@@ -81,6 +81,14 @@ export function runMigrations(db: Database.Database): void {
     INSERT OR IGNORE INTO meta(key, value) VALUES ('last_midnight_run', '0');
     INSERT OR IGNORE INTO meta(key, value) VALUES ('morning_digest_time', '${DEFAULT_MORNING_DIGEST_TIME}');
     INSERT OR IGNORE INTO meta(key, value) VALUES ('last_digest_date', '');
+
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+      id         TEXT PRIMARY KEY,
+      endpoint   TEXT NOT NULL UNIQUE,
+      p256dh     TEXT NOT NULL,
+      auth       TEXT NOT NULL,
+      created_at INTEGER NOT NULL
+    );
   `)
 
   if (!hasColumn(db, 'items', 'completed_at')) {

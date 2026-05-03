@@ -317,6 +317,26 @@ a {
   color: var(--text);
 }
 
+.bell-btn {
+  position: relative;
+}
+
+.bell-btn[data-state='subscribed'] {
+  color: var(--lane-teal);
+  border-color: rgba(58, 140, 145, 0.35);
+}
+
+.bell-btn[data-state='denied'] {
+  color: var(--ink-dim);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bell-btn[data-state='loading'] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .button-danger {
   background: var(--paper-raised);
   border: 1px solid rgba(198, 74, 61, 0.4);

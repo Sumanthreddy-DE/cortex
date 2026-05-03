@@ -5,6 +5,7 @@ import { itemsRouter } from './src/main/api/items.ts'
 import { searchRouter } from './src/main/api/search.ts'
 import { settingsRouter } from './src/main/api/settings.ts'
 import { spacesRouter } from './src/main/api/spaces.ts'
+import { pushRouter, sendPushToAll } from './src/main/api/push.ts'
 
 const db = getDb()
 const app = express()
@@ -16,9 +17,14 @@ app.get('/health', (_req, res) => {
   res.json({ ok: true })
 })
 
-app.use('/api/items', itemsRouter(db))
+app.use('/api/items', itemsRouter(db, {
+  onInboxItem: (title: string) => {
+    sendPushToAll(db, 'Cortex — new in Inbox', title || 'New item captured')
+  }
+}))
 app.use('/api/settings', settingsRouter(db))
 app.use('/api/spaces', spacesRouter(db))
+app.use('/api/push', pushRouter(db))
 app.use('/api', searchRouter(db))
 
 const PORT = 8000

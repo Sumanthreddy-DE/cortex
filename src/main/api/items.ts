@@ -46,6 +46,7 @@ export interface ItemMutationInput {
 
 export interface ItemsRouterOptions {
   onItemsChanged?: () => void
+  onInboxItem?: (title: string) => void
 }
 
 function deserialize(row: Record<string, unknown>): Item {
@@ -612,19 +613,23 @@ export function itemsRouter(db: Database.Database, options: ItemsRouterOptions =
       return
     }
 
+    const resolvedPriority = isPriority(priority) ? priority : 'inbox'
     const item = createItem(db, {
       id: nanoid(),
       type,
       title: titleValue,
       url,
       note: noteValue,
-      priority: isPriority(priority) ? priority : 'inbox',
+      priority: resolvedPriority,
       tags: Array.isArray(tags) ? tags.filter((tag): tag is string => typeof tag === 'string') : [],
       favicon_url: typeof favicon_url === 'string' ? favicon_url : null,
       remind_at: coerceNullableNumber(remind_at)
     })
 
     options.onItemsChanged?.()
+    if (resolvedPriority === 'inbox') {
+      options.onInboxItem?.(item.title)
+    }
     res.status(201).json(item)
   })
 

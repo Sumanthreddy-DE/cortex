@@ -1,6 +1,7 @@
-import { Plus, Search, Settings } from 'lucide-react'
+import { Bell, BellOff, Plus, Search, Settings } from 'lucide-react'
 import { useState } from 'react'
 import type { View } from '../../shared/constants'
+import { usePush } from '../hooks/usePush'
 
 interface Props {
   view: View
@@ -23,6 +24,20 @@ export function TopBar({
 }: Props) {
   const [searchExpanded, setSearchExpanded] = useState(Boolean(searchQuery))
   const searchOpen = searchExpanded || Boolean(searchQuery)
+  const { state: pushState, subscribe, unsubscribe } = usePush()
+
+  function getBellTitle() {
+    if (pushState === 'unsupported') return 'Push notifications not supported in this browser'
+    if (pushState === 'denied') return 'Notifications blocked — check browser settings'
+    if (pushState === 'subscribed') return 'Notifications on — click to disable'
+    if (pushState === 'loading') return 'Loading…'
+    return 'Enable push notifications for Inbox'
+  }
+
+  function handleBellClick() {
+    if (pushState === 'subscribed') unsubscribe()
+    else if (pushState === 'default') subscribe()
+  }
 
   return (
     <header className="topbar">
@@ -89,6 +104,20 @@ export function TopBar({
           placeholder="Search... (/ or Ctrl+K)"
         />
       </div>
+
+      {pushState !== 'unsupported' && (
+        <button
+          type="button"
+          className={`button-icon bell-btn`}
+          data-state={pushState}
+          onClick={handleBellClick}
+          title={getBellTitle()}
+          aria-label={getBellTitle()}
+          disabled={pushState === 'denied' || pushState === 'loading'}
+        >
+          {pushState === 'subscribed' ? <Bell size={15} /> : <BellOff size={15} />}
+        </button>
+      )}
 
       <button
         type="button"
