@@ -207,7 +207,7 @@ export function PriorityView({
                 }}
               >
                 <header className="lane-head">
-                  <h3 className={`lane-title ${priority === 'today' ? 'lane-title-hero' : 'lane-title-small'}`}>
+                  <h3 className={`lane-title ${priority === 'today' ? 'lane-title-hero' : 'lane-title-chapter'}`}>
                     {PRIORITY_LABELS[priority]}
                   </h3>
                   <span className={`lane-meta lane-meta-${priority}`}>

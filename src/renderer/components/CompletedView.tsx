@@ -76,20 +76,11 @@ export function CompletedView({ items, onRestore, onCardClick }: Props) {
     return buckets.filter((bucket) => bucket.items.length > 0)
   }, [completed])
 
-  const todayCount = groups.find((group) => group.key === 'Today')?.items.length ?? 0
-  const weekCount = completed.filter(
-    (item) => (item.completed_at ?? 0) >= Date.now() - 7 * 86_400_000
-  ).length
-
   return (
     <div className="content-panel completed-view">
       <header className="completed-header">
         <div>
           <h1>Completed</h1>
-          <p className="card-meta">
-            {todayCount > 0 ? `${todayCount} completed today` : 'Nothing completed today'},{' '}
-            {weekCount} this week, {completed.length} all time.
-          </p>
         </div>
       </header>
 

@@ -314,7 +314,7 @@ export function CategoryView({ items, onTagChange, onComplete, onCardClick, onCr
   return (
     <div className="content-panel">
       <p className="page-intro">
-        Categories are your working shelves. Use slash tags like <strong>GitHub/Codex</strong> to create nested shelves.
+        Your working shelves. Add a slash to any tag — like <strong>GitHub/Codex</strong> — to nest it as a folder inside a category.
       </p>
 
       {parentTags.length === 0 ? (
@@ -405,9 +405,9 @@ export function CategoryView({ items, onTagChange, onComplete, onCardClick, onCr
                         event.stopPropagation()
                         setPendingSubfolder({ category: parent, value: '' })
                       }}
-                      title="Create a subfolder"
+                      title="Create a folder"
                     >
-                      + sub
+                      + folder
                     </button>
                   ) : null}
                 </div>

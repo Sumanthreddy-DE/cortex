@@ -218,9 +218,8 @@ export default function App() {
       />
 
       {isBrowserPreview ? (
-        <div className="info-banner">
-          Browser preview mode: board, search, tags, archive, and settings are live here. Desktop-only features such
-          as tray, global shortcuts, Windows startup, and calendar automation stay in the Electron build.
+        <div className="browser-preview-badge">
+          web preview — tray, shortcuts &amp; notifications in Electron only
         </div>
       ) : null}
 

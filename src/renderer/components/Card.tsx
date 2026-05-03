@@ -1,5 +1,5 @@
 import type { DragEventHandler } from 'react'
-import { Check, X } from 'lucide-react'
+import { Check, Link, X } from 'lucide-react'
 import type { Item } from '../lib/api'
 import TagPill from './TagPill'
 
@@ -83,7 +83,9 @@ export function Card({
 
       <div className="card-header">
         <div className="favicon-stack" aria-hidden="true">
-          <div className="favicon-fallback">{letter}</div>
+          <div className="favicon-fallback">
+            {item.url ? letter : <Link size={12} strokeWidth={2} />}
+          </div>
           {item.url ? (
             <img
               className="favicon-image"

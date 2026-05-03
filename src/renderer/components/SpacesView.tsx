@@ -1,5 +1,5 @@
 import { Pin, PinOff, Plus, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { Item, Space } from '../lib/api'
 import { formatRelative } from '../lib/utils'
 
@@ -43,14 +43,25 @@ export function SpacesView({
   onOpenItem
 }: Props) {
   const [selectedSpace, setSelectedSpace] = useState<string | null>(null)
+  const [creatingSpace, setCreatingSpace] = useState(false)
+  const [newSpaceName, setNewSpaceName] = useState('')
+  const newSpaceInputRef = useRef<HTMLInputElement>(null)
 
   async function handleCreateSpace() {
-    const name = window.prompt('New space name')
-    if (!name?.trim()) {
+    const name = newSpaceName.trim()
+    if (!name) {
+      setCreatingSpace(false)
       return
     }
+    await onCreateSpace(name)
+    setNewSpaceName('')
+    setCreatingSpace(false)
+  }
 
-    await onCreateSpace(name.trim())
+  function startCreating() {
+    setCreatingSpace(true)
+    setNewSpaceName('')
+    window.requestAnimationFrame(() => newSpaceInputRef.current?.focus())
   }
 
   return (
@@ -60,10 +71,32 @@ export function SpacesView({
           <h1>Spaces</h1>
           <p>Persistent project buckets for pinned and recently used captures.</p>
         </div>
-        <button type="button" className="button-primary" onClick={() => void handleCreateSpace()}>
-          <Plus size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
-          New Space
-        </button>
+        {creatingSpace ? (
+          <div className="space-new-row">
+            <input
+              ref={newSpaceInputRef}
+              className="space-new-input"
+              value={newSpaceName}
+              onChange={(event) => setNewSpaceName(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') void handleCreateSpace()
+                if (event.key === 'Escape') { setCreatingSpace(false); setNewSpaceName('') }
+              }}
+              placeholder="Space name..."
+            />
+            <button type="button" className="button-primary" onClick={() => void handleCreateSpace()}>
+              Create
+            </button>
+            <button type="button" className="button-ghost" onClick={() => { setCreatingSpace(false); setNewSpaceName('') }}>
+              <X size={14} />
+            </button>
+          </div>
+        ) : (
+          <button type="button" className="button-primary" onClick={startCreating}>
+            <Plus size={14} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+            New Space
+          </button>
+        )}
       </header>
 
       <div className="spaces-grid">
