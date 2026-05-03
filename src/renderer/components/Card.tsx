@@ -43,7 +43,13 @@ export function Card({
     <button
       type="button"
       className="card-shell cortex-card"
-      onClick={() => onClick(item)}
+      onClick={(event) => {
+        if ((event.ctrlKey || event.metaKey) && item.url) {
+          window.open(item.url, '_blank', 'noopener,noreferrer')
+          return
+        }
+        onClick(item)
+      }}
       draggable={draggable}
       onDragStart={(event) => {
         event.dataTransfer.effectAllowed = 'move'
