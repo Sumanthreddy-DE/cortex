@@ -16,7 +16,7 @@ export const PRIORITIES = [
 ] as const
 
 export const BOARD_PRIORITIES = ['inbox', 'today', 'tomorrow', 'this-week', 'someday'] as const
-export const FIXED_BUCKET_TAGS = ['Daily', 'Groceries', 'Tools'] as const
+export const FIXED_BUCKET_TAGS = ['Daily', 'Groceries', 'Tools', 'Ideas'] as const
 
 export const PRIORITY_LABELS: Record<(typeof PRIORITIES)[number], string> = {
   inbox: 'Inbox',

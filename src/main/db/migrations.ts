@@ -96,8 +96,9 @@ export function runMigrations(db: Database.Database): void {
     VALUES
       ('daily', 'Daily', 0, ?),
       ('groceries', 'Groceries', 1, ?),
-      ('ai-tools', 'AI Tools', 2, ?)
-  `).run(now, now, now)
+      ('ai-tools', 'AI Tools', 2, ?),
+      ('ideas', 'Ideas', 3, ?)
+  `).run(now, now, now, now)
 
   db.prepare(`
     INSERT INTO item_notes (id, item_id, content, created_at, updated_at)

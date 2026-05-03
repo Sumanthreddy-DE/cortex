@@ -1488,6 +1488,18 @@ a {
   color: var(--paper);
 }
 
+.page-intro {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.page-intro strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
 .cat-accordion {
   display: flex;
   flex-direction: column;

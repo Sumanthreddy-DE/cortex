@@ -18,12 +18,12 @@ interface TagBucket {
 }
 
 const PRIORITY_DOT_COLOR: Record<Item['priority'], string> = {
-  inbox: '#64748b',
-  'for-now': '#38bdf8',
-  today: '#38bdf8',
-  tomorrow: '#f59e0b',
-  'this-week': '#22c55e',
-  someday: '#a78bfa'
+  inbox: '#9b8d7d',
+  'for-now': '#e8755a',
+  today: '#3a8c91',
+  tomorrow: '#e8c958',
+  'this-week': '#a3b896',
+  someday: '#7c7393'
 }
 
 function getDomain(url: string | null): string {
@@ -313,9 +313,9 @@ export function CategoryView({ items, onTagChange, onComplete, onCardClick, onCr
 
   return (
     <div className="content-panel">
-      <div className="card-meta" style={{ marginBottom: 14 }}>
-        Categories are your working shelves. Use slash tags like GitHub/Codex to create nested shelves.
-      </div>
+      <p className="page-intro">
+        Categories are your working shelves. Use slash tags like <strong>GitHub/Codex</strong> to create nested shelves.
+      </p>
 
       {parentTags.length === 0 ? (
         <div className="empty-state">
