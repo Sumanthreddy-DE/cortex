@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Check, CheckSquare, Square } from 'lucide-react'
 import {
   BOARD_PRIORITIES,
   FIXED_BUCKET_TAGS,
@@ -20,9 +21,18 @@ interface Props {
   onBucketChange: (item: Item, nextBucket: FixedBucketTag) => Promise<void> | void
   onDelete: (item: Item) => Promise<void> | void
   onComplete: (item: Item) => Promise<void> | void
+  onBatchPriorityChange: (ids: string[], priority: BoardPriority) => Promise<void>
 }
 
 const STALE_THRESHOLD = 30 * 24 * 60 * 60 * 1000
+
+const BATCH_TARGETS: BoardPriority[] = ['today', 'tomorrow', 'this-week', 'someday']
+const BATCH_LABELS: Record<string, string> = {
+  today: 'Today',
+  tomorrow: 'Tomorrow',
+  'this-week': 'This Week',
+  someday: 'Someday'
+}
 
 function renderCard(
   item: Item,
@@ -72,12 +82,16 @@ export function PriorityView({
   onPriorityChange,
   onBucketChange,
   onDelete,
-  onComplete
+  onComplete,
+  onBatchPriorityChange
 }: Props) {
   const [expandedBucket, setExpandedBucket] = useState<FixedBucketTag | null>(null)
   const [dragSource, setDragSource] = useState<Item | null>(null)
   const [dropPriority, setDropPriority] = useState<BoardPriority | null>(null)
   const [dropBucket, setDropBucket] = useState<FixedBucketTag | null>(null)
+  const [selectMode, setSelectMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+
   const sortedItems = [...items].sort((left, right) => left.created_at - right.created_at)
   const staleSomeday = sortedItems.filter(
     (item) =>
@@ -90,6 +104,30 @@ export function PriorityView({
     setDragSource(null)
     setDropPriority(null)
     setDropBucket(null)
+  }
+
+  function toggleSelectMode() {
+    setSelectMode((prev) => !prev)
+    setSelectedIds(new Set())
+  }
+
+  function toggleSelectItem(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
+
+  async function handleBatchMove(priority: BoardPriority) {
+    if (selectedIds.size === 0) return
+    await onBatchPriorityChange([...selectedIds], priority)
+    setSelectedIds(new Set())
+    setSelectMode(false)
   }
 
   async function handlePriorityDrop(priority: BoardPriority) {
@@ -183,6 +221,7 @@ export function PriorityView({
               (item) => !getFixedBucketTag(item.tags) && normalizePriority(item.priority) === priority
             )
             const isSomeday = priority === 'someday'
+            const isInbox = priority === 'inbox'
 
             return (
               <section
@@ -213,6 +252,17 @@ export function PriorityView({
                   <span className={`lane-meta lane-meta-${priority}`}>
                     {String(columnItems.length).padStart(2, '0')} {columnItems.length === 1 ? 'ITEM' : 'ITEMS'}
                   </span>
+                  {isInbox && columnItems.length > 0 && (
+                    <button
+                      type="button"
+                      className="lane-select-btn"
+                      data-active={selectMode}
+                      title={selectMode ? 'Cancel selection' : 'Select items to move'}
+                      onClick={toggleSelectMode}
+                    >
+                      {selectMode ? <CheckSquare size={14} /> : <Square size={14} />}
+                    </button>
+                  )}
                 </header>
                 <div className="lane-rule" />
 
@@ -236,21 +286,78 @@ export function PriorityView({
                   {columnItems.length === 0 ? (
                     <div className="empty-state">Drop here or add something new.</div>
                   ) : (
-                    columnItems.map((item) => (
-                      <div key={item.id}>
-                        {renderCard(item, onCardClick, {
-                          draggable: true,
-                          onDragStart: () => setDragSource(item),
-                          onDragEnd: clearDragState,
-                          onDelete: (target) => {
-                            void onDelete(target)
-                          },
-                          onComplete: (target) => {
-                            void onComplete(target)
-                          }
-                        })}
+                    columnItems.map((item) => {
+                      const isSelected = selectedIds.has(item.id)
+
+                      if (isInbox && selectMode) {
+                        return (
+                          <div
+                            key={item.id}
+                            className="selectable-wrap"
+                            data-select-mode="true"
+                            data-selected={isSelected}
+                            onClick={() => toggleSelectItem(item.id)}
+                          >
+                            <div className="selectable-check">
+                              {isSelected && <Check size={11} strokeWidth={3} />}
+                            </div>
+                            {renderCard(item, () => toggleSelectItem(item.id), {
+                              draggable: false
+                            })}
+                          </div>
+                        )
+                      }
+
+                      return (
+                        <div key={item.id}>
+                          {renderCard(item, onCardClick, {
+                            draggable: true,
+                            onDragStart: () => setDragSource(item),
+                            onDragEnd: clearDragState,
+                            onDelete: (target) => {
+                              void onDelete(target)
+                            },
+                            onComplete: (target) => {
+                              void onComplete(target)
+                            }
+                          })}
+                        </div>
+                      )
+                    })
+                  )}
+
+                  {isInbox && selectMode && selectedIds.size > 0 && (
+                    <div className="batch-bar">
+                      <span className="batch-bar-count">{selectedIds.size} selected</span>
+                      <span className="batch-bar-label">→ move to</span>
+                      <div className="batch-bar-targets">
+                        {BATCH_TARGETS.map((target) => (
+                          <button
+                            key={target}
+                            type="button"
+                            className="batch-bar-btn"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              void handleBatchMove(target)
+                            }}
+                          >
+                            {BATCH_LABELS[target]}
+                          </button>
+                        ))}
                       </div>
-                    ))
+                      <button
+                        type="button"
+                        className="batch-bar-cancel"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedIds(new Set())
+                          setSelectMode(false)
+                        }}
+                        title="Cancel"
+                      >
+                        ×
+                      </button>
+                    </div>
                   )}
                 </div>
               </section>

@@ -1958,3 +1958,131 @@ a {
     padding-inline: 14px;
   }
 }
+
+.lane-select-btn {
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: var(--ink-dim);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  opacity: 0.6;
+  transition: opacity var(--duration-instant);
+}
+
+.lane-select-btn:hover { opacity: 1; color: var(--text-muted); }
+.lane-select-btn[data-active="true"] { opacity: 1; color: var(--ink-stamp); }
+
+.selectable-wrap {
+  position: relative;
+}
+
+.selectable-wrap[data-select-mode="true"] {
+  cursor: pointer;
+}
+
+.selectable-wrap[data-select-mode="true"]:hover .selectable-check {
+  opacity: 1;
+}
+
+.selectable-check {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid var(--rule);
+  background: var(--paper-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--duration-instant), background var(--duration-instant), border-color var(--duration-instant);
+  pointer-events: none;
+}
+
+.selectable-wrap[data-select-mode="true"] .selectable-check {
+  opacity: 0.5;
+}
+
+.selectable-wrap[data-selected="true"] .selectable-check {
+  opacity: 1;
+  background: var(--ink-stamp);
+  border-color: var(--ink-stamp);
+  color: white;
+}
+
+.selectable-wrap[data-selected="true"] > *:last-child {
+  outline: 2px solid var(--ink-stamp);
+  outline-offset: 1px;
+  border-radius: 10px;
+}
+
+.batch-bar {
+  position: sticky;
+  bottom: 0;
+  margin-top: 8px;
+  background: var(--ink);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  box-shadow: 0 -2px 16px rgba(42,36,29,0.15);
+}
+
+.batch-bar-count {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: rgba(247, 241, 230, 0.6);
+  white-space: nowrap;
+  margin-right: 2px;
+}
+
+.batch-bar-label {
+  font-size: 11px;
+  color: rgba(247, 241, 230, 0.4);
+  white-space: nowrap;
+}
+
+.batch-bar-targets {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.batch-bar-btn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(247, 241, 230, 0.2);
+  background: rgba(247, 241, 230, 0.08);
+  color: rgba(247, 241, 230, 0.85);
+  font-size: 11px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background var(--duration-instant);
+}
+
+.batch-bar-btn:hover {
+  background: rgba(247, 241, 230, 0.18);
+  border-color: rgba(247, 241, 230, 0.4);
+}
+
+.batch-bar-cancel {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: rgba(247, 241, 230, 0.35);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.batch-bar-cancel:hover { color: rgba(247, 241, 230, 0.7); }

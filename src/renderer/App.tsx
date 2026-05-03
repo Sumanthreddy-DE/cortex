@@ -115,6 +115,13 @@ export default function App() {
       if (lowerKey === 'n' && !event.ctrlKey && !event.metaKey && !isEditableTarget(event.target)) {
         event.preventDefault()
         setEditItem(null)
+        return
+      }
+
+      if (lowerKey === 'n' && event.ctrlKey && event.shiftKey && !isEditableTarget(event.target)) {
+        event.preventDefault()
+        setEditItem(null)
+        return
       }
     }
 
@@ -183,6 +190,12 @@ export default function App() {
     }
   }
 
+  async function handleBatchPriorityChange(ids: string[], priority: BoardPriority) {
+    for (const id of ids) {
+      await update(id, { priority })
+    }
+  }
+
   async function handleComplete(item: Item) {
     await complete(item.id)
     if (editItem?.id === item.id) {
@@ -219,7 +232,7 @@ export default function App() {
 
       {isBrowserPreview ? (
         <div className="browser-preview-badge">
-          web preview — tray, shortcuts &amp; notifications in Electron only
+          web preview — install the Chrome extension for Ctrl+Shift+S / Ctrl+Shift+N shortcuts
         </div>
       ) : null}
 
@@ -243,6 +256,7 @@ export default function App() {
           onBucketChange={handleBucketChange}
           onDelete={handleQuickDelete}
           onComplete={handleComplete}
+          onBatchPriorityChange={handleBatchPriorityChange}
         />
       ) : view === 'category' ? (
         <CategoryView
