@@ -190,6 +190,24 @@ export default function App() {
     await Promise.all(ids.map((id) => update(id, { priority })))
   }
 
+  async function handleMergeIdeas(ids: string[]) {
+    const toMerge = items.filter((item) => ids.includes(item.id))
+    if (toMerge.length < 2) return
+    const mergedTitle = toMerge[0].title
+    const mergedNote = toMerge
+      .map((item) => [item.title, item.note].filter(Boolean).join('\n'))
+      .join('\n\n---\n\n')
+    await create({
+      type: 'idea',
+      title: mergedTitle,
+      note: mergedNote,
+      priority: 'inbox',
+      tags: toMerge[0].tags,
+      remind_at: null
+    })
+    await Promise.all(ids.map((id) => deletePermanently(id)))
+  }
+
   async function handleComplete(item: Item) {
     await complete(item.id)
     if (editItem?.id === item.id) {
@@ -251,6 +269,8 @@ export default function App() {
           onDelete={handleQuickDelete}
           onComplete={handleComplete}
           onBatchPriorityChange={handleBatchPriorityChange}
+          onCreate={create}
+          onMergeIdeas={handleMergeIdeas}
         />
       ) : view === 'category' ? (
         <CategoryView

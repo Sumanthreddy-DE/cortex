@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
+import { Link } from 'lucide-react'
 import type { Item, ItemPayload } from '../lib/api'
 import { parseTag } from '../lib/utils'
 
@@ -97,7 +98,7 @@ function ItemList({
             {item.type === 'link' && item.favicon_url ? (
               <img src={item.favicon_url} className="cat-item-favicon" alt="" width={14} height={14} />
             ) : item.type === 'link' ? (
-              <span className="cat-item-link-mark">□</span>
+              <span className="cat-item-link-mark"><Link size={12} strokeWidth={2} /></span>
             ) : (
               <span className="cat-item-idea-mark">•</span>
             )}
@@ -152,9 +153,11 @@ function CategoryInlineAdd({
     const url = isUrl(trimmed) ? trimmed : null
 
     if (url) {
-      const isDupe = allItems.some((item) => item.url === url && hasParentTag(item, category))
+      const isDupe = allItems.some(
+        (item) => item.url === url && item.tags.some((t) => t.toLowerCase() === effectiveTag.toLowerCase())
+      )
       if (isDupe) {
-        setError('Already saved in this category.')
+        setError('Already saved in this folder.')
         return
       }
     }
@@ -459,50 +462,89 @@ export function CategoryView({ items, onTagChange, onComplete, onCardClick, onCr
                         <p className="cat-untagged-hint">These have not been filed yet.</p>
                       ) : null}
 
-                      {subfolders.length > 0 ? (
-                        <div className="cat-subfolder-grid">
-                          {subfolders.map(([child, bucket]) => (
-                            <div
-                              key={child}
-                              className="cat-subfolder-col"
-                              data-drop={dropTag === bucket.tag || undefined}
-                              onDragOver={(event) => {
-                                if (!dragSource) {
-                                  return
-                                }
-                                event.preventDefault()
-                                event.stopPropagation()
-                                setDropTag(bucket.tag)
-                              }}
-                              onDragLeave={() => {
-                                if (dropTag === bucket.tag) {
-                                  setDropTag(null)
-                                }
-                              }}
-                              onDrop={async (event) => {
-                                event.preventDefault()
-                                event.stopPropagation()
-                                await handleDrop(bucket.tag)
-                              }}
-                            >
-                              <div className="cat-subfolder-header">
-                                <span>{child}</span>
-                                <span className="cat-subfolder-count">{bucket.items.length}</span>
-                              </div>
-                              <ItemList
-                                items={bucket.items}
-                                onCardClick={onCardClick}
-                                onComplete={onComplete}
-                                onDragStart={(item) => setDragSource({ item, fromTag: bucket.tag })}
-                                onDragEnd={() => {
-                                  setDragSource(null)
-                                  setDropTag(null)
+                      {(() => {
+                        const pendingName = activeSubfolders[parent]
+                        const pendingTag = pendingName ? `${parent}/${pendingName}` : null
+                        const pendingAlreadyInTree = pendingName
+                          ? subfolders.some(([child]) => child?.toLowerCase() === pendingName.toLowerCase())
+                          : false
+                        const showGrid = subfolders.length > 0 || (pendingTag && !pendingAlreadyInTree)
+
+                        return showGrid ? (
+                          <div className="cat-subfolder-grid">
+                            {subfolders.map(([child, bucket]) => (
+                              <div
+                                key={child}
+                                className="cat-subfolder-col"
+                                data-drop={dropTag === bucket.tag || undefined}
+                                onDragOver={(event) => {
+                                  if (!dragSource) {
+                                    return
+                                  }
+                                  event.preventDefault()
+                                  event.stopPropagation()
+                                  setDropTag(bucket.tag)
                                 }}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      ) : null}
+                                onDragLeave={() => {
+                                  if (dropTag === bucket.tag) {
+                                    setDropTag(null)
+                                  }
+                                }}
+                                onDrop={async (event) => {
+                                  event.preventDefault()
+                                  event.stopPropagation()
+                                  await handleDrop(bucket.tag)
+                                }}
+                              >
+                                <div className="cat-subfolder-header">
+                                  <span>{child}</span>
+                                  <span className="cat-subfolder-count">{bucket.items.length}</span>
+                                </div>
+                                <ItemList
+                                  items={bucket.items}
+                                  onCardClick={onCardClick}
+                                  onComplete={onComplete}
+                                  onDragStart={(item) => setDragSource({ item, fromTag: bucket.tag })}
+                                  onDragEnd={() => {
+                                    setDragSource(null)
+                                    setDropTag(null)
+                                  }}
+                                />
+                              </div>
+                            ))}
+                            {pendingTag && !pendingAlreadyInTree ? (
+                              <div
+                                className="cat-subfolder-col cat-subfolder-col--pending"
+                                data-drop={dropTag === pendingTag || undefined}
+                                onDragOver={(event) => {
+                                  if (!dragSource) {
+                                    return
+                                  }
+                                  event.preventDefault()
+                                  event.stopPropagation()
+                                  setDropTag(pendingTag)
+                                }}
+                                onDragLeave={() => {
+                                  if (dropTag === pendingTag) {
+                                    setDropTag(null)
+                                  }
+                                }}
+                                onDrop={async (event) => {
+                                  event.preventDefault()
+                                  event.stopPropagation()
+                                  await handleDrop(pendingTag)
+                                }}
+                              >
+                                <div className="cat-subfolder-header">
+                                  <span>{pendingName}</span>
+                                  <span className="cat-subfolder-count">0</span>
+                                </div>
+                                <p className="cat-subfolder-empty">Drag items here</p>
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : null
+                      })()}
 
                       {directBucket && directBucket.items.length > 0 ? (
                         <>

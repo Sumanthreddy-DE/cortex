@@ -7,14 +7,37 @@ test-results/
 .DS_Store
 .env
 .env.*
-cortex-webhook/.env
 .cortex-local/
 *.db
 *.db-shm
 *.db-wal
 
 *.tsbuildinfo
-graphify-out/cache/
-graphify-out/manifest.json
-graphify-out/cost.json
+graphify-out/
 .worktrees/
+
+# AI tooling (local only)
+.claude/
+.codex/
+.graphifyignore
+AGENTS.md
+CLAUDE.md
+
+# Replit
+.replit
+replit.md
+
+# Local dev scripts
+Start-Cortex-Preview.cmd
+Stop-Cortex-Preview.cmd
+dedup.py
+DESIGN.json
+
+# Local AI specs (not for repo)
+docs/superpowers/specs/
+
+# Dev screenshots
+screenshots/
+mockups/categories_after_replit_pull.png
+mockups/categories_after_replit_pull_happening.png
+mockups/ideas_bucket.png
