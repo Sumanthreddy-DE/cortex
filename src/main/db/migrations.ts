@@ -99,56 +99,58 @@ export function runMigrations(db: Database.Database): void {
   const needsTypeExpansion = tableRow && !tableRow.sql.includes("'issue'")
 
   if (needsTypeExpansion) {
-    db.exec(`
-      PRAGMA foreign_keys = OFF;
+    db.transaction(() => {
+      db.exec(`
+        PRAGMA foreign_keys = OFF;
 
-      CREATE TABLE items_new (
-        id           TEXT PRIMARY KEY,
-        type         TEXT NOT NULL CHECK(type IN ('link','idea','issue','company')),
-        title        TEXT NOT NULL,
-        url          TEXT,
-        note         TEXT,
-        priority     TEXT NOT NULL CHECK(priority IN ('inbox','for-now','today','tomorrow','this-week','someday')),
-        tags         TEXT NOT NULL DEFAULT '[]',
-        favicon_url  TEXT,
-        archived     INTEGER NOT NULL DEFAULT 0,
-        remind_at    INTEGER,
-        completed_at INTEGER,
-        last_opened_at INTEGER,
-        created_at   INTEGER NOT NULL,
-        updated_at   INTEGER NOT NULL
-      );
+        CREATE TABLE items_new (
+          id           TEXT PRIMARY KEY,
+          type         TEXT NOT NULL CHECK(type IN ('link','idea','issue','company')),
+          title        TEXT NOT NULL,
+          url          TEXT,
+          note         TEXT,
+          priority     TEXT NOT NULL CHECK(priority IN ('inbox','for-now','today','tomorrow','this-week','someday')),
+          tags         TEXT NOT NULL DEFAULT '[]',
+          favicon_url  TEXT,
+          archived     INTEGER NOT NULL DEFAULT 0,
+          remind_at    INTEGER,
+          completed_at INTEGER,
+          last_opened_at INTEGER,
+          created_at   INTEGER NOT NULL,
+          updated_at   INTEGER NOT NULL
+        );
 
-      INSERT INTO items_new SELECT * FROM items;
+        INSERT INTO items_new SELECT * FROM items;
 
-      DROP TRIGGER IF EXISTS items_ai;
-      DROP TRIGGER IF EXISTS items_ad;
-      DROP TRIGGER IF EXISTS items_au;
+        DROP TRIGGER IF EXISTS items_ai;
+        DROP TRIGGER IF EXISTS items_ad;
+        DROP TRIGGER IF EXISTS items_au;
 
-      DROP TABLE items;
-      ALTER TABLE items_new RENAME TO items;
+        DROP TABLE items;
+        ALTER TABLE items_new RENAME TO items;
 
-      CREATE TRIGGER items_ai AFTER INSERT ON items BEGIN
-        INSERT INTO items_fts(rowid, title, url, note)
-        VALUES (new.rowid, new.title, COALESCE(new.url, ''), COALESCE(new.note, ''));
-      END;
+        CREATE TRIGGER items_ai AFTER INSERT ON items BEGIN
+          INSERT INTO items_fts(rowid, title, url, note)
+          VALUES (new.rowid, new.title, COALESCE(new.url, ''), COALESCE(new.note, ''));
+        END;
 
-      CREATE TRIGGER items_ad AFTER DELETE ON items BEGIN
-        INSERT INTO items_fts(items_fts, rowid, title, url, note)
-        VALUES ('delete', old.rowid, old.title, COALESCE(old.url, ''), COALESCE(old.note, ''));
-      END;
+        CREATE TRIGGER items_ad AFTER DELETE ON items BEGIN
+          INSERT INTO items_fts(items_fts, rowid, title, url, note)
+          VALUES ('delete', old.rowid, old.title, COALESCE(old.url, ''), COALESCE(old.note, ''));
+        END;
 
-      CREATE TRIGGER items_au AFTER UPDATE ON items BEGIN
-        INSERT INTO items_fts(items_fts, rowid, title, url, note)
-        VALUES ('delete', old.rowid, old.title, COALESCE(old.url, ''), COALESCE(old.note, ''));
-        INSERT INTO items_fts(rowid, title, url, note)
-        VALUES (new.rowid, new.title, COALESCE(new.url, ''), COALESCE(new.note, ''));
-      END;
+        CREATE TRIGGER items_au AFTER UPDATE ON items BEGIN
+          INSERT INTO items_fts(items_fts, rowid, title, url, note)
+          VALUES ('delete', old.rowid, old.title, COALESCE(old.url, ''), COALESCE(old.note, ''));
+          INSERT INTO items_fts(rowid, title, url, note)
+          VALUES (new.rowid, new.title, COALESCE(new.url, ''), COALESCE(new.note, ''));
+        END;
 
-      INSERT INTO items_fts(items_fts) VALUES ('rebuild');
+        INSERT INTO items_fts(items_fts) VALUES ('rebuild');
 
-      PRAGMA foreign_keys = ON;
-    `)
+        PRAGMA foreign_keys = ON;
+      `)
+    })()
   }
 
   if (!hasColumn(db, 'items', 'completed_at')) {
