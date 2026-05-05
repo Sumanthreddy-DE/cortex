@@ -18,6 +18,8 @@ import SpacesView from './components/SpacesView'
 import EditModal from './components/EditModal'
 import SearchResults from './components/SearchResults'
 import SettingsView from './components/SettingsView'
+import IssuesView from './components/IssuesView'
+import ResearchView from './components/ResearchView'
 import { hasDesktopBridge } from './lib/desktop'
 
 function isEditableTarget(target: EventTarget | null): boolean {
@@ -303,6 +305,17 @@ export default function App() {
             await setSpaceItemPinned(spaceId, itemId, pinned)
           }}
           onOpenItem={handleCardClick}
+        />
+      ) : view === 'issues' ? (
+        <IssuesView
+          items={items}
+          onCardClick={handleCardClick}
+          onComplete={handleComplete}
+        />
+      ) : view === 'research' ? (
+        <ResearchView
+          items={items}
+          onCardClick={handleCardClick}
         />
       ) : view === 'settings' ? (
         <SettingsView />
