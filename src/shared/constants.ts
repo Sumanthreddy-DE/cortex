@@ -4,7 +4,7 @@ export const API_BASE = `http://127.0.0.1:${API_PORT}`
 export const DB_FILENAME = 'cortex.db'
 export const REMINDER_CHECK_CRON = '* * * * *'
 export const MIDNIGHT_CRON = '0 0 * * *'
-export const DEFAULT_MORNING_DIGEST_TIME = '08:00'
+export const DEFAULT_MORNING_DIGEST_TIME = '05:00'
 
 export const PRIORITIES = [
   'inbox',

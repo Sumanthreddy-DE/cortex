@@ -46,7 +46,7 @@ describe('runMigrations', () => {
       | undefined
 
     expect(midnight?.value).toBe('0')
-    expect(digest?.value).toBe('08:00')
+    expect(digest?.value).toBe('05:00')
   })
 
   it('accepts inbox priority and remind_at column', () => {

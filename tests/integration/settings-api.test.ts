@@ -23,7 +23,7 @@ describe('settings api', () => {
   it('returns default settings', async () => {
     const response = await request(app).get('/api/settings')
     expect(response.status).toBe(200)
-    expect(response.body.morning_digest_time).toBe('08:00')
+    expect(response.body.morning_digest_time).toBe('05:00')
   })
 
   it('updates the digest time', async () => {

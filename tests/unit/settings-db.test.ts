@@ -16,7 +16,7 @@ describe('settings db helpers', () => {
 
   it('returns defaults', () => {
     const settings = getSettings(db)
-    expect(settings.morning_digest_time).toBe('08:00')
+    expect(settings.morning_digest_time).toBe('05:00')
     expect(settings.last_midnight_run).toBe('0')
     expect(settings.last_digest_date).toBe('')
   })
