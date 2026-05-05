@@ -217,7 +217,7 @@ function CategoryInlineAdd({
 export function CategoryView({ items, onTagChange, onComplete, onCardClick, onCreate }: Props) {
   const [dragSource, setDragSource] = useState<DragSource>(null)
   const [dropTag, setDropTag] = useState<string | null>(null)
-  const [openCategory, setOpenCategory] = useState<string | null>(null)
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set())
   // subfolder state: { category → active subfolder name } and pending input
   const [activeSubfolders, setActiveSubfolders] = useState<Record<string, string>>({})
   const [pendingSubfolder, setPendingSubfolder] = useState<{ category: string; value: string } | null>(null)
@@ -276,17 +276,6 @@ export function CategoryView({ items, onTagChange, onComplete, onCardClick, onCr
     [tree]
   )
 
-  useEffect(() => {
-    if (parentTags.length === 0) {
-      setOpenCategory(null)
-      return
-    }
-
-    if (!openCategory || !parentTags.includes(openCategory)) {
-      setOpenCategory(parentTags[0] ?? null)
-    }
-  }, [openCategory, parentTags])
-
   async function handleDrop(targetTag: string) {
     if (!dragSource || targetTag === 'Untagged' || targetTag === dragSource.fromTag) {
       setDragSource(null)
@@ -311,7 +300,12 @@ export function CategoryView({ items, onTagChange, onComplete, onCardClick, onCr
   }
 
   function toggleCategory(tag: string) {
-    setOpenCategory((current) => (current === tag ? null : tag))
+    setOpenCategories((prev) => {
+      const next = new Set(prev)
+      if (next.has(tag)) next.delete(tag)
+      else next.add(tag)
+      return next
+    })
   }
 
   useEffect(() => {
@@ -336,7 +330,7 @@ export function CategoryView({ items, onTagChange, onComplete, onCardClick, onCr
           {parentTags.map((parent) => {
             const childBuckets = tree.get(parent)!
             const isUntagged = parent === 'Untagged'
-            const isOpen = openCategory === parent
+            const isOpen = openCategories.has(parent)
             const directBucket = childBuckets.get(null)
             const subfolders = Array.from(childBuckets.entries())
               .filter(([child]) => child !== null)
