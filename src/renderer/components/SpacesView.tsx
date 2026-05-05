@@ -139,10 +139,9 @@ function SpaceCard({
 }) {
   const spaceItems = items.filter((item) => item.spaces.includes(space.id))
   const pinned = spaceItems.filter((item) => item.space_pinned[space.id])
-  const recent = spaceItems
-    .filter((item) => !item.space_pinned[space.id] && item.last_opened_at)
+  const unpinned = spaceItems
+    .filter((item) => !item.space_pinned[space.id])
     .sort((left, right) => (right.last_opened_at ?? 0) - (left.last_opened_at ?? 0))
-    .slice(0, 5)
   const availableItems = useMemo(
     () => items.filter((item) => !item.spaces.includes(space.id)).slice(0, 8),
     [items, space.id]
@@ -178,10 +177,10 @@ function SpaceCard({
         </div>
       ) : null}
 
-      {recent.length > 0 ? (
+      {unpinned.length > 0 ? (
         <div className="space-section">
-          <h4>Recent</h4>
-          {recent.map((item) => (
+          <h4>Items</h4>
+          {unpinned.map((item) => (
             <SpaceItemRow
               key={item.id}
               item={item}
@@ -194,8 +193,8 @@ function SpaceCard({
         </div>
       ) : null}
 
-      {pinned.length === 0 && recent.length === 0 ? (
-        <div className="empty-state">No pinned or recently used items yet.</div>
+      {pinned.length === 0 && unpinned.length === 0 ? (
+        <div className="empty-state">No items yet. Use "Add to {space.name}" below.</div>
       ) : null}
 
       <button type="button" className="button-secondary add-to-space" onClick={onToggleChooser}>
