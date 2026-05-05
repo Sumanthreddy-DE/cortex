@@ -2368,3 +2368,45 @@ a {
   background: var(--ink-stamp);
   border-radius: 1px;
 }
+
+/* ── Issues view ── */
+.issues-view { padding: 28px 32px; }
+.issues-header { margin-bottom: 24px; }
+.issues-header h1 { font-family: var(--font-display); font-size: 24px; font-weight: 500; margin-bottom: 4px; }
+.issues-header p { font-size: 13px; color: var(--ink-soft); }
+
+.issues-groups { display: flex; flex-direction: column; gap: 20px; }
+.issues-group-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+  margin-bottom: 6px;
+}
+
+.issue-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  transition: border-color 0.1s;
+}
+.issue-row:hover { border-color: var(--ink-dim); }
+.issue-row-title { flex: 1; font-size: 13px; color: var(--ink); }
+.issue-row-tags { display: flex; gap: 4px; }
+.issue-row-tag {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  padding: 1px 6px;
+  background: var(--paper-deep);
+  border-radius: 8px;
+  color: var(--ink-dim);
+}
+.issue-complete-btn { opacity: 0; }
+.issue-row:hover .issue-complete-btn { opacity: 1; }
