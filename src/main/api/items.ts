@@ -2,7 +2,7 @@ import Database from 'better-sqlite3'
 import { Router } from 'express'
 import { nanoid } from 'nanoid'
 import { normalizePriority, PRIORITIES, type Priority } from '../../shared/constants'
-export type ItemType = 'link' | 'idea'
+export type ItemType = 'link' | 'idea' | 'issue' | 'company'
 
 export interface ItemNoteEntry {
   id: string
@@ -308,7 +308,7 @@ export function createItem(db: Database.Database, input: ItemMutationInput): Ite
   const nextNote = coerceNullableText(input.note)
   const nextPriority = normalizePriority(input.priority)
   const nextFields =
-    input.type === 'idea'
+    input.type === 'idea' || input.type === 'issue'
       ? deriveIdeaFields(input.title, nextNote)
       : { title: deriveLinkTitle(input.title, nextUrl), note: nextNote }
 
@@ -460,7 +460,7 @@ export function updateItem(
   const nextPriority =
     patch.priority !== undefined ? normalizePriority(patch.priority) : normalizePriority(current.priority)
   const nextFields =
-    nextType === 'idea'
+    nextType === 'idea' || nextType === 'issue'
       ? deriveIdeaFields(patch.title ?? current.title, nextNote)
       : { title: deriveLinkTitle(patch.title ?? current.title, nextUrl), note: nextNote }
   const now = Date.now()
@@ -498,7 +498,7 @@ export function appendItemNote(db: Database.Database, id: string, content: strin
   const current = getItemById(db, id)
   const trimmed = content.trim()
 
-  if (!current || current.type !== 'idea' || !trimmed) {
+  if (!current || (current.type !== 'idea' && current.type !== 'issue') || !trimmed) {
     return null
   }
 
@@ -604,10 +604,14 @@ export function itemsRouter(db: Database.Database, options: ItemsRouterOptions =
     const hasIdeaContent = titleValue.trim() || noteValue.trim()
     const hasLinkContent = titleValue.trim() || urlValue.trim()
 
+    const validTypes: ItemType[] = ['link', 'idea', 'issue', 'company']
+    const requiresUrl = type === 'link' || type === 'company'
+    const requiresTitle = type === 'idea' || type === 'issue'
+
     if (
-      (type !== 'link' && type !== 'idea') ||
-      (type === 'idea' && !hasIdeaContent) ||
-      (type === 'link' && !hasLinkContent)
+      !validTypes.includes(type as ItemType) ||
+      (requiresUrl && !hasLinkContent) ||
+      (requiresTitle && !hasIdeaContent)
     ) {
       res.status(400).json({ error: 'Invalid item payload' })
       return
@@ -637,7 +641,7 @@ export function itemsRouter(db: Database.Database, options: ItemsRouterOptions =
     const { type, title, url, note, priority, tags, favicon_url, remind_at } = req.body ?? {}
     const patch: Partial<Omit<ItemMutationInput, 'id'>> = {}
 
-    if (type === 'link' || type === 'idea') {
+    if (type === 'link' || type === 'idea' || type === 'issue' || type === 'company') {
       patch.type = type
     }
     if (typeof title === 'string') {

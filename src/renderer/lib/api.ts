@@ -8,7 +8,7 @@ function getApiBase(): string {
   return ''
 }
 
-export type ItemType = 'link' | 'idea'
+export type ItemType = 'link' | 'idea' | 'issue' | 'company'
 
 export interface ItemNoteEntry {
   id: string
