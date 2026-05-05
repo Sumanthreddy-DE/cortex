@@ -199,7 +199,9 @@ export function PriorityView({
   const [bucketSelectIds, setBucketSelectIds] = useState<Set<string>>(new Set())
   const [mergingBucket, setMergingBucket] = useState<string | null>(null)
 
-  const sortedItems = [...items].sort((left, right) => left.created_at - right.created_at)
+  const sortedItems = [...items]
+    .filter((item) => item.type !== 'issue' && item.type !== 'company')
+    .sort((left, right) => left.created_at - right.created_at)
   const staleSomeday = sortedItems.filter(
     (item) =>
       !getFixedBucketTag(item.tags) &&

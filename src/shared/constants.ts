@@ -39,7 +39,7 @@ export const PRIORITY_COLORS: Record<(typeof PRIORITIES)[number], string> = {
 export type Priority = (typeof PRIORITIES)[number]
 export type BoardPriority = (typeof BOARD_PRIORITIES)[number]
 export type FixedBucketTag = (typeof FIXED_BUCKET_TAGS)[number]
-export type View = 'priority' | 'category' | 'completed' | 'spaces' | 'archive' | 'settings'
+export type View = 'priority' | 'category' | 'completed' | 'spaces' | 'archive' | 'settings' | 'issues' | 'research'
 
 export function normalizePriority(priority: Priority): Priority {
   return priority === 'for-now' ? 'today' : priority
