@@ -207,6 +207,13 @@ export function PriorityView({
     if (!bucketTag) return true
     return bucketTag === 'Ideas' && normalizePriority(item.priority) !== 'inbox'
   })
+  const inboxColumnItems = columnItems.filter((item) => {
+    const priority = normalizePriority(item.priority)
+    return priority === 'inbox' || priority === 'for-now'
+  })
+  const visibleColumnPriorities = BOARD_PRIORITIES.filter(
+    (priority) => priority !== 'inbox' || inboxColumnItems.length > 0
+  )
   const staleSomeday = sortedItems.filter(
     (item) =>
       !getFixedBucketTag(item.tags) &&
@@ -401,7 +408,7 @@ export function PriorityView({
         </section>
 
         <div className="board-columns">
-          {BOARD_PRIORITIES.map((priority) => {
+          {visibleColumnPriorities.map((priority) => {
             const laneItems = columnItems.filter(
               (item) => normalizePriority(item.priority) === priority
             )
