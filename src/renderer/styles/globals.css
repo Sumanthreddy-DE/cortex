@@ -567,6 +567,32 @@ a {
   gap: 12px;
 }
 
+.from-ideas-wrap {
+  position: relative;
+}
+
+.from-ideas-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--ink-stamp);
+  background: rgba(61, 70, 145, 0.08);
+  border-radius: 8px;
+  padding: 1px 6px;
+  margin-top: 4px;
+}
+
+.from-ideas-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ink-stamp);
+  display: inline-block;
+}
+
 .column-banner {
   border: 1px solid var(--margin-line);
   background: var(--paper-raised);

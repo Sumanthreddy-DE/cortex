@@ -202,6 +202,11 @@ export function PriorityView({
   const sortedItems = [...items]
     .filter((item) => item.type !== 'issue' && item.type !== 'company')
     .sort((left, right) => left.created_at - right.created_at)
+  const columnItems = sortedItems.filter((item) => {
+    const bucketTag = getFixedBucketTag(item.tags)
+    if (!bucketTag) return true
+    return bucketTag === 'Ideas' && normalizePriority(item.priority) !== 'inbox'
+  })
   const staleSomeday = sortedItems.filter(
     (item) =>
       !getFixedBucketTag(item.tags) &&
@@ -397,8 +402,8 @@ export function PriorityView({
 
         <div className="board-columns">
           {BOARD_PRIORITIES.map((priority) => {
-            const columnItems = sortedItems.filter(
-              (item) => !getFixedBucketTag(item.tags) && normalizePriority(item.priority) === priority
+            const laneItems = columnItems.filter(
+              (item) => normalizePriority(item.priority) === priority
             )
             const isSomeday = priority === 'someday'
             const isInbox = priority === 'inbox'
@@ -430,9 +435,9 @@ export function PriorityView({
                     {PRIORITY_LABELS[priority]}
                   </h3>
                   <span className={`lane-meta lane-meta-${priority}`}>
-                    {String(columnItems.length).padStart(2, '0')} {columnItems.length === 1 ? 'ITEM' : 'ITEMS'}
+                    {String(laneItems.length).padStart(2, '0')} {laneItems.length === 1 ? 'ITEM' : 'ITEMS'}
                   </span>
-                  {isInbox && columnItems.length > 0 && (
+                  {isInbox && laneItems.length > 0 && (
                     <button
                       type="button"
                       className="lane-select-btn"
@@ -497,11 +502,22 @@ export function PriorityView({
                     </div>
                   ) : null}
 
-                  {columnItems.length === 0 ? (
+                  {laneItems.length === 0 ? (
                     <div className="empty-state">Drop here or add something new.</div>
                   ) : (
-                    columnItems.map((item) => {
+                    laneItems.map((item) => {
                       const isSelected = selectedIds.has(item.id)
+                      const card = renderCard(item, onCardClick, {
+                        draggable: true,
+                        onDragStart: () => setDragSource(item),
+                        onDragEnd: clearDragState,
+                        onDelete: (target) => {
+                          void onDelete(target)
+                        },
+                        onComplete: (target) => {
+                          void onComplete(target)
+                        }
+                      })
 
                       if (isInbox && selectMode) {
                         return (
@@ -515,7 +531,14 @@ export function PriorityView({
                             <div className="selectable-check">
                               {isSelected && <Check size={11} strokeWidth={3} />}
                             </div>
-                            {renderCard(item, () => toggleSelectItem(item.id), {
+                            {item.tags.includes('Ideas') ? (
+                              <div className="from-ideas-wrap">
+                                {renderCard(item, () => toggleSelectItem(item.id), {
+                                  draggable: false
+                                })}
+                                <div className="from-ideas-badge">from Ideas</div>
+                              </div>
+                            ) : renderCard(item, () => toggleSelectItem(item.id), {
                               draggable: false
                             })}
                           </div>
@@ -524,17 +547,12 @@ export function PriorityView({
 
                       return (
                         <div key={item.id}>
-                          {renderCard(item, onCardClick, {
-                            draggable: true,
-                            onDragStart: () => setDragSource(item),
-                            onDragEnd: clearDragState,
-                            onDelete: (target) => {
-                              void onDelete(target)
-                            },
-                            onComplete: (target) => {
-                              void onComplete(target)
-                            }
-                          })}
+                          {item.tags.includes('Ideas') ? (
+                            <div className="from-ideas-wrap">
+                              {card}
+                              <div className="from-ideas-badge">from Ideas</div>
+                            </div>
+                          ) : card}
                         </div>
                       )
                     })
