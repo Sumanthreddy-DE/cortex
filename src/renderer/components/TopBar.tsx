@@ -62,6 +62,12 @@ export function TopBar({
         <button type="button" data-active={view === 'archive'} onClick={() => onViewChange('archive')}>
           Archive
         </button>
+        <button type="button" data-active={view === 'issues'} onClick={() => onViewChange('issues')}>
+          Issues
+        </button>
+        <button type="button" data-active={view === 'research'} onClick={() => onViewChange('research')}>
+          Research
+        </button>
       </div>
 
       {inboxCount > 0 ? (
