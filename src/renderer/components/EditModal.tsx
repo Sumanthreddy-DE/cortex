@@ -180,7 +180,19 @@ export function EditModal({ item, onSave, onArchive, onDelete, onComplete, onUnc
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-panel" onClick={(event) => event.stopPropagation()}>
+      <div
+        className="modal-panel"
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => {
+          if (event.key !== 'Enter') return
+          const tag = (event.target as HTMLElement).tagName.toLowerCase()
+          if (tag === 'textarea' || tag === 'select') return
+          event.preventDefault()
+          if (canSave && !saving) {
+            void handleSubmit()
+          }
+        }}
+      >
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {resolvedType === 'link' ? <Link2 size={16} /> : <PenLine size={16} color="#f97316" />}
