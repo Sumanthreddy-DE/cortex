@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { CalendarPlus, Check, CheckCircle2, Link2, PenLine, RotateCcw, Trash2, X } from 'lucide-react'
 import { TagAutocomplete } from './TagAutocomplete'
 import { BOARD_PRIORITIES, PRIORITY_LABELS, type Priority } from '../../shared/constants'
-import { api, Item, ItemPayload } from '../lib/api'
+import { api, type Item, type ItemPayload, type ItemType } from '../lib/api'
 import { hasCalendarSupport } from '../lib/desktop'
 import { formatExact, formatRelative } from '../lib/utils'
 
@@ -94,9 +94,10 @@ export function EditModal({ item, onSave, onArchive, onDelete, onComplete, onUnc
   const [existingTags, setExistingTags] = useState<string[]>([])
   const [calendarState, setCalendarState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [calendarError, setCalendarError] = useState('')
+  const [typeOverride, setTypeOverride] = useState<'issue' | 'company' | null>(null)
   const calendarSupported = hasCalendarSupport()
   const ideaDraft = deriveIdeaDraft(title, note)
-  const resolvedType = url.trim() ? 'link' : 'idea'
+  const resolvedType: ItemType = typeOverride ?? (url.trim() ? 'link' : 'idea')
   const canSave = Boolean(url.trim()) || Boolean(ideaDraft.title)
 
   useEffect(() => {
@@ -107,6 +108,9 @@ export function EditModal({ item, onSave, onArchive, onDelete, onComplete, onUnc
     setTagsInput(item?.tags.join(', ') ?? '')
     setRemindAt(toLocalInputValue(item?.remind_at ?? null))
     setDeleteConfirm(false)
+    setTypeOverride(
+      item?.type === 'issue' || item?.type === 'company' ? item.type : null
+    )
   }, [item])
 
   useEffect(() => {
@@ -121,16 +125,18 @@ export function EditModal({ item, onSave, onArchive, onDelete, onComplete, onUnc
     setSaving(true)
     try {
       const normalizedUrl = url.trim()
-      const nextType = normalizedUrl ? 'link' : 'idea'
+      const nextType: ItemType = typeOverride ?? (normalizedUrl ? 'link' : 'idea')
       const normalizedTitle =
-        nextType === 'link' ? title.trim() || normalizedUrl.replace(/^https?:\/\//i, '') : ideaDraft.title
+        nextType === 'link' || nextType === 'company'
+          ? title.trim() || normalizedUrl.replace(/^https?:\/\//i, '')
+          : ideaDraft.title
 
       await onSave(
         {
           type: nextType,
           title: normalizedTitle,
-          url: nextType === 'link' ? normalizedUrl : null,
-          note: nextType === 'idea' ? ideaDraft.note : note.trim() || null,
+          url: nextType === 'link' || nextType === 'company' ? normalizedUrl : null,
+          note: nextType === 'idea' || nextType === 'issue' ? ideaDraft.note : note.trim() || null,
           priority,
           tags: tagsInput
             .split(',')
@@ -221,6 +227,33 @@ export function EditModal({ item, onSave, onArchive, onDelete, onComplete, onUnc
             />
           </label>
 
+          <div className="field-group">
+            <span className="field-label">Type</span>
+            <div className="type-override-row">
+              <button
+                type="button"
+                className={`type-override-btn${typeOverride === null ? ' active' : ''}`}
+                onClick={() => setTypeOverride(null)}
+              >
+                Auto
+              </button>
+              <button
+                type="button"
+                className={`type-override-btn${typeOverride === 'issue' ? ' active' : ''}`}
+                onClick={() => setTypeOverride(typeOverride === 'issue' ? null : 'issue')}
+              >
+                Issue
+              </button>
+              <button
+                type="button"
+                className={`type-override-btn${typeOverride === 'company' ? ' active' : ''}`}
+                onClick={() => setTypeOverride(typeOverride === 'company' ? null : 'company')}
+              >
+                Company
+              </button>
+            </div>
+          </div>
+
           <label className="field-group">
             <span className="field-label">Notes</span>
             <textarea
@@ -232,7 +265,11 @@ export function EditModal({ item, onSave, onArchive, onDelete, onComplete, onUnc
           </label>
 
           <div className="card-meta">
-            {resolvedType === 'link'
+            {typeOverride === 'issue'
+              ? 'Saving as an issue — will appear in the Issues tab.'
+              : typeOverride === 'company'
+              ? 'Saving as a company — will appear in the Research tab.'
+              : resolvedType === 'link'
               ? 'This will save as a link card because a URL is present.'
               : 'No URL yet, so this will save as an idea card.'}
           </div>

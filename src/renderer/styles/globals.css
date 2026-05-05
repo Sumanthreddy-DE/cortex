@@ -2505,3 +2505,30 @@ a {
   border-radius: 8px;
   color: var(--ink-dim);
 }
+
+/* ── EditModal type override ── */
+.type-override-row {
+  display: flex;
+  gap: 6px;
+}
+.type-override-btn {
+  padding: 4px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--paper-raised);
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: border-color 0.1s, background 0.1s;
+}
+.type-override-btn:hover {
+  border-color: var(--ink-dim);
+  color: var(--ink);
+}
+.type-override-btn.active {
+  border-color: var(--ink-stamp);
+  background: rgba(61, 70, 145, 0.08);
+  color: var(--ink-stamp);
+  font-weight: 500;
+}
