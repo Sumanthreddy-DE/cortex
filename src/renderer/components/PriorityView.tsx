@@ -12,6 +12,7 @@ import {
 import type { Item, ItemPayload } from '../lib/api'
 import Card from './Card'
 import IdeaCard from './IdeaCard'
+import IdeasBucketBody from './IdeasBucketBody'
 
 interface Props {
   items: Item[]
@@ -295,7 +296,14 @@ export function PriorityView({
                 <span className="bucket-count">{bucketItems.length}</span>
                 {isExpanded ? (
                   <div className="bucket-body" onClick={(event) => event.stopPropagation()}>
-                    {bucketItems.length === 0 ? (
+                    {tag === 'Ideas' && bucketItems.length > 0 ? (
+                      <IdeasBucketBody
+                        items={bucketItems}
+                        onCardClick={onCardClick}
+                        onDelete={(item) => { void onDelete(item) }}
+                        onComplete={(item) => { void onComplete(item) }}
+                      />
+                    ) : bucketItems.length === 0 ? (
                       <div className="empty-state">Nothing here</div>
                     ) : (
                       <>
