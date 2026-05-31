@@ -159,10 +159,10 @@ cortex/
 |-------|---------|--------|
 | **1** | Core app — Electron + React + SQLite + Kanban + Edit modal + Search + Quick-add + Tray + Reminders | ✅ Done |
 | **1b** | Chrome Extension — `Ctrl+Shift+S` + auto-tag detection | ✅ Done |
-| **2** | Telegram Bot — mobile capture via Supabase queue | 📋 Planned |
-| **3** | Cron + Notifications — midnight promotion + morning digest | 📋 Planned |
-| **4** | Calendar Integration — "Add to Calendar" via `gws` CLI | 📋 Planned |
-| **5** | Settings & Polish — auto-start toggle, digest time, Telegram config | 📋 Planned |
+| **2** | Telegram Bot — mobile capture via Supabase queue | ✅ Done |
+| **3** | Cron + Notifications — midnight promotion + morning digest | ✅ Done |
+| **4** | Calendar Integration — "Add to Calendar" via `gws` CLI | ✅ Done |
+| **5** | Settings & Polish — auto-start toggle, digest time, Telegram config | ✅ Done |
 
 ---
 
