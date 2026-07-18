@@ -26,4 +26,4 @@ Local-first Electron+React+SQLite link/idea manager living in system tray. Prior
 
 ## Landmines
 - Foreign-agent lesson: Option C plan silently killed merge by bypassing the else branch — audit any agent plan against behavior it replaces
-- Local repo carries ~20 unpushed commits (May 5-6 feature work, rebased onto remote 2026-07-18) — push overdue; remote gets browser edits too, fetch before assuming sync
+- Remote gets browser/other-tool edits between sessions — fetch before assuming sync (was 19 ahead + 1 behind on 2026-07-18; rebased + pushed, now clean)
