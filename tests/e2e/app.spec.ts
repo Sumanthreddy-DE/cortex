@@ -1,4 +1,5 @@
-import { existsSync } from 'node:fs'
+import { existsSync, mkdtempSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { _electron as electron, expect, test, type ElectronApplication, type Page } from '@playwright/test'
 
@@ -11,7 +12,10 @@ async function launchApp(): Promise<{ app: ElectronApplication; page: Page }> {
     env: {
       ...process.env,
       NODE_ENV: 'test',
-      PLAYWRIGHT_TEST: '1'
+      PLAYWRIGHT_TEST: '1',
+      // Isolated DB per run — without this the suite writes into the user's real
+      // %APPDATA%\Cortex database (app.setName pins userData there even unpackaged)
+      CORTEX_DATA_DIR: mkdtempSync(join(tmpdir(), 'cortex-e2e-'))
     }
   })
 
@@ -30,10 +34,11 @@ test.describe('Cortex E2E', () => {
     const { app, page } = await launchApp()
     try {
       await expect(page.getByPlaceholder(/Search/i)).toBeVisible({ timeout: 15_000 })
-      // 5 kanban columns visible
-      for (const col of ['Inbox', 'Today', 'Tomorrow', 'This Week', 'Someday']) {
+      // 4 kanban columns visible (Inbox is hidden while empty by design)
+      for (const col of ['Today', 'Tomorrow', 'This Week', 'Someday']) {
         await expect(page.getByText(col, { exact: true }).first()).toBeVisible({ timeout: 10_000 })
       }
+      await expect(page.getByText('Inbox', { exact: true })).not.toBeVisible()
     } finally {
       await app.close()
     }
@@ -131,7 +136,7 @@ test.describe('Cortex E2E', () => {
   test('fixed bucket sections are visible (Daily, Groceries, Tools)', async () => {
     const { app, page } = await launchApp()
     try {
-      await page.waitForSelector('.landing-buckets', { timeout: 15_000 })
+      await page.waitForSelector('.buckets-bar', { timeout: 15_000 })
       for (const bucket of ['Daily', 'Groceries', 'Tools']) {
         await expect(page.getByText(bucket, { exact: true }).first()).toBeVisible({ timeout: 5_000 })
       }
