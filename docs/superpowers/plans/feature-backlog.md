@@ -1,10 +1,50 @@
 # Cortex — Feature Backlog
 
-> Status sweep 2026-07-18: items 1-5 all shipped (commits 9727fec, 028c18d, 6d50ce8, abe6894, 7716b88). Backlog is empty — next ideas go here.
+> Status sweep 2026-07-18: items 1-5 all shipped (commits 9727fec, 028c18d, 6d50ce8, abe6894, 7716b88).
 
 Unplanned ideas. Not ordered by priority. Each entry has enough context to write a plan from.
 
 ---
+
+## Phase-5 candidates (2026-07-18 product review — discussed, not yet approved)
+
+Context for all entries below: real-DB usage audit on 2026-07-18 showed 62 items total, 60 sitting in Inbox, 0 ever completed, 0 ever archived, 0 reminders used, last item opened 2026-05-05. Capture works; the triage→action→done loop (the product's core premise per PRODUCT.md) has never run. Mobile capture died in May when the Supabase Telegram chain broke — likely the moment app usage died. Phase 5 should rebuild the retention loop, not add organizing surfaces.
+
+## 6. Triage session mode ("inbox zero in 2 minutes")
+
+**What:** Keyboard-only rapid triage: press one key to start, app shows ONE inbox item at a time, single-key actions — `t` today, `m` tomorrow, `w` this week, `s` someday, `a` archive, `x` complete, `Enter` skip. Progress counter ("12 left"). Email-triage flow, not board dragging.
+
+**Why:** 60 items rotted in Inbox because triage-by-dragging 60 cards is a chore. Board is fine for 5 items/day, not for a backlog. This is the highest-leverage missing piece.
+
+## 7. Morning digest via Discord DM (replace dead gws email)
+
+**What:** `fireMorningDigest` posts today's task list as a Discord message (bot token already configured — POST /channels/:id/messages, ~15 lines) instead of / in addition to the never-working `gws gmail +send` path. Optionally a dedicated `#cortex-digest` channel.
+
+**Why:** gws auth was never completed; email has silently failed since the feature shipped. Discord bot is already authenticated and lives on the phone — same surface the user now captures from. Zero new auth surface.
+
+## 8. Two-way Discord bot (capture receipts + queries)
+
+**What:** (a) Bot adds a ✅ reaction to each captured message — trust receipt, phone-visible. (b) Message `?today` or `?list` → bot replies with current Today/Inbox list. Poller already sees all messages; reply is one REST call.
+
+**Why:** Right now capture is fire-and-forget with no confirmation; a silent failure (like the 404 during setup) is invisible from the phone.
+
+## 9. Stale-item sweep (auto-suggest archive)
+
+**What:** Items in Inbox older than N days (e.g. 45) get flagged; periodic prompt or triage-mode filter offers one-key bulk archive to a "cold storage" state. Not auto-delete — auto-suggest.
+
+**Why:** 0 archived ever. Without decay pressure, Inbox becomes a graveyard that punishes opening the app.
+
+## 10. Video/Reels-to-text capture enrichment
+
+**What:** From the user's own May inbox: "I have videos or Instagram Reels or YouTube Shorts... save these and get text out of them." Discord-captured video links get transcript/summary attached (yt-dlp + whisper or a transcript API) as item note.
+
+**Why:** User-stated need sitting in the inbox since May. Big scope — needs its own plan; park until loop features (6-8) ship.
+
+## 11. Contrarian note — stop adding surfaces (process, don't organize)
+
+**What:** Not a feature — a constraint for phase 5+. App already has 8 views (Priority, Category, Completed, Spaces, Archive, Issues, Research, Settings) for one user whose entire active dataset is ~60 items, none of which have ever been completed or archived. Bottleneck is processing, not organizing.
+
+**Why:** Every new view adds triage surface without adding throughput. Rule of thumb going forward: no new view until completed_at count > 0 for 4 straight weeks.
 
 ## 1. Ideas Dual Display — approved mockup in `mockups/ideas-dual-display.png`
 
