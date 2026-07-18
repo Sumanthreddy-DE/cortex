@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --paper: #f6f1e7;
+    --ink: #1f2430;
+    --ink-soft: #6b7280;
+    --ink-stamp: #3d4691;
+    --coral: #e2674e;
+    --sage: #7a9471;
+    --butter: #e8c56a;
+    --teal: #4e8f8a;
+  }
+  * { margin: 0; box-sizing: border-box; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: var(--paper);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+  }
+  .progress {
+    font-family: 'Consolas', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .progress b { color: var(--coral); }
+  .bar {
+    width: 420px; height: 4px; border-radius: 2px;
+    background: rgba(31,36,48,0.08); margin-bottom: 42px; position: relative;
+  }
+  .bar::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 22%; border-radius: 2px; background: var(--coral);
+  }
+  .card {
+    width: 560px;
+    background: #fffdf8;
+    border: 1px solid rgba(31,36,48,0.12);
+    border-radius: 14px;
+    padding: 44px 48px 36px;
+    box-shadow: 0 10px 30px rgba(31,36,48,0.10);
+    text-align: center;
+  }
+  .kind {
+    font-family: 'Consolas', monospace;
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--ink-stamp);
+    background: rgba(61,70,145,0.08);
+    display: inline-block; padding: 3px 10px; border-radius: 9px;
+    margin-bottom: 20px;
+  }
+  h1 { font-size: 26px; font-weight: 600; line-height: 1.35; margin-bottom: 18px; }
+  .meta {
+    font-family: 'Consolas', monospace;
+    font-size: 12px; color: var(--ink-soft);
+  }
+  .meta .old { color: var(--coral); }
+  .keys {
+    margin-top: 46px;
+    display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+  }
+  .key {
+    display: flex; flex-direction: column; align-items: center; gap: 7px;
+    font-family: 'Consolas', monospace; font-size: 11px; color: var(--ink-soft);
+  }
+  .cap {
+    width: 34px; height: 34px; border-radius: 8px;
+    border: 1px solid rgba(31,36,48,0.22);
+    border-bottom-width: 3px;
+    background: #fffdf8;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: bold; color: var(--ink);
+  }
+  .key.today .cap { border-color: var(--coral); color: var(--coral); }
+  .key.done .cap { border-color: var(--sage); color: var(--sage); }
+  .key.arch .cap { border-color: var(--butter); color: #a8842a; }
+  .hint {
+    margin-top: 30px;
+    font-family: 'Consolas', monospace; font-size: 11px; color: var(--ink-soft);
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+  <div class="progress">TRIAGE &nbsp;·&nbsp; <b>13</b> of 60 left</div>
+  <div class="bar"></div>
+  <div class="card">
+    <div class="kind">idea</div>
+    <h1>I have videos or Instagram Reels or YouTube Shorts — save these and get text out of them</h1>
+    <div class="meta">captured <span class="old">67 days ago</span> · from Telegram</div>
+  </div>
+  <div class="keys">
+    <div class="key today"><div class="cap">T</div>today</div>
+    <div class="key"><div class="cap">M</div>tomorrow</div>
+    <div class="key"><div class="cap">W</div>this week</div>
+    <div class="key"><div class="cap">S</div>someday</div>
+    <div class="key done"><div class="cap">X</div>done</div>
+    <div class="key arch"><div class="cap">A</div>archive</div>
+    <div class="key"><div class="cap">↵</div>skip</div>
+  </div>
+  <div class="hint">U undo last · ESC leave · one key, next card appears</div>
+</body>
+</html>
