@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import cron from 'node-cron'
 import { BrowserWindow, app, clipboard, globalShortcut, ipcMain, shell } from 'electron'
 import { nanoid } from 'nanoid'
-import { MIDNIGHT_CRON, REMINDER_CHECK_CRON } from '../shared/constants'
+import { APP_NAME, MIDNIGHT_CRON, REMINDER_CHECK_CRON } from '../shared/constants'
 import { fetchAndUpdateLinkTitle } from './api/link-fetch'
 import { addToCalendar } from './calendar'
 import { fireMorningDigest, shouldFireDigest } from './cron/morning-digest'
@@ -38,6 +38,7 @@ import {
 import { openQuickAddWindow } from './quick-add-window'
 import { loadRuntimeEnv } from './runtime-env'
 import { startServer } from './server'
+import { startDiscordPoller } from './discord/poller'
 import { startTelegramPoller } from './telegram/poller'
 import { createAppTray, TrayController } from './tray'
 
@@ -45,8 +46,13 @@ let mainWindow: BrowserWindow | null = null
 let trayController: TrayController | null = null
 let isQuitting = false
 let stopTelegramPoller = () => {}
+let stopDiscordPoller = () => {}
 const moduleDir = dirname(fileURLToPath(import.meta.url))
 const isTestEnv = process.env.PLAYWRIGHT_TEST === '1'
+
+// Unpackaged runs (npm run dev) default userData to %APPDATA%\Electron,
+// splitting the DB and .env from the packaged app. Pin both to %APPDATA%\Cortex.
+app.setName(APP_NAME)
 const hasSingleInstanceLock = isTestEnv || app.requestSingleInstanceLock()
 
 function registerGlobalShortcut(accelerator: string, handler: () => void): void {
@@ -322,7 +328,8 @@ if (!hasSingleInstanceLock) {
   })
 
   app.whenReady().then(() => {
-  const envPath = loadRuntimeEnv()
+  // Skip in Playwright runs so tests stay hermetic (no real tokens/pollers)
+  const envPath = isTestEnv ? null : loadRuntimeEnv()
   if (envPath) {
     console.log(`[config] loaded environment from ${envPath}`)
   }
@@ -362,6 +369,11 @@ if (!hasSingleInstanceLock) {
   stopTelegramPoller = startTelegramPoller(getDb(), (count) => {
     updateTrayCounts()
     console.log(`[telegram] ${count} new item(s) from Telegram`)
+  })
+
+  stopDiscordPoller = startDiscordPoller(getDb(), (count) => {
+    updateTrayCounts()
+    console.log(`[discord] ${count} new item(s) from Discord`)
   })
 
   trayController = createAppTray({
@@ -409,4 +421,5 @@ app.on('will-quit', () => {
   globalShortcut.unregisterAll()
   trayController?.destroy()
   stopTelegramPoller()
+  stopDiscordPoller()
 })

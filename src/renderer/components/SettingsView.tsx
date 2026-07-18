@@ -139,6 +139,12 @@ export function SettingsView() {
             <span className="settings-stat-value">{API_PORT}</span>
           </div>
           <div className="settings-stat-row">
+            <span className="card-meta">Discord capture</span>
+            <span className="settings-stat-value">
+              Optional - active when DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID env vars are present
+            </span>
+          </div>
+          <div className="settings-stat-row">
             <span className="card-meta">Telegram queue config</span>
             <span className="settings-stat-value">
               Optional - active when SUPABASE env vars are present
