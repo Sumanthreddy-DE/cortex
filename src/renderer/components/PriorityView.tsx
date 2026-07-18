@@ -311,12 +311,67 @@ export function PriorityView({
                 {isExpanded ? (
                   <div className="bucket-body" onClick={(event) => event.stopPropagation()}>
                     {tag === 'Ideas' && bucketItems.length > 0 ? (
-                      <IdeasBucketBody
-                        items={bucketItems}
-                        onCardClick={onCardClick}
-                        onDelete={(item) => { void onDelete(item) }}
-                        onComplete={(item) => { void onComplete(item) }}
-                      />
+                      <>
+                        {onMergeIdeas && mergingBucket === tag && bucketSelectIds.size >= 2 ? (
+                          <div className="bucket-merge-bar">
+                            <span className="bucket-merge-count">{bucketSelectIds.size} ideas selected</span>
+                            <button
+                              type="button"
+                              className="bucket-merge-btn"
+                              onClick={async () => {
+                                await onMergeIdeas([...bucketSelectIds])
+                                setBucketSelectIds(new Set())
+                                setMergingBucket(null)
+                              }}
+                            >
+                              Merge into one
+                            </button>
+                            <button
+                              type="button"
+                              className="bucket-merge-cancel"
+                              onClick={() => {
+                                setBucketSelectIds(new Set())
+                                setMergingBucket(null)
+                              }}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ) : null}
+                        <IdeasBucketBody
+                          items={bucketItems}
+                          onCardClick={onCardClick}
+                          onDelete={(item) => { void onDelete(item) }}
+                          onComplete={(item) => { void onComplete(item) }}
+                          inSelectMode={mergingBucket === tag}
+                          bucketSelectIds={bucketSelectIds}
+                          onToggleSelect={(id) => {
+                            setBucketSelectIds((prev) => {
+                              const next = new Set(prev)
+                              if (next.has(id)) next.delete(id)
+                              else next.add(id)
+                              return next
+                            })
+                          }}
+                        />
+                        {onMergeIdeas && bucketItems.some((i) => i.type === 'idea') ? (
+                          <button
+                            type="button"
+                            className="bucket-select-toggle"
+                            onClick={() => {
+                              if (mergingBucket === tag) {
+                                setBucketSelectIds(new Set())
+                                setMergingBucket(null)
+                              } else {
+                                setBucketSelectIds(new Set())
+                                setMergingBucket(tag)
+                              }
+                            }}
+                          >
+                            {mergingBucket === tag ? 'Cancel' : 'Select to merge'}
+                          </button>
+                        ) : null}
+                      </>
                     ) : bucketItems.length === 0 ? (
                       <div className="empty-state">Nothing here</div>
                     ) : (

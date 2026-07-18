@@ -2257,13 +2257,7 @@ a {
 
 .batch-bar-cancel:hover { color: rgba(247, 241, 230, 0.7); }
 
-/* ── Ideas bucket — Option C layout ── */
-.ideas-body {
-  display: flex;
-  gap: 0;
-  min-height: 200px;
-}
-
+/* ── Ideas bucket — compact list ── */
 .ideas-list {
   flex: 1;
   overflow-y: auto;
@@ -2343,56 +2337,25 @@ a {
   color: var(--ink);
 }
 
-/* Themes sidebar */
-.ideas-themes {
-  width: 160px;
+.ideas-row-selectable { cursor: default; }
+.ideas-row-selected { background: rgba(37, 99, 235, 0.06); }
+.ideas-row-selected:hover { background: rgba(37, 99, 235, 0.1); }
+.ideas-row-check {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
   flex-shrink: 0;
-  border-left: 1px solid var(--rule);
-  padding: 8px 12px;
-  background: var(--paper-raised);
-}
-
-.ideas-themes-title {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--ink-dim);
-  margin-bottom: 10px;
-}
-
-.ideas-theme-row {
-  margin-bottom: 9px;
-}
-.ideas-theme-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 3px;
-}
-.ideas-theme-tag {
-  font-size: 11px;
-  color: var(--ink-soft);
-  font-family: var(--font-mono);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 110px;
-}
-.ideas-theme-count {
-  font-size: 10px;
+  justify-content: center;
+  background: var(--paper-raised);
   color: var(--ink-dim);
-  flex-shrink: 0;
 }
-.ideas-theme-bar-bg {
-  height: 2px;
-  background: var(--paper-deep);
-  border-radius: 1px;
-}
-.ideas-theme-bar {
-  height: 2px;
+.ideas-row-selected .ideas-row-check {
   background: var(--ink-stamp);
-  border-radius: 1px;
+  border-color: var(--ink-stamp);
+  color: #fff;
 }
 
 /* ── Issues view ── */
