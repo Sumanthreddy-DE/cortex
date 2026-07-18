@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cortex — Hover Effect Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #020617; --surface: #0f172a; --border: #1e293b;
+  --text: #f8fafc; --text2: #94a3b8; --text3: #475569;
+  --blue: #2563eb; --orange: #f97316;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 32px; min-height: 100vh; }
+h2 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.subtitle { font-size: 12px; color: var(--text3); margin-bottom: 28px; }
+.row { display: flex; gap: 40px; flex-wrap: wrap; margin-bottom: 48px; }
+.col { flex: 1; min-width: 260px; }
+.col-label { font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text3); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.col-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.verdict { font-size: 11px; color: var(--text2); margin-top: 10px; line-height: 1.6; }
+.verdict strong { color: var(--text); }
+
+/* ── BASE CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: border-color 200ms ease;
+}
+.card-top { display: flex; align-items: flex-start; gap: 9px; }
+.favicon { width: 16px; height: 16px; border-radius: 3px; flex-shrink: 0; margin-top: 1px; object-fit: contain; }
+.card-title { font-size: 12px; font-weight: 500; color: var(--text); line-height: 1.4; }
+.card-idea { border-left: 2px solid var(--orange); }
+.idea-note { font-size: 11px; color: var(--text2); margin-top: 6px; line-height: 1.5; }
+
+/* ══ OPTION A: FULL IRIDESCENT (Claude design style) ══ */
+.card-iris {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  transition: border-color 200ms, transform 100ms ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.card-iris:hover {
+  border-color: transparent;
+  transform: perspective(600px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(4px);
+}
+/* iridescent rainbow layer */
+.card-iris::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 11px;
+  background: conic-gradient(
+    from calc(var(--mouse-x) * 3.6deg),
+    hsl(220,100%,65%), hsl(260,100%,70%), hsl(300,100%,65%),
+    hsl(340,100%,65%), hsl(20,100%,65%), hsl(60,100%,65%),
+    hsl(140,100%,60%), hsl(180,100%,60%), hsl(220,100%,65%)
+  );
+  opacity: 0;
+  transition: opacity 250ms ease;
+  z-index: -2;
+}
+/* specular highlight */
+.card-iris::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: radial-gradient(
+    circle at var(--mouse-x) var(--mouse-y),
+    rgba(255,255,255,0.18) 0%,
+    rgba(255,255,255,0.05) 40%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 250ms ease;
+  z-index: 1;
+  pointer-events: none;
+}
+/* noise texture overlay */
+.card-iris .noise {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  opacity: 0;
+  transition: opacity 250ms ease;
+  z-index: 2;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+  mix-blend-mode: overlay;
+}
+.card-iris:hover::before { opacity: 1; }
+.card-iris:hover::after  { opacity: 1; }
+.card-iris:hover .noise  { opacity: 1; }
+/* glow */
+.card-iris:hover {
+  box-shadow:
+    0 0 0 1px rgba(147,197,253,0.4),
+    0 0 20px rgba(147,197,253,0.15),
+    0 0 40px rgba(147,197,253,0.07);
+}
+
+/* ══ OPTION B: SUBTLE SPECULAR (fits flat design) ══ */
+.card-spec {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  transition: border-color 200ms, box-shadow 200ms;
+}
+.card-spec::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: radial-gradient(
+    circle at var(--mouse-x) var(--mouse-y),
+    rgba(37,99,235,0.12) 0%,
+    rgba(37,99,235,0.04) 45%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+.card-spec:hover { border-color: rgba(37,99,235,0.5); }
+.card-spec:hover::after { opacity: 1; }
+.card-spec:hover {
+  box-shadow:
+    0 0 0 1px rgba(37,99,235,0.25),
+    0 4px 20px rgba(37,99,235,0.08);
+}
+
+/* ══ OPTION C: TILT ONLY (no color effect) ══ */
+.card-tilt {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  transition: border-color 200ms, transform 80ms ease, box-shadow 200ms;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.card-tilt:hover {
+  border-color: var(--border);
+  background: #1a2540;
+  transform: perspective(600px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+/* vote buttons */
+.vote { display: flex; gap: 8px; margin-top: 12px; }
+.vote-btn {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 14px; font-size: 11px; font-weight: 500;
+  color: var(--text2); cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: all 150ms;
+}
+.vote-btn:hover { border-color: var(--blue); color: var(--text); }
+.vote-btn.selected { background: var(--blue); border-color: var(--blue); color: #fff; }
+</style>
+</head>
+<body>
+
+<h2>Hover Effect — 3 Options</h2>
+<p class="subtitle">Move your mouse slowly over each card. All three use the same Cortex card layout.</p>
+
+<div class="row">
+
+  <!-- OPTION A -->
+  <div class="col">
+    <div class="col-label">A — Full Iridescent (Claude design style)</div>
+
+    <div class="card card-iris" data-tilt>
+      <div class="noise"></div>
+      <div class="card-top">
+        <img class="favicon" src="https://www.google.com/s2/favicons?domain=github.com&sz=32" alt="">
+        <div class="card-title">ollama/ollama — Run LLMs locally</div>
+      </div>
+    </div>
+
+    <div class="card card-iris card-idea" data-tilt>
+      <div class="noise"></div>
+      <div class="card-top">
+        <div style="width:16px;height:16px;flex-shrink:0;margin-top:1px;font-size:12px;">✏</div>
+        <div class="card-title">Fix SimReady mesh export</div>
+      </div>
+      <div class="idea-note">The STL parser breaks on non-manifold geometries</div>
+    </div>
+
+    <p class="verdict">
+      <strong>Rainbow iridescent + tilt + noise texture + glow.</strong><br>
+      Impressive on first look. Visually rich. But: this is exactly the aesthetic that's become synonymous with AI-generated UI in 2026. You said earlier you want it to not look AI-generated — this might undermine that. Also GPU-heavy with 50+ cards.
+    </p>
+    <div class="vote"><button class="vote-btn" onclick="vote('A')">Pick A</button></div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="col">
+    <div class="col-label">B — Subtle Specular (fits flat design system)</div>
+
+    <div class="card card-spec">
+      <div class="card-top">
+        <img class="favicon" src="https://www.google.com/s2/favicons?domain=youtube.com&sz=32" alt="">
+        <div class="card-title">Andrej Karpathy — makemore (part 3)</div>
+      </div>
+    </div>
+
+    <div class="card card-spec card-idea">
+      <div class="card-top">
+        <div style="width:16px;height:16px;flex-shrink:0;margin-top:1px;font-size:12px;">✏</div>
+        <div class="card-title">Weekly digest for job listings</div>
+      </div>
+      <div class="idea-note">Scrape LinkedIn + Indeed for ML roles in Germany</div>
+    </div>
+
+    <p class="verdict">
+      <strong>Blue specular highlight follows mouse. Subtle glow on border.</strong><br>
+      Consistent with the design system (blue primary). Feels premium without screaming "AI". Works at 60fps with 100+ cards. My recommendation — it rewards close attention without overwhelming.
+    </p>
+    <div class="vote"><button class="vote-btn" onclick="vote('B')">Pick B</button></div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="col">
+    <div class="col-label">C — 3D Tilt Only (no color effect)</div>
+
+    <div class="card card-tilt" data-tilt-only>
+      <div class="card-top">
+        <img class="favicon" src="https://www.google.com/s2/favicons?domain=linkedin.com&sz=32" alt="">
+        <div class="card-title">ML Engineer — Siemens AG, Munich</div>
+      </div>
+    </div>
+
+    <div class="card card-tilt card-idea" data-tilt-only>
+      <div class="card-top">
+        <div style="width:16px;height:16px;flex-shrink:0;margin-top:1px;font-size:12px;">✏</div>
+        <div class="card-title">Build a RAG pipeline for PDFs</div>
+      </div>
+      <div class="idea-note">Use LangChain + Ollama. Store vectors in ChromaDB.</div>
+    </div>
+
+    <p class="verdict">
+      <strong>Cards tilt in 3D toward mouse. Slight elevation + shadow.</strong><br>
+      Physical feel, no color noise. Clean and fast. Doesn't conflict with flat design. Weakest "wow" factor of the three but the most timeless — won't look dated in a year.
+    </p>
+    <div class="vote"><button class="vote-btn" onclick="vote('C')">Pick C</button></div>
+  </div>
+
+</div>
+
+<div id="verdict-bar" style="display:none;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:14px 18px;font-size:12px;color:#94a3b8;margin-top:8px;">
+  Selected: <strong id="verdict-text" style="color:#f8fafc"></strong> — tell me in the terminal and I'll update the spec.
+</div>
+
+<script>
+// ── MOUSE TRACKING ──
+document.querySelectorAll('.card-iris, .card-spec').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width  * 100).toFixed(1) + '%';
+    const y = ((e.clientY - r.top)  / r.height * 100).toFixed(1) + '%';
+    card.style.setProperty('--mouse-x', x);
+    card.style.setProperty('--mouse-y', y);
+
+    if (card.classList.contains('card-iris')) {
+      const tx = (((e.clientY - r.top)  / r.height) - 0.5) * -8;
+      const ty = (((e.clientX - r.left) / r.width)  - 0.5) *  8;
+      card.style.setProperty('--tilt-x', tx.toFixed(2) + 'deg');
+      card.style.setProperty('--tilt-y', ty.toFixed(2) + 'deg');
+    }
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.setProperty('--mouse-x', '50%');
+    card.style.setProperty('--mouse-y', '50%');
+    card.style.setProperty('--tilt-x', '0deg');
+    card.style.setProperty('--tilt-y', '0deg');
+  });
+});
+
+document.querySelectorAll('.card-tilt').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const tx = (((e.clientY - r.top)  / r.height) - 0.5) * -6;
+    const ty = (((e.clientX - r.left) / r.width)  - 0.5) *  6;
+    card.style.setProperty('--tilt-x', tx.toFixed(2) + 'deg');
+    card.style.setProperty('--tilt-y', ty.toFixed(2) + 'deg');
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.setProperty('--tilt-x', '0deg');
+    card.style.setProperty('--tilt-y', '0deg');
+  });
+});
+
+// ── VOTE ──
+function vote(opt) {
+  document.querySelectorAll('.vote-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.vote-btn').forEach(b => {
+    if (b.textContent.includes(opt)) b.classList.add('selected');
+  });
+  const labels = {
+    A: 'Full iridescent rainbow + tilt + noise (Claude design style)',
+    B: 'Subtle blue specular that follows mouse (recommended)',
+    C: '3D tilt only, no color effect'
+  };
+  document.getElementById('verdict-text').textContent = opt + ' — ' + labels[opt];
+  document.getElementById('verdict-bar').style.display = 'block';
+}
+</script>
+</body>
+</html>

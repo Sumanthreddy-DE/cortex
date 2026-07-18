@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkBrain — Design Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #020617;
+    --surface:   #0f172a;
+    --surface2:  #1e293b;
+    --surface3:  #273044;
+    --border:    #334155;
+    --border2:   #1e293b;
+    --text:      #f8fafc;
+    --text2:     #94a3b8;
+    --text3:     #475569;
+    --blue:      #2563eb;
+    --blue-dim:  #1d3461;
+    --blue-text: #93c5fd;
+    --orange:    #f97316;
+    --orange-dim:#431407;
+    --orange-text:#fed7aa;
+    --red:       #ef4444;
+    --red-dim:   #450a0a;
+    --red-text:  #fca5a5;
+    --green:     #22c55e;
+    --green-dim: #052e16;
+    --green-text:#86efac;
+    --slate-tag: #1e293b;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ─── TOPBAR ─── */
+  .topbar {
+    height: 48px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-right: 8px;
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--blue);
+    border-radius: 2px;
+    display: inline-block;
+  }
+  .view-toggle {
+    display: flex;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .view-btn {
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text3);
+    transition: all 150ms ease;
+    border: none;
+    background: none;
+    font-family: 'Inter', sans-serif;
+  }
+  .view-btn.active {
+    background: var(--blue);
+    color: #fff;
+  }
+  .topbar-spacer { flex: 1; }
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    color: var(--text3);
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    width: 200px;
+    cursor: text;
+  }
+  .search-icon {
+    width: 12px; height: 12px;
+    border: 1.5px solid var(--text3);
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .search-icon::after {
+    content: '';
+    position: absolute;
+    width: 4px; height: 1.5px;
+    background: var(--text3);
+    bottom: -3px; right: -3px;
+    transform: rotate(45deg);
+  }
+  .btn-add {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 150ms ease;
+  }
+  .btn-add:hover { background: #1d4ed8; }
+
+  /* ─── LAYOUT ─── */
+  .main {
+    padding: 20px 16px;
+    overflow-x: auto;
+  }
+
+  /* ─── KANBAN ─── */
+  .kanban {
+    display: flex;
+    gap: 12px;
+    min-width: max-content;
+  }
+  .col {
+    width: 220px;
+    flex-shrink: 0;
+  }
+  .col-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 10px;
+    padding: 0 2px;
+  }
+  .col-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .col-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text2);
+  }
+  .col-count {
+    font-size: 11px;
+    color: var(--text3);
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 11px 12px;
+    margin-bottom: 7px;
+    cursor: pointer;
+    transition: border-color 150ms ease, background 150ms ease;
+  }
+  .card:hover {
+    border-color: var(--border);
+    background: var(--surface2);
+  }
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 7px;
+  }
+  .favicon {
+    width: 16px; height: 16px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    object-fit: contain;
+  }
+  .card-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .card-url {
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 8px;
+    padding-left: 24px;
+  }
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .tag {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.1px;
+  }
+  .tag-blue  { background: var(--blue-dim);   color: var(--blue-text); }
+  .tag-orange{ background: var(--orange-dim); color: var(--orange-text); }
+  .tag-red   { background: var(--red-dim);    color: var(--red-text); }
+  .tag-green { background: var(--green-dim);  color: var(--green-text); }
+  .tag-slate { background: var(--slate-tag);  color: var(--text2); }
+
+  /* idea card variant */
+  .card-idea {
+    border-left: 2px solid var(--orange);
+  }
+  .idea-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .idea-note {
+    font-size: 11px;
+    color: var(--text2);
+    margin: 5px 0 8px 0;
+    line-height: 1.5;
+  }
+
+  /* ─── CATEGORY VIEW (hidden) ─── */
+  .category-view {
+    display: none;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .cat-group {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px;
+    width: 180px;
+  }
+  .cat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .cat-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .cat-count {
+    font-size: 11px;
+    color: var(--text3);
+    font-variant-numeric: tabular-nums;
+  }
+  .cat-item {
+    font-size: 11px;
+    color: var(--text2);
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+  .cat-item:last-child { border-bottom: none; }
+  .cat-more {
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 6px;
+    cursor: pointer;
+  }
+  .cat-more:hover { color: var(--blue-text); }
+
+  /* ─── QUICK CAPTURE MODAL ─── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 120px;
+    z-index: 200;
+  }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    width: 420px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+  }
+  .modal-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .modal-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 13px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 10px;
+    outline: none;
+    transition: border-color 150ms;
+  }
+  .modal-input:focus { border-color: var(--blue); }
+  .modal-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .modal-select {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 12px;
+    color: var(--text2);
+    font-family: 'Inter', sans-serif;
+    outline: none;
+  }
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .btn-cancel {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-save {
+    background: var(--blue);
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .kbd {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 10px;
+    color: var(--text3);
+    font-family: 'Inter', sans-serif;
+    margin-left: 4px;
+  }
+
+  /* hide tags + url text in priority view */
+  .kanban-wrap .card-tags { display: none; }
+  .kanban-wrap .card-url { display: none; }
+  .kanban-wrap .idea-note { margin-bottom: 0; }
+
+  /* toggle logic */
+  .kanban-wrap { display: flex; }
+  .category-wrap { display: none; }
+  body.category-mode .kanban-wrap { display: none; }
+  body.category-mode .category-wrap { display: flex; }
+  body.modal-mode .modal-overlay { display: flex; }
+  .modal-overlay { display: none; }
+
+  /* section label */
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    letter-spacing: 0.4px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border2);
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <span class="logo-dot"></span>
+    LinkBrain
+  </div>
+  <div class="view-toggle">
+    <button class="view-btn active" id="btn-priority" onclick="setView('priority')">Priority</button>
+    <button class="view-btn" id="btn-category" onclick="setView('category')">Category</button>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div class="search-bar">
+    <span class="search-icon"></span>
+    Search or paste a URL…
+  </div>
+  <button class="btn-add" onclick="document.body.classList.toggle('modal-mode')">
+    <span style="font-size:15px;line-height:1;margin-top:-1px">+</span> Add
+    <span class="kbd">Ctrl S</span>
+  </button>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- PRIORITY / KANBAN VIEW -->
+  <div class="kanban-wrap">
+    <div class="section-label">Priority view — drag cards to reprioritize</div>
+    <div class="kanban">
+
+      <!-- FOR NOW -->
+      <div class="col">
+        <div class="col-header">
+          <span class="col-dot" style="background:#ef4444"></span>
+          <span class="col-title">For Now</span>
+          <span class="col-count">2</span>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <img class="favicon" src="https://www.google.com/s2/favicons?domain=github.com&sz=32" alt="GitHub">
+            <div class="card-title">ollama/ollama — Run LLMs locally</div>
+          </div>
+          <div class="card-url">github.com</div>
+          <div class="card-tags">
+            <span class="tag tag-blue">AI</span>
+            <span class="tag tag-slate">GitHub</span>
+          </div>
+        </div>
+        <div class="card card-idea">
+          <div class="idea-title">Fix SimReady mesh export</div>
+          <div class="idea-note">The STL parser breaks on non-manifold geometries — need to pre-clean with pymeshlab</div>
+          <div class="card-tags">
+            <span class="tag tag-orange">Idea</span>
+            <span class="tag tag-slate">Projects</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TODAY -->
+      <div class="col">
+        <div class="col-header">
+          <span class="col-dot" style="background:#f97316"></span>
+          <span class="col-title">Today</span>
+          <span class="col-count">1</span>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <img class="favicon" src="https://www.google.com/s2/favicons?domain=youtube.com&sz=32" alt="YouTube">
+            <div class="card-title">Andrej Karpathy — makemore (part 3)</div>
+          </div>
+          <div class="card-url">youtube.com</div>
+          <div class="card-tags">
+            <span class="tag tag-red">YouTube</span>
+            <span class="tag tag-blue">AI</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOMORROW -->
+      <div class="col">
+        <div class="col-header">
+          <span class="col-dot" style="background:#a78bfa"></span>
+          <span class="col-title">Tomorrow</span>
+          <span class="col-count">2</span>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <img class="favicon" src="https://www.google.com/s2/favicons?domain=linkedin.com&sz=32" alt="LinkedIn">
+            <div class="card-title">ML Engineer — Siemens AG, Munich</div>
+          </div>
+          <div class="card-url">linkedin.com</div>
+          <div class="card-tags">
+            <span class="tag tag-green">Full-time</span>
+            <span class="tag tag-slate">LinkedIn</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <img class="favicon" src="https://www.google.com/s2/favicons?domain=github.com&sz=32" alt="GitHub">
+            <div class="card-title">ggml-org/llama.cpp — C++ LLM inference</div>
+          </div>
+          <div class="card-url">github.com</div>
+          <div class="card-tags">
+            <span class="tag tag-blue">AI</span>
+            <span class="tag tag-slate">GitHub</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- THIS WEEK -->
+      <div class="col">
+        <div class="col-header">
+          <span class="col-dot" style="background:#38bdf8"></span>
+          <span class="col-title">This Week</span>
+          <span class="col-count">3</span>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <img class="favicon" src="https://www.google.com/s2/favicons?domain=cursor.sh&sz=32" alt="Cursor">
+            <div class="card-title">cursor.sh — AI-native code editor</div>
+          </div>
+          <div class="card-url">cursor.sh</div>
+          <div class="card-tags">
+            <span class="tag tag-blue">AI Tool</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <img class="favicon" src="https://www.google.com/s2/favicons?domain=indeed.com&sz=32" alt="Indeed">
+            <div class="card-title">Software Dev (Part-time) — FAU Startups</div>
+          </div>
+          <div class="card-url">indeed.com</div>
+          <div class="card-tags">
+            <span class="tag tag-orange">Part-time</span>
+            <span class="tag tag-slate">Job</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOMEDAY -->
+      <div class="col">
+        <div class="col-header">
+          <span class="col-dot" style="background:#475569"></span>
+          <span class="col-title">Someday</span>
+          <span class="col-count">5</span>
+        </div>
+        <div class="card">
+          <div class="card-top">
+            <img class="favicon" src="https://www.google.com/s2/favicons?domain=archlinux.org&sz=32" alt="Arch Linux">
+            <div class="card-title">Arch Linux install guide — ThinkPad X1</div>
+          </div>
+          <div class="card-url">wiki.archlinux.org</div>
+          <div class="card-tags">
+            <span class="tag tag-slate">Linux</span>
+          </div>
+        </div>
+        <div class="card card-idea">
+          <div class="idea-title">Weekly digest for job listings</div>
+          <div class="idea-note">Scrape LinkedIn + Indeed for ML/simulation roles in Germany. Email digest every Monday.</div>
+          <div class="card-tags">
+            <span class="tag tag-orange">Idea</span>
+            <span class="tag tag-blue">AI</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CATEGORY VIEW -->
+  <div class="category-wrap">
+    <div class="section-label">Category view — all items grouped by tag</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+
+      <div class="cat-group">
+        <div class="cat-header">
+          <span class="cat-name">GitHub</span>
+          <span class="cat-count">12</span>
+        </div>
+        <div class="cat-item">ollama/ollama</div>
+        <div class="cat-item">ggml-org/llama.cpp</div>
+        <div class="cat-item">tiangolo/fastapi</div>
+        <div class="cat-more">+ 9 more</div>
+      </div>
+
+      <div class="cat-group">
+        <div class="cat-header">
+          <span class="cat-name">YouTube</span>
+          <span class="cat-count">7</span>
+        </div>
+        <div class="cat-item">Karpathy — makemore pt.3</div>
+        <div class="cat-item">3Blue1Brown — Attention</div>
+        <div class="cat-item">ThePrimeagen — Neovim</div>
+        <div class="cat-more">+ 4 more</div>
+      </div>
+
+      <div class="cat-group">
+        <div class="cat-header">
+          <span class="cat-name">Full-time</span>
+          <span class="cat-count">4</span>
+        </div>
+        <div class="cat-item">ML Eng — Siemens AG</div>
+        <div class="cat-item">SWE — Bosch</div>
+        <div class="cat-item">Sim Dev — BMW Group</div>
+        <div class="cat-more">+ 1 more</div>
+      </div>
+
+      <div class="cat-group">
+        <div class="cat-header">
+          <span class="cat-name">Part-time</span>
+          <span class="cat-count">3</span>
+        </div>
+        <div class="cat-item">Dev @ FAU Startups</div>
+        <div class="cat-item">ML Intern — Fraunhofer</div>
+        <div class="cat-more">+ 1 more</div>
+      </div>
+
+      <div class="cat-group">
+        <div class="cat-header">
+          <span class="cat-name">AI Tools</span>
+          <span class="cat-count">9</span>
+        </div>
+        <div class="cat-item">cursor.sh</div>
+        <div class="cat-item">perplexity.ai</div>
+        <div class="cat-item">v0.dev</div>
+        <div class="cat-more">+ 6 more</div>
+      </div>
+
+      <div class="cat-group">
+        <div class="cat-header">
+          <span class="cat-name">Ideas</span>
+          <span class="cat-count">6</span>
+        </div>
+        <div class="cat-item">Fix SimReady mesh export</div>
+        <div class="cat-item">Weekly job digest</div>
+        <div class="cat-item">RAG pipeline for PDFs</div>
+        <div class="cat-more">+ 3 more</div>
+      </div>
+
+      <div class="cat-group">
+        <div class="cat-header">
+          <span class="cat-name">Linux</span>
+          <span class="cat-count">5</span>
+        </div>
+        <div class="cat-item">Arch install — ThinkPad X1</div>
+        <div class="cat-item">Nix/NixOS home-manager</div>
+        <div class="cat-item">Neovim from scratch</div>
+        <div class="cat-more">+ 2 more</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- QUICK CAPTURE MODAL -->
+<div class="modal-overlay" onclick="if(event.target===this)document.body.classList.remove('modal-mode')">
+  <div class="modal">
+    <div class="modal-label">Quick Capture <span class="kbd">Ctrl+Shift+S</span></div>
+    <input class="modal-input" placeholder="Paste a URL or type an idea…" autofocus>
+    <div class="modal-row">
+      <select class="modal-select">
+        <option>For Now</option>
+        <option>Today</option>
+        <option selected>This Week</option>
+        <option>Tomorrow</option>
+        <option>Someday</option>
+      </select>
+      <select class="modal-select">
+        <option>AI</option>
+        <option>GitHub</option>
+        <option>YouTube</option>
+        <option>Full-time</option>
+        <option>Part-time</option>
+        <option>Linux</option>
+        <option>Ideas</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="document.body.classList.remove('modal-mode')">Cancel</button>
+      <button class="btn-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function setView(v) {
+  if (v === 'category') {
+    document.body.classList.add('category-mode');
+    document.getElementById('btn-priority').classList.remove('active');
+    document.getElementById('btn-category').classList.add('active');
+  } else {
+    document.body.classList.remove('category-mode');
+    document.getElementById('btn-priority').classList.add('active');
+    document.getElementById('btn-category').classList.remove('active');
+  }
+}
+</script>
+</body>
+</html>

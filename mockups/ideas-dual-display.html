@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Ideas Dual Display — Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #f7f1e6;
+      --paper-raised: #fcf8f0;
+      --paper-deep: #ede5d3;
+      --ink: #2a241d;
+      --ink-soft: #6c5e4e;
+      --ink-dim: #9b8d7d;
+      --rule: #d8cdb9;
+      --ink-stamp: #3d4691;
+      --butter: #c9a23a;
+      --idea-warm: #e89066;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 13px; line-height: 1.4; min-height: 100vh; }
+
+    /* ── TOPBAR ── */
+    .topbar { display: flex; align-items: center; gap: 20px; padding: 12px 24px 0; border-bottom: 1px solid var(--rule); background: var(--paper-raised); }
+    .brand { display: flex; align-items: center; gap: 8px; padding-bottom: 10px; }
+    .brand-mark { width: 12px; height: 12px; background: var(--ink-stamp); border-radius: 2px; }
+    .brand-name { font-family: var(--font-display); font-size: 15px; font-weight: 500; }
+    .tabs { display: flex; gap: 2px; }
+    .tab { padding: 10px 12px 8px; font-size: 12.5px; font-weight: 500; color: var(--ink-soft); background: transparent; border: 0; cursor: pointer; position: relative; font-family: var(--font-body); }
+    .tab.active { color: var(--ink); }
+    .tab.active::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--ink-stamp); }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; padding-bottom: 8px; }
+    .inbox-pill { font-size: 11.5px; padding: 4px 10px; border-radius: 20px; background: var(--paper-deep); border: 1px solid var(--rule); color: var(--ink-soft); display: flex; align-items: center; gap: 5px; }
+    .inbox-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--idea-warm); }
+    .btn-add { padding: 6px 14px; background: var(--ink); color: var(--paper-raised); border: 0; border-radius: 6px; font-size: 12.5px; font-weight: 500; font-family: var(--font-body); cursor: pointer; }
+
+    /* ── BOARD ── */
+    .board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; padding: 20px 24px 12px; }
+    .col-header { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-dim); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .col-count { background: var(--paper-deep); border-radius: 8px; padding: 1px 6px; font-size: 10px; }
+    .col-today .col-header { color: #b06020; }
+    .col-today .col-count { background: rgba(232,144,102,0.15); color: #b06020; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--paper-raised);
+      border: 1px solid var(--rule);
+      border-radius: 7px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .card:hover { border-color: var(--ink-dim); }
+    .card-title { font-size: 13px; color: var(--ink); line-height: 1.35; margin-bottom: 6px; }
+    .card-meta-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .tag { font-size: 10px; font-family: var(--font-mono); padding: 1px 6px; border-radius: 8px; background: var(--paper-deep); color: var(--ink-dim); }
+
+    /* ── DUAL-DISPLAY CARD (idea appearing in priority col) ── */
+    .card.from-ideas {
+      border-color: rgba(61,70,145,0.3);
+      background: rgba(61,70,145,0.04);
+    }
+    .card.from-ideas:hover { border-color: var(--ink-stamp); }
+    .ideas-origin-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--ink-stamp);
+      background: rgba(61,70,145,0.08);
+      border-radius: 8px;
+      padding: 1px 7px;
+    }
+    .ideas-origin-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ink-stamp); flex-shrink: 0; }
+
+    /* ── FIXED BUCKETS SECTION ── */
+    .buckets-section { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 0; }
+    .buckets-row { display: flex; gap: 12px; }
+
+    .bucket-card {
+      flex: 1;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .bucket-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--paper-raised);
+      border-bottom: 1px solid var(--rule);
+      cursor: pointer;
+    }
+    .bucket-letter { width: 22px; height: 22px; border-radius: 4px; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .bucket-letter.D { background: rgba(232,144,102,0.15); color: #b06020; }
+    .bucket-letter.G { background: rgba(90,122,58,0.12); color: #5a7a3a; }
+    .bucket-letter.T { background: rgba(61,70,145,0.1); color: var(--ink-stamp); }
+    .bucket-letter.I { background: rgba(201,162,58,0.15); color: #8a6d20; }
+    .bucket-name { font-size: 13px; font-weight: 500; color: var(--ink); flex: 1; }
+    .bucket-ct { font-size: 11px; color: var(--ink-dim); font-family: var(--font-mono); }
+    .chevron { font-size: 10px; color: var(--ink-dim); }
+
+    /* ── IDEAS BUCKET EXPANDED — compact list, NO themes sidebar ── */
+    .ideas-expanded {
+      border-top: none;
+    }
+    .ideas-list-wrap { padding: 6px 4px; }
+
+    .idea-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .idea-row:hover { background: var(--paper-deep); }
+    .idea-row.active-in-today {
+      background: rgba(61,70,145,0.06);
+    }
+    .idea-row.active-in-today .idea-title { color: var(--ink-stamp); font-weight: 500; }
+    .p-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .p-dot.high { background: #d44; }
+    .p-dot.medium { background: var(--butter); }
+    .p-dot.low { background: var(--ink-dim); }
+    .p-dot.none { background: var(--rule); }
+    .idea-title { flex: 1; font-size: 12.5px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .idea-tags { display: flex; gap: 3px; flex-shrink: 0; }
+    .idea-tag { font-size: 10px; font-family: var(--font-mono); padding: 1px 5px; background: var(--paper-deep); border-radius: 8px; color: var(--ink-dim); }
+
+    /* priority badge in ideas list */
+    .priority-badge {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      padding: 1px 6px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .priority-badge.today { background: rgba(176,96,32,0.12); color: #b06020; }
+    .priority-badge.tomorrow { background: rgba(61,70,145,0.1); color: var(--ink-stamp); }
+    .priority-badge.someday { background: var(--paper-deep); color: var(--ink-dim); }
+
+    .idea-row-actions { display: flex; gap: 2px; opacity: 0; flex-shrink: 0; }
+    .idea-row:hover .idea-row-actions { opacity: 1; }
+    .row-btn { background: none; border: none; padding: 2px 5px; font-size: 11px; color: var(--ink-dim); cursor: pointer; border-radius: 3px; }
+    .row-btn:hover { background: var(--paper-raised); color: var(--ink); }
+
+    /* merge/select row at bottom */
+    .ideas-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px 10px;
+      border-top: 1px solid var(--rule);
+    }
+    .ideas-footer-count { font-size: 11px; color: var(--ink-dim); font-family: var(--font-mono); }
+    .select-merge-btn { font-size: 11px; font-family: var(--font-body); padding: 4px 10px; border: 1px solid var(--rule); border-radius: 5px; background: var(--paper-raised); color: var(--ink-soft); cursor: pointer; }
+    .select-merge-btn:hover { border-color: var(--ink-dim); color: var(--ink); }
+
+    /* add inline */
+    .inline-add { display: flex; align-items: center; gap: 8px; padding: 7px 14px 10px; border-top: 1px solid var(--rule); }
+    .inline-add-input { flex: 1; border: none; background: transparent; font-size: 12.5px; font-family: var(--font-body); color: var(--ink); outline: none; }
+    .inline-add-input::placeholder { color: var(--ink-dim); }
+
+    /* ── ANNOTATION CALLOUTS ── */
+    .annotation-layer { position: fixed; pointer-events: none; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; }
+    .callout {
+      position: absolute;
+      background: #1e1a14;
+      color: #f7f1e6;
+      font-size: 11.5px;
+      font-family: var(--font-body);
+      padding: 8px 12px;
+      border-radius: 6px;
+      max-width: 220px;
+      line-height: 1.45;
+      pointer-events: none;
+    }
+    .callout::before {
+      content: '';
+      position: absolute;
+      width: 8px; height: 8px;
+      background: #1e1a14;
+    }
+    .callout.left-arrow::before { right: -4px; top: 50%; transform: translateY(-50%) rotate(45deg); }
+    .callout.right-arrow::before { left: -4px; top: 50%; transform: translateY(-50%) rotate(45deg); }
+    .callout.bottom-arrow::before { bottom: -4px; left: 50%; transform: translateX(-50%) rotate(45deg); }
+    .callout.top-arrow::before { top: -4px; left: 30%; transform: translateX(-50%) rotate(45deg); }
+    .callout-em { color: #e8c97a; font-weight: 600; }
+
+    /* connector line */
+    .connector { position: absolute; border: 1.5px dashed rgba(61,70,145,0.5); pointer-events: none; }
+
+    /* highlight glow */
+    .card.from-ideas { box-shadow: 0 0 0 2px rgba(61,70,145,0.2); }
+    .idea-row.active-in-today { box-shadow: inset 0 0 0 1px rgba(61,70,145,0.2); border-radius: 5px; }
+
+    .divider { height: 1px; background: var(--rule); margin: 4px 24px 16px; }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-dim);
+      padding: 0 24px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand"><div class="brand-mark"></div><span class="brand-name">Cortex</span></div>
+    <div class="tabs">
+      <button class="tab active">Priority</button>
+      <button class="tab">Category</button>
+      <button class="tab">Completed</button>
+      <button class="tab">Spaces</button>
+      <button class="tab">Archive</button>
+      <button class="tab">Issues</button>
+      <button class="tab">Research</button>
+    </div>
+    <div class="topbar-right">
+      <div class="inbox-pill"><div class="inbox-dot"></div>8 in inbox</div>
+      <button class="btn-add">+ Add</button>
+    </div>
+  </div>
+
+  <!-- PRIORITY COLUMNS -->
+  <div class="board">
+
+    <!-- INBOX -->
+    <div class="col col-inbox">
+      <div class="col-header" style="color:#b06020;">Inbox <span class="col-count" style="background:rgba(232,144,102,0.15);color:#b06020;">8</span>
+        <span style="font-size:9px;margin-left:auto;color:var(--ink-dim);font-family:var(--font-body);text-transform:none;letter-spacing:0;">← click badge to scroll here</span>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Check Anthropic skills SDK docs</div>
+        <div class="card-meta-row"><span class="tag">ai</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">1CRM integration spike</div>
+        <div class="card-meta-row"><span class="tag">work</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Google TPU pricing comparison</div>
+        <div class="card-meta-row"><span class="tag">research</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Hiring on LinkedIn — stealth AI teams</div>
+        <div class="card-meta-row"><span class="tag">jobs</span></div>
+      </div>
+      <div class="card" style="opacity:0.6;font-size:12px;text-align:center;padding:8px;border-style:dashed;">
+        <div style="color:var(--ink-dim);">+ 4 more...</div>
+      </div>
+    </div>
+
+    <!-- TODAY -->
+    <div class="col col-today">
+      <div class="col-header">Today <span class="col-count">3</span></div>
+
+      <!-- DUAL-DISPLAY CARD — this idea lives in Ideas bucket AND appears here -->
+      <div class="card from-ideas" id="card-rag">
+        <div class="card-title">Build RAG pipeline + Digital Twin connector</div>
+        <div class="card-meta-row">
+          <span class="ideas-origin-badge"><span class="ideas-origin-dot"></span>from Ideas</span>
+          <span class="tag">rag</span>
+          <span class="tag">tech</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Review German B2 grammar chapter 4</div>
+        <div class="card-meta-row"><span class="tag">german</span><span class="tag">learning</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Reply to recruiter at Siemens Energy</div>
+        <div class="card-meta-row"><span class="tag">jobs</span></div>
+      </div>
+    </div>
+
+    <!-- TOMORROW -->
+    <div class="col">
+      <div class="col-header">Tomorrow <span class="col-count">2</span></div>
+
+      <!-- ANOTHER DUAL-DISPLAY — tomorrow priority idea -->
+      <div class="card from-ideas" id="card-stealth">
+        <div class="card-title">Search Stealth Startups on LinkedIn — builders building in stealth</div>
+        <div class="card-meta-row">
+          <span class="ideas-origin-badge"><span class="ideas-origin-dot"></span>from Ideas</span>
+          <span class="tag">linkedin</span>
+          <span class="tag">networking</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">AWS cloud cert — module 5 quiz</div>
+        <div class="card-meta-row"><span class="tag">career</span></div>
+      </div>
+    </div>
+
+    <!-- THIS WEEK -->
+    <div class="col">
+      <div class="col-header">This Week <span class="col-count">2</span></div>
+      <div class="card">
+        <div class="card-title">Update Cortex README with new features</div>
+        <div class="card-meta-row"><span class="tag">projects</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Apply to 3 data engineering roles</div>
+        <div class="card-meta-row"><span class="tag">jobs</span></div>
+      </div>
+    </div>
+
+    <!-- SOMEDAY -->
+    <div class="col">
+      <div class="col-header">Someday <span class="col-count">2</span></div>
+      <div class="card">
+        <div class="card-title">Nuclear energy ML contribution — research direction</div>
+        <div class="card-meta-row"><span class="tag">research</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">AI-generated podcast from Cortex captures</div>
+        <div class="card-meta-row"><span class="tag">tech</span><span class="tag">idea</span></div>
+      </div>
+    </div>
+
+  </div><!-- /board -->
+
+  <div class="divider"></div>
+  <div class="section-label">Fixed Buckets</div>
+
+  <!-- FIXED BUCKETS -->
+  <div class="buckets-section">
+    <div class="buckets-row">
+
+      <!-- DAILY (collapsed) -->
+      <div class="bucket-card" style="flex:0 0 auto;width:160px;">
+        <div class="bucket-card-header">
+          <div class="bucket-letter D">D</div>
+          <span class="bucket-name">Daily</span>
+          <span class="bucket-ct">4</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+      <!-- GROCERIES (collapsed) -->
+      <div class="bucket-card" style="flex:0 0 auto;width:160px;">
+        <div class="bucket-card-header">
+          <div class="bucket-letter G">G</div>
+          <span class="bucket-name">Groceries</span>
+          <span class="bucket-ct">6</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+      <!-- TOOLS (collapsed) -->
+      <div class="bucket-card" style="flex:0 0 auto;width:160px;">
+        <div class="bucket-card-header">
+          <div class="bucket-letter T">T</div>
+          <span class="bucket-name">Tools</span>
+          <span class="bucket-ct">3</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+      <!-- IDEAS (EXPANDED) -->
+      <div class="bucket-card" style="flex:1;">
+        <div class="bucket-card-header">
+          <div class="bucket-letter I">I</div>
+          <span class="bucket-name">Ideas</span>
+          <span class="bucket-ct">14</span>
+          <span class="chevron">∨</span>
+        </div>
+
+        <div class="ideas-expanded">
+          <div class="ideas-list-wrap">
+
+            <!-- ITEM 1: priority = today → shows in Today column too -->
+            <div class="idea-row active-in-today" id="bucket-rag">
+              <div class="p-dot high"></div>
+              <span class="idea-title">Build RAG pipeline + Digital Twin connector</span>
+              <span class="priority-badge today">today</span>
+              <div class="idea-tags"><span class="idea-tag">rag</span><span class="idea-tag">tech</span></div>
+              <div class="idea-row-actions"><button class="row-btn">✓</button><button class="row-btn">×</button></div>
+            </div>
+
+            <!-- ITEM 2: priority = tomorrow → shows in Tomorrow column too -->
+            <div class="idea-row active-in-today" id="bucket-stealth">
+              <div class="p-dot high"></div>
+              <span class="idea-title">Search Stealth Startups on LinkedIn</span>
+              <span class="priority-badge tomorrow">tomorrow</span>
+              <div class="idea-tags"><span class="idea-tag">linkedin</span></div>
+              <div class="idea-row-actions"><button class="row-btn">✓</button><button class="row-btn">×</button></div>
+            </div>
+
+            <!-- ITEM 3: no priority (inbox) → stays only in bucket -->
+            <div class="idea-row">
+              <div class="p-dot none"></div>
+              <span class="idea-title">LLM eval framework — Prometheus vs G-eval</span>
+              <div class="idea-tags"><span class="idea-tag">ai</span><span class="idea-tag">research</span></div>
+              <div class="idea-row-actions"><button class="row-btn">✓</button><button class="row-btn">×</button></div>
+            </div>
+
+            <div class="idea-row">
+              <div class="p-dot none"></div>
+              <span class="idea-title">Langchain streaming + Cortex integration</span>
+              <div class="idea-tags"><span class="idea-tag">tech</span></div>
+              <div class="idea-row-actions"><button class="row-btn">✓</button><button class="row-btn">×</button></div>
+            </div>
+
+            <div class="idea-row">
+              <div class="p-dot none"></div>
+              <span class="idea-title">Nuclear energy ML contribution</span>
+              <div class="idea-tags"><span class="idea-tag">research</span></div>
+              <div class="idea-row-actions"><button class="row-btn">✓</button><button class="row-btn">×</button></div>
+            </div>
+
+            <div class="idea-row">
+              <div class="p-dot low"></div>
+              <span class="idea-title">YouTube summarizer tool</span>
+              <span class="priority-badge someday">someday</span>
+              <div class="idea-tags"><span class="idea-tag">tech</span></div>
+              <div class="idea-row-actions"><button class="row-btn">✓</button><button class="row-btn">×</button></div>
+            </div>
+
+            <div class="idea-row">
+              <div class="p-dot none"></div>
+              <span class="idea-title">Check Anthropic MCP servers list</span>
+              <div class="idea-tags"><span class="idea-tag">ai</span></div>
+              <div class="idea-row-actions"><button class="row-btn">✓</button><button class="row-btn">×</button></div>
+            </div>
+
+          </div><!-- /ideas-list-wrap -->
+
+          <!-- FOOTER: merge button + inline add -->
+          <div class="ideas-footer">
+            <span class="ideas-footer-count">14 ideas · 2 scheduled</span>
+            <button class="select-merge-btn">Select to merge</button>
+          </div>
+          <div class="inline-add">
+            <input class="inline-add-input" placeholder="+ Add an idea..." />
+          </div>
+        </div>
+
+      </div><!-- /IDEAS bucket -->
+
+    </div><!-- /buckets-row -->
+  </div><!-- /buckets-section -->
+
+</body>
+</html>

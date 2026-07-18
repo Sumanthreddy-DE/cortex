@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Ideas Viz C — Compact List + Theme Sidebar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #f7f1e6;
+      --paper-raised: #fcf8f0;
+      --paper-deep: #ede5d3;
+      --ink: #2a241d;
+      --ink-soft: #6c5e4e;
+      --ink-dim: #9b8d7d;
+      --rule: #d8cdb9;
+      --ink-stamp: #3d4691;
+      --idea-warm: #e89066;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.4; }
+
+    .topbar { display: flex; align-items: center; gap: 24px; padding: 14px 28px 0; border-bottom: 1px solid var(--rule); background: var(--paper-raised); }
+    .brand { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; }
+    .brand-mark { width: 14px; height: 14px; background: var(--ink-stamp); border-radius: 2px; }
+    .brand-name { font-family: var(--font-display); font-size: 16px; font-weight: 500; }
+    .tabs { display: flex; gap: 4px; }
+    .tab { padding: 12px 14px 10px; font-size: 13px; font-weight: 500; color: var(--ink-soft); background: transparent; border: 0; cursor: pointer; position: relative; font-family: var(--font-body); }
+    .tab[data-active] { color: var(--ink); }
+    .tab[data-active]::after { content: ''; position: absolute; left: 14px; right: 14px; bottom: -1px; height: 2px; background: var(--ink-stamp); }
+    .topbar-spacer { flex: 1; }
+    .topbar-actions { display: flex; gap: 8px; padding-bottom: 10px; }
+    .icon-btn { width: 30px; height: 30px; border-radius: 6px; background: transparent; border: 1px solid var(--rule); color: var(--ink-soft); display: grid; place-items: center; cursor: pointer; font-size: 12px; }
+    .btn-primary { padding: 7px 14px; background: var(--ink); color: var(--paper-raised); border: 0; border-radius: 6px; font-family: var(--font-body); font-weight: 500; font-size: 13px; cursor: pointer; }
+    .inbox-badge { padding: 5px 10px; background: var(--paper-deep); border: 1px solid var(--rule); border-radius: 20px; font-size: 12px; font-weight: 500; color: var(--ink-soft); display: flex; align-items: center; gap: 5px; }
+    .inbox-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--idea-warm); }
+
+    .layout { display: flex; height: calc(100vh - 49px); }
+    .sidebar { width: 180px; border-right: 1px solid var(--rule); padding: 20px 14px; display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+    .nav-item { padding: 6px 10px; border-radius: 5px; font-size: 13px; color: var(--ink-soft); cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+    .nav-item.active { background: var(--paper-deep); color: var(--ink); font-weight: 500; }
+    .nav-count { font-size: 11px; color: var(--ink-dim); }
+
+    /* Main split: list + theme panel */
+    .main-split { flex: 1; display: flex; overflow: hidden; }
+    .list-pane { flex: 1; overflow-y: auto; padding: 28px 24px; }
+    .theme-pane { width: 200px; border-left: 1px solid var(--rule); overflow-y: auto; padding: 24px 16px; flex-shrink: 0; background: var(--paper-raised); }
+
+    .bucket-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+    .bucket-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--ink-dim); text-transform: uppercase; }
+    .bucket-title { font-family: var(--font-display); font-size: 22px; font-weight: 500; }
+    .bucket-count { font-family: var(--font-mono); font-size: 11px; color: var(--ink-dim); background: var(--paper-deep); padding: 2px 7px; border-radius: 10px; }
+
+    .view-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; background: rgba(232,144,102,0.15); color: var(--idea-warm); padding: 2px 7px; border-radius: 4px; margin-bottom: 20px; display: inline-block; }
+
+    /* Compact list rows */
+    .idea-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .idea-row:hover { background: var(--paper-raised); }
+    .idea-row.highlighted { background: rgba(61,70,145,0.06); }
+    .p-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .p-dot.high { background: #d44; }
+    .p-dot.medium { background: #c9a23a; }
+    .p-dot.low { background: #9b8d7d; }
+    .p-dot.none { background: var(--rule); }
+    .row-title { font-size: 13px; color: var(--ink); flex: 1; }
+    .row-tags { display: flex; gap: 4px; }
+    .row-tag { font-size: 11px; padding: 1px 6px; border-radius: 10px; font-family: var(--font-mono); white-space: nowrap; }
+    .row-tag.career { background: rgba(90,122,58,0.12); color: #5a7a3a; }
+    .row-tag.networking { background: rgba(58,140,145,0.12); color: #3a8c91; }
+    .row-tag.tech { background: rgba(61,70,145,0.1); color: var(--ink-stamp); }
+    .row-tag.personal { background: rgba(155,94,58,0.1); color: #9b5e3a; }
+    .row-tag.education { background: rgba(140,100,58,0.12); color: #8c603a; }
+    .row-tag.research { background: rgba(100,80,130,0.12); color: #645082; }
+
+    /* Theme pane */
+    .theme-pane-title { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-dim); margin-bottom: 14px; }
+    .theme-block { margin-bottom: 14px; }
+    .theme-tag-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .theme-tag { font-size: 12px; font-weight: 500; padding: 3px 8px; border-radius: 4px; font-family: var(--font-mono); }
+    .theme-tag.career { background: rgba(90,122,58,0.12); color: #5a7a3a; }
+    .theme-tag.networking { background: rgba(58,140,145,0.12); color: #3a8c91; }
+    .theme-tag.tech { background: rgba(61,70,145,0.1); color: var(--ink-stamp); }
+    .theme-tag.personal { background: rgba(155,94,58,0.1); color: #9b5e3a; }
+    .theme-tag.education { background: rgba(140,100,58,0.12); color: #8c603a; }
+    .theme-tag.research { background: rgba(100,80,130,0.12); color: #645082; }
+    .theme-count { font-size: 11px; color: var(--ink-dim); }
+    .theme-bar-bg { height: 3px; background: var(--paper-deep); border-radius: 2px; }
+    .theme-bar { height: 3px; border-radius: 2px; }
+    .theme-bar.career { background: #5a7a3a; }
+    .theme-bar.networking { background: #3a8c91; }
+    .theme-bar.tech { background: var(--ink-stamp); }
+    .theme-bar.personal { background: #9b5e3a; }
+    .theme-bar.education { background: #8c603a; }
+    .theme-bar.research { background: #645082; }
+
+    .theme-divider { height: 1px; background: var(--rule); margin: 16px 0; }
+    .theme-pane-tip { font-size: 11px; color: var(--ink-dim); line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand"><div class="brand-mark"></div><span class="brand-name">Cortex</span></div>
+    <div class="tabs">
+      <button class="tab" data-active>Priority</button>
+      <button class="tab">Category</button>
+      <button class="tab">Completed</button>
+      <button class="tab">Spaces</button>
+      <button class="tab">Archive</button>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-actions">
+      <div class="inbox-badge"><div class="inbox-dot"></div>6 in inbox</div>
+      <div class="icon-btn">⚙</div>
+      <button class="btn-primary">+ Add</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="nav-item">/ <span class="nav-count">25</span></div>
+      <div class="nav-item active">Ideas <span class="nav-count">25</span></div>
+      <div class="nav-item">High <span class="nav-count">8</span></div>
+      <div class="nav-item">Medium <span class="nav-count">11</span></div>
+      <div class="nav-item">Low <span class="nav-count">6</span></div>
+    </div>
+
+    <div class="main-split">
+      <div class="list-pane">
+        <div class="bucket-header">
+          <span class="bucket-label">bucket</span>
+          <span class="bucket-title">Ideas</span>
+          <span class="bucket-count">25</span>
+        </div>
+        <div class="view-label">Option C — Compact List + Themes</div>
+
+        <div class="idea-row highlighted">
+          <div class="p-dot high"></div>
+          <span class="row-title">YouTube summarizer</span>
+          <div class="row-tags"><span class="row-tag tech">tech</span><span class="row-tag career">projects</span></div>
+        </div>
+        <div class="idea-row highlighted">
+          <div class="p-dot high"></div>
+          <span class="row-title">Apply for other Univ</span>
+          <div class="row-tags"><span class="row-tag career">career</span><span class="row-tag education">education</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot high"></div>
+          <span class="row-title">Nuclear energy contribution</span>
+          <div class="row-tags"><span class="row-tag career">career</span><span class="row-tag research">research</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot high"></div>
+          <span class="row-title">Expos</span>
+          <div class="row-tags"><span class="row-tag networking">networking</span></div>
+        </div>
+        <div class="idea-row highlighted">
+          <div class="p-dot medium"></div>
+          <span class="row-title">AI ML project · tableau, Power BI</span>
+          <div class="row-tags"><span class="row-tag tech">tech</span><span class="row-tag career">career</span></div>
+        </div>
+        <div class="idea-row highlighted">
+          <div class="p-dot medium"></div>
+          <span class="row-title">Digital Twin Team center</span>
+          <div class="row-tags"><span class="row-tag tech">tech</span><span class="row-tag networking">networking</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot medium"></div>
+          <span class="row-title">Meetups</span>
+          <div class="row-tags"><span class="row-tag networking">networking</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot medium"></div>
+          <span class="row-title">Process Automation</span>
+          <div class="row-tags"><span class="row-tag tech">tech</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot medium"></div>
+          <span class="row-title">Summer Schools</span>
+          <div class="row-tags"><span class="row-tag education">education</span><span class="row-tag career">career</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot medium"></div>
+          <span class="row-title">Open source contributions</span>
+          <div class="row-tags"><span class="row-tag tech">tech</span><span class="row-tag career">career</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot medium"></div>
+          <span class="row-title">Reading list system</span>
+          <div class="row-tags"><span class="row-tag personal">personal</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot medium"></div>
+          <span class="row-title">Freelance project</span>
+          <div class="row-tags"><span class="row-tag career">career</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot low"></div>
+          <span class="row-title">Tax return</span>
+          <div class="row-tags"><span class="row-tag personal">personal</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot low"></div>
+          <span class="row-title">Update Git profile</span>
+          <div class="row-tags"><span class="row-tag tech">tech</span><span class="row-tag career">career</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot low"></div>
+          <span class="row-title">Vision Board</span>
+          <div class="row-tags"><span class="row-tag personal">personal</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot low"></div>
+          <span class="row-title">Morning routine system</span>
+          <div class="row-tags"><span class="row-tag personal">personal</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot low"></div>
+          <span class="row-title">Home dashboard</span>
+          <div class="row-tags"><span class="row-tag tech">tech</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot low"></div>
+          <span class="row-title">Browser extension v2</span>
+          <div class="row-tags"><span class="row-tag tech">tech</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot low"></div>
+          <span class="row-title">CLI toolkit</span>
+          <div class="row-tags"><span class="row-tag tech">tech</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot low"></div>
+          <span class="row-title">Language learning</span>
+          <div class="row-tags"><span class="row-tag personal">personal</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot low"></div>
+          <span class="row-title">Podcast idea</span>
+          <div class="row-tags"></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot low"></div>
+          <span class="row-title">Newsletter</span>
+          <div class="row-tags"></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot low"></div>
+          <span class="row-title">Research paper</span>
+          <div class="row-tags"><span class="row-tag research">research</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot low"></div>
+          <span class="row-title">Conference talk</span>
+          <div class="row-tags"><span class="row-tag networking">networking</span><span class="row-tag career">career</span></div>
+        </div>
+        <div class="idea-row">
+          <div class="p-dot low"></div>
+          <span class="row-title">Side hustle</span>
+          <div class="row-tags"></div>
+        </div>
+      </div>
+
+      <!-- Theme sidebar -->
+      <div class="theme-pane">
+        <div class="theme-pane-title">Themes</div>
+
+        <div class="theme-block">
+          <div class="theme-tag-header">
+            <span class="theme-tag tech">tech</span>
+            <span class="theme-count">10</span>
+          </div>
+          <div class="theme-bar-bg"><div class="theme-bar tech" style="width:100%"></div></div>
+        </div>
+
+        <div class="theme-block">
+          <div class="theme-tag-header">
+            <span class="theme-tag career">career</span>
+            <span class="theme-count">9</span>
+          </div>
+          <div class="theme-bar-bg"><div class="theme-bar career" style="width:90%"></div></div>
+        </div>
+
+        <div class="theme-block">
+          <div class="theme-tag-header">
+            <span class="theme-tag networking">networking</span>
+            <span class="theme-count">5</span>
+          </div>
+          <div class="theme-bar-bg"><div class="theme-bar networking" style="width:50%"></div></div>
+        </div>
+
+        <div class="theme-block">
+          <div class="theme-tag-header">
+            <span class="theme-tag personal">personal</span>
+            <span class="theme-count">5</span>
+          </div>
+          <div class="theme-bar-bg"><div class="theme-bar personal" style="width:50%"></div></div>
+        </div>
+
+        <div class="theme-block">
+          <div class="theme-tag-header">
+            <span class="theme-tag education">education</span>
+            <span class="theme-count">3</span>
+          </div>
+          <div class="theme-bar-bg"><div class="theme-bar education" style="width:30%"></div></div>
+        </div>
+
+        <div class="theme-block">
+          <div class="theme-tag-header">
+            <span class="theme-tag research">research</span>
+            <span class="theme-count">2</span>
+          </div>
+          <div class="theme-bar-bg"><div class="theme-bar research" style="width:20%"></div></div>
+        </div>
+
+        <div class="theme-divider"></div>
+        <div class="theme-pane-tip">Click a theme to highlight matching ideas. Overlap = connection candidate.</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

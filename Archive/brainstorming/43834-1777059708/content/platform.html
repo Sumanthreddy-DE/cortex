@@ -1,0 +1,52 @@
+<h2>Where should this live?</h2>
+<p class="subtitle">This decides everything else — pick what fits best with how you actually browse.</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Browser Extension</h3>
+      <p>Click an icon in Chrome toolbar → paste link → tag it → done. Works across all 4 profiles. Zero context switch.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Lives where your links live</li><li>One-click save from any tab</li><li>Works across all Chrome profiles</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Chrome only</li><li>Slightly more complex to build</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Local Web App (runs on your laptop)</h3>
+      <p>A small server on your machine, open it at <code>localhost:3000</code> in any browser tab. Paste links, tag, save.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Simple to build</li><li>Works in any browser / any profile</li><li>Data stays on your machine</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Need to keep server running</li><li>Extra step to open the app tab</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Obsidian (vault-based)</h3>
+      <p>Each saved link becomes a note in your Obsidian vault with tags and date. Search, filter, graph view.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Already installed if you use Obsidian</li><li>Powerful search and filtering</li><li>Links to other notes</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Need Obsidian open to save links</li><li>Less browser-native</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="d" onclick="toggleSelect(this)">
+    <div class="letter">D</div>
+    <div class="content">
+      <h3>Use an existing open-source app</h3>
+      <p>Something like Linkding, Hoarder, or Raindrop.io — self-hosted or free tier. No building needed.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Ready to use immediately</li><li>Browser extensions already exist</li><li>Features like auto-tagging, full-text search</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Less customizable</li><li>Self-hosting needs Docker or a server</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

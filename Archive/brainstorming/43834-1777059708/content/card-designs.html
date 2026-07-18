@@ -1,0 +1,104 @@
+<h2>How should cards look?</h2>
+<p class="subtitle">Link cards vs Idea/Note cards — pick the style that feels right</p>
+
+<div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:16px;">
+
+  <!-- OPTION A -->
+  <div class="option" data-choice="a" onclick="toggleSelect(this)" style="flex:1;min-width:260px;">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Minimal + Clean</h3>
+      <p>Favicon + title + tags. No clutter.</p>
+
+      <div style="margin:12px 0;">
+        <div style="font-size:10px;color:#94a3b8;margin-bottom:6px;font-weight:bold;text-transform:uppercase;">Link Card</div>
+        <div style="background:#1e293b;border-radius:8px;padding:10px;border-left:3px solid #3b82f6;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+            <div style="width:14px;height:14px;background:#24292e;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;">🐙</div>
+            <span style="color:#60a5fa;font-size:11px;font-weight:500;">llama.cpp — fast LLM inference</span>
+          </div>
+          <div style="color:#64748b;font-size:10px;margin-bottom:6px;">github.com/ggml-org/llama.cpp</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <span style="background:#1d4ed8;color:#bfdbfe;border-radius:4px;padding:1px 7px;font-size:10px;">AI</span>
+            <span style="background:#312e81;color:#c4b5fd;border-radius:4px;padding:1px 7px;font-size:10px;">GitHub</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:10px;color:#94a3b8;margin-bottom:6px;font-weight:bold;text-transform:uppercase;">Idea / Note Card</div>
+        <div style="background:#1e293b;border-radius:8px;padding:10px;border-left:3px solid #f59e0b;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+            <span style="font-size:14px;">💡</span>
+            <span style="color:#fbbf24;font-size:11px;font-weight:500;">Build a RAG pipeline for my PDFs</span>
+          </div>
+          <div style="color:#94a3b8;font-size:10px;margin-bottom:6px;">Just use LangChain + local Ollama...</div>
+          <div style="display:flex;gap:4px;">
+            <span style="background:#78350f;color:#fde68a;border-radius:4px;padding:1px 7px;font-size:10px;">Ideas</span>
+            <span style="background:#134e4a;color:#99f6e4;border-radius:4px;padding:1px 7px;font-size:10px;">ML</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="option" data-choice="b" onclick="toggleSelect(this)" style="flex:1;min-width:260px;">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Rich Preview</h3>
+      <p>Auto-fetch OG image/description. Cards feel like web previews.</p>
+
+      <div style="margin:12px 0;">
+        <div style="font-size:10px;color:#94a3b8;margin-bottom:6px;font-weight:bold;text-transform:uppercase;">Link Card</div>
+        <div style="background:#1e293b;border-radius:8px;overflow:hidden;border:1px solid #334155;">
+          <div style="background:#0f172a;height:50px;display:flex;align-items:center;justify-content:center;color:#475569;font-size:10px;border-bottom:1px solid #334155;">[ page preview image ]</div>
+          <div style="padding:10px;">
+            <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">
+              <div style="width:12px;height:12px;background:#24292e;border-radius:2px;font-size:8px;display:flex;align-items:center;justify-content:center;">🐙</div>
+              <span style="color:#60a5fa;font-size:11px;font-weight:600;">llama.cpp</span>
+            </div>
+            <div style="color:#94a3b8;font-size:10px;margin-bottom:6px;">LLM inference in C/C++. Runs locally on CPU.</div>
+            <div style="display:flex;gap:4px;">
+              <span style="background:#1d4ed8;color:#bfdbfe;border-radius:4px;padding:1px 7px;font-size:10px;">AI</span>
+              <span style="background:#312e81;color:#c4b5fd;border-radius:4px;padding:1px 7px;font-size:10px;">GitHub</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:10px;color:#94a3b8;margin-bottom:6px;font-weight:bold;text-transform:uppercase;">Idea / Note Card</div>
+        <div style="background:#1e293b;border-radius:8px;padding:10px;border:1px solid #854d0e;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+            <span style="color:#fbbf24;font-size:11px;font-weight:600;">💡 RAG pipeline for PDFs</span>
+            <span style="color:#64748b;font-size:10px;">Apr 24</span>
+          </div>
+          <div style="color:#94a3b8;font-size:10px;line-height:1.5;margin-bottom:6px;">Use LangChain + Ollama locally. Chunk PDFs with PyMuPDF. Store vectors in ChromaDB.</div>
+          <div style="display:flex;gap:4px;">
+            <span style="background:#78350f;color:#fde68a;border-radius:4px;padding:1px 7px;font-size:10px;">Ideas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="option" data-choice="c" onclick="toggleSelect(this)" style="flex:1;min-width:260px;">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Both — Auto-detect</h3>
+      <p>Links get Option B rich preview. Ideas/notes get Option A clean style. System decides based on type.</p>
+      <div style="background:#1e293b;border-radius:8px;padding:12px;margin-top:10px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="background:#1d4ed8;color:#bfdbfe;border-radius:4px;padding:2px 8px;font-size:10px;">🔗 Link → Rich card</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="background:#78350f;color:#fde68a;border-radius:4px;padding:2px 8px;font-size:10px;">💡 Idea → Clean card</span>
+        </div>
+        <div style="color:#64748b;font-size:10px;margin-top:10px;">Best of both. Slightly more complexity to build but most polished result.</div>
+      </div>
+    </div>
+  </div>
+
+</div>

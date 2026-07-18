@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cortex — Final Hover Effect</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #020617; --surface: #0f172a; --border: #1e293b;
+  --text: #f8fafc; --text2: #94a3b8; --text3: #475569;
+  --blue: #2563eb; --orange: #f97316;
+}
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); padding:40px; min-height:100vh; }
+
+h2 { font-size:15px; font-weight:600; margin-bottom:6px; }
+.subtitle { font-size:12px; color:var(--text3); margin-bottom:32px; line-height:1.6; }
+
+.grid { display:flex; gap:14px; flex-wrap:wrap; max-width:820px; }
+
+/* ── CARD BASE ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  width: 230px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  /* 3D tilt */
+  transform-style: preserve-3d;
+  transform: perspective(700px) rotateX(0deg) rotateY(0deg) translateZ(0px);
+  transition: transform 80ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  will-change: transform;
+}
+
+/* specular highlight — follows mouse */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(148,198,255, 0.13) 0%,
+    rgba(37,99,235,   0.06) 35%,
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* edge iridescent rim — subtle, not rainbow */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 11px;
+  background: linear-gradient(
+    calc(var(--angle, 135deg)),
+    rgba(148,198,255,0.25),
+    rgba(37,99,235,0.15) 40%,
+    rgba(249,115,22,0.12) 70%,
+    rgba(148,198,255,0.2)
+  );
+  opacity: 0;
+  transition: opacity 250ms ease;
+  z-index: -1;
+}
+
+/* noise texture — very subtle */
+.noise {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  opacity: 0;
+  transition: opacity 250ms ease;
+  pointer-events: none;
+  z-index: 2;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  mix-blend-mode: overlay;
+}
+
+.card:hover {
+  border-color: rgba(37,99,235,0.45);
+  box-shadow:
+    0 0 0 1px rgba(148,198,255,0.15),
+    0 8px 32px rgba(0,0,0,0.45),
+    0 0 20px rgba(37,99,235,0.08);
+}
+.card:hover::after  { opacity: 1; }
+.card:hover::before { opacity: 1; }
+.card:hover .noise  { opacity: 1; }
+
+/* idea variant */
+.card-idea { border-left: 2px solid var(--orange); }
+.card-idea:hover { border-color: rgba(249,115,22,0.5); }
+.card-idea:hover::before {
+  background: linear-gradient(
+    calc(var(--angle, 135deg)),
+    rgba(255,180,100,0.2),
+    rgba(249,115,22,0.12) 40%,
+    rgba(37,99,235,0.1) 70%,
+    rgba(255,180,100,0.18)
+  );
+}
+.card-idea::after {
+  background: radial-gradient(
+    circle at var(--mouse-x,50%) var(--mouse-y,50%),
+    rgba(255,180,100,0.12) 0%,
+    rgba(249,115,22,0.05) 35%,
+    transparent 65%
+  );
+}
+.card-idea:hover {
+  box-shadow:
+    0 0 0 1px rgba(249,115,22,0.2),
+    0 8px 32px rgba(0,0,0,0.45),
+    0 0 20px rgba(249,115,22,0.07);
+}
+
+/* card content */
+.card-top { display:flex; align-items:flex-start; gap:9px; position:relative; z-index:3; }
+.favicon { width:16px; height:16px; border-radius:3px; flex-shrink:0; margin-top:1px; object-fit:contain; }
+.card-title { font-size:12px; font-weight:500; color:var(--text); line-height:1.4; }
+.idea-note { font-size:11px; color:var(--text2); margin-top:6px; line-height:1.5; position:relative; z-index:3; }
+
+/* tune panel */
+.panel {
+  margin-top: 36px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 500px;
+}
+.panel-title { font-size:12px; font-weight:600; color:var(--text2); margin-bottom:16px; letter-spacing:0.4px; text-transform:uppercase; }
+.tune-row { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.tune-label { font-size:11px; color:var(--text2); width:110px; flex-shrink:0; }
+input[type=range] { flex:1; accent-color:var(--blue); }
+.tune-val { font-size:11px; color:var(--text3); width:36px; text-align:right; font-variant-numeric:tabular-nums; }
+</style>
+</head>
+<body>
+
+<h2>Best of Both — Tilt + Specular</h2>
+<p class="subtitle">
+  3D tilt from A · Blue/orange specular from B · Subtle noise texture · Edge rim glow<br>
+  <span style="color:#475569">Move mouse slowly across cards. Use the tuning panel to adjust intensity.</span>
+</p>
+
+<div class="grid">
+
+  <div class="card" id="c1">
+    <div class="noise"></div>
+    <div class="card-top">
+      <img class="favicon" src="https://www.google.com/s2/favicons?domain=github.com&sz=32" alt="">
+      <div class="card-title">ollama/ollama — Run LLMs locally</div>
+    </div>
+  </div>
+
+  <div class="card" id="c2">
+    <div class="noise"></div>
+    <div class="card-top">
+      <img class="favicon" src="https://www.google.com/s2/favicons?domain=youtube.com&sz=32" alt="">
+      <div class="card-title">Andrej Karpathy — makemore (part 3)</div>
+    </div>
+  </div>
+
+  <div class="card" id="c3">
+    <div class="noise"></div>
+    <div class="card-top">
+      <img class="favicon" src="https://www.google.com/s2/favicons?domain=linkedin.com&sz=32" alt="">
+      <div class="card-title">ML Engineer — Siemens AG, Munich</div>
+    </div>
+  </div>
+
+  <div class="card card-idea" id="c4">
+    <div class="noise"></div>
+    <div class="card-top">
+      <div style="width:16px;height:16px;flex-shrink:0;margin-top:1px;font-size:12px;color:var(--orange)">✏</div>
+      <div class="card-title">Fix SimReady mesh export</div>
+    </div>
+    <div class="idea-note">STL parser breaks on non-manifold geometries</div>
+  </div>
+
+  <div class="card card-idea" id="c5">
+    <div class="noise"></div>
+    <div class="card-top">
+      <div style="width:16px;height:16px;flex-shrink:0;margin-top:1px;font-size:12px;color:var(--orange)">✏</div>
+      <div class="card-title">Weekly job digest for Germany</div>
+    </div>
+    <div class="idea-note">Scrape LinkedIn + Indeed, email every Monday</div>
+  </div>
+
+  <div class="card" id="c6">
+    <div class="noise"></div>
+    <div class="card-top">
+      <img class="favicon" src="https://www.google.com/s2/favicons?domain=cursor.sh&sz=32" alt="">
+      <div class="card-title">cursor.sh — AI-native code editor</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TUNING PANEL -->
+<div class="panel">
+  <div class="panel-title">Tweak the effect</div>
+
+  <div class="tune-row">
+    <span class="tune-label">Tilt intensity</span>
+    <input type="range" id="r-tilt" min="0" max="15" value="7" step="0.5">
+    <span class="tune-val" id="v-tilt">7°</span>
+  </div>
+  <div class="tune-row">
+    <span class="tune-label">Specular size</span>
+    <input type="range" id="r-spec" min="20" max="80" value="45" step="1">
+    <span class="tune-val" id="v-spec">45%</span>
+  </div>
+  <div class="tune-row">
+    <span class="tune-label">Specular bright</span>
+    <input type="range" id="r-bright" min="0.03" max="0.25" value="0.13" step="0.01">
+    <span class="tune-val" id="v-bright">0.13</span>
+  </div>
+  <div class="tune-row">
+    <span class="tune-label">Rim glow</span>
+    <input type="range" id="r-rim" min="0" max="0.4" value="0.2" step="0.01">
+    <span class="tune-val" id="v-rim">0.2</span>
+  </div>
+  <div class="tune-row">
+    <span class="tune-label">Noise amount</span>
+    <input type="range" id="r-noise" min="0" max="0.08" value="0.035" step="0.005">
+    <span class="tune-val" id="v-noise">0.035</span>
+  </div>
+  <div class="tune-row">
+    <span class="tune-label">Lift height</span>
+    <input type="range" id="r-lift" min="0" max="10" value="3" step="0.5">
+    <span class="tune-val" id="v-lift">3px</span>
+  </div>
+</div>
+
+<script>
+// ── TUNING VARS ──
+let cfg = { tilt:7, spec:45, bright:0.13, rim:0.2, noise:0.035, lift:3 };
+
+function applySpec() {
+  document.querySelectorAll('.card').forEach(card => {
+    const mx = card.style.getPropertyValue('--mouse-x') || '50%';
+    const my = card.style.getPropertyValue('--mouse-y') || '50%';
+    const isIdea = card.classList.contains('card-idea');
+    const c1 = isIdea ? `255,180,100` : `148,198,255`;
+    const c2 = isIdea ? `249,115,22`  : `37,99,235`;
+    card.style.setProperty('--spec-grad',
+      `radial-gradient(circle at ${mx} ${my}, rgba(${c1},${cfg.bright}) 0%, rgba(${c2},${cfg.bright*0.45}) ${cfg.spec*0.78}%, transparent ${cfg.spec}%)`
+    );
+  });
+}
+
+// live CSS injection for tunable props
+function updateStyles() {
+  let s = document.getElementById('dyn-style');
+  if (!s) { s = document.createElement('style'); s.id = 'dyn-style'; document.head.appendChild(s); }
+  s.textContent = `
+    .card:hover { transform: perspective(700px) rotateX(var(--tx,0deg)) rotateY(var(--ty,0deg)) translateZ(${cfg.lift}px) !important; }
+    .card::before { opacity: 0; }
+    .card:hover::before { opacity: ${cfg.rim} !important; }
+    .card .noise { background-size: 160px 160px; }
+    .card:hover .noise { opacity: ${cfg.noise * 28} !important; }
+  `;
+}
+updateStyles();
+
+// ── MOUSE TRACKING ──
+document.querySelectorAll('.card').forEach(card => {
+  const isIdea = card.classList.contains('card-idea');
+
+  card.addEventListener('mousemove', e => {
+    const r  = card.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width;
+    const py = (e.clientY - r.top)  / r.height;
+    const mx = (px * 100).toFixed(1) + '%';
+    const my = (py * 100).toFixed(1) + '%';
+
+    card.style.setProperty('--mouse-x', mx);
+    card.style.setProperty('--mouse-y', my);
+
+    // tilt
+    const tx = ((py - 0.5) * -cfg.tilt).toFixed(2) + 'deg';
+    const ty = ((px - 0.5) *  cfg.tilt).toFixed(2) + 'deg';
+    card.style.setProperty('--tx', tx);
+    card.style.setProperty('--ty', ty);
+
+    // angle for rim gradient
+    const angle = (Math.atan2(py - 0.5, px - 0.5) * 180 / Math.PI + 180).toFixed(1) + 'deg';
+    card.style.setProperty('--angle', angle);
+
+    // dynamic specular
+    const c1 = isIdea ? `255,180,100` : `148,198,255`;
+    const c2 = isIdea ? `249,115,22`  : `37,99,235`;
+    card.style.setProperty('--after-bg',
+      `radial-gradient(circle at ${mx} ${my}, rgba(${c1},${cfg.bright}) 0%, rgba(${c2},${cfg.bright*0.45}) ${cfg.spec*0.78}%, transparent ${cfg.spec}%)`
+    );
+    card.style.cssText += `--spec: url('')`; // force repaint trigger
+  });
+
+  card.addEventListener('mouseleave', () => {
+    card.style.setProperty('--mouse-x','50%');
+    card.style.setProperty('--mouse-y','50%');
+    card.style.setProperty('--tx','0deg');
+    card.style.setProperty('--ty','0deg');
+    card.style.setProperty('--angle','135deg');
+  });
+});
+
+// override ::after dynamically via style injection per card mousemove
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('mousemove', () => {
+    const mx  = card.style.getPropertyValue('--mouse-x') || '50%';
+    const my  = card.style.getPropertyValue('--mouse-y') || '50%';
+    const isI = card.classList.contains('card-idea');
+    const c1  = isI ? `255,180,100` : `148,198,255`;
+    const c2  = isI ? `249,115,22`  : `37,99,235`;
+    let s = document.getElementById('spec-' + card.id);
+    if (!s) { s = document.createElement('style'); s.id = 'spec-' + card.id; document.head.appendChild(s); }
+    s.textContent = `
+      #${card.id}::after {
+        background: radial-gradient(
+          circle at ${mx} ${my},
+          rgba(${c1},${cfg.bright}) 0%,
+          rgba(${c2},${cfg.bright * 0.45}) ${cfg.spec * 0.78}%,
+          transparent ${cfg.spec}%
+        ) !important;
+        opacity: 1 !important;
+      }
+      #${card.id} { transform: perspective(700px) rotateX(var(--tx,0deg)) rotateY(var(--ty,0deg)) translateZ(${cfg.lift}px) !important; }
+    `;
+  });
+  card.addEventListener('mouseleave', () => {
+    const s = document.getElementById('spec-' + card.id);
+    if (s) s.textContent = '';
+  });
+});
+
+// ── SLIDERS ──
+function bindSlider(id, key, label, fmt) {
+  const r = document.getElementById('r-' + id);
+  const v = document.getElementById('v-' + id);
+  r.addEventListener('input', () => {
+    cfg[key] = parseFloat(r.value);
+    v.textContent = fmt(r.value);
+    updateStyles();
+  });
+}
+bindSlider('tilt',   'tilt',   'tilt',   x => x + '°');
+bindSlider('spec',   'spec',   'spec',   x => x + '%');
+bindSlider('bright', 'bright', 'bright', x => parseFloat(x).toFixed(2));
+bindSlider('rim',    'rim',    'rim',    x => parseFloat(x).toFixed(2));
+bindSlider('noise',  'noise',  'noise',  x => parseFloat(x).toFixed(3));
+bindSlider('lift',   'lift',   'lift',   x => x + 'px');
+</script>
+</body>
+</html>
