@@ -212,3 +212,9 @@ gws auth login -s calendar
 ```
 
 After that the "Add to Calendar" button in any card's edit modal works.
+
+---
+
+## License
+
+MIT. See [LICENSE](LICENSE).
