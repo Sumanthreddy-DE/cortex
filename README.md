@@ -18,7 +18,7 @@ Local-first desktop app for saving links, ideas, and notes. Organized by time pr
 - **Reminders** — Set a `remind_at` time on any item; a native Windows notification fires at the right time.
 - **Midnight Promotion** — Items auto-advance at midnight (Tomorrow → Today, This Week → Tomorrow, etc.).
 - **Morning Digest** — Daily summary notification at whatever time you configure.
-- **Telegram Capture** — Send a message to your bot on your phone and it shows up in Inbox within about a minute.
+- **Discord Capture** — Post a message in your capture channel from any device and it shows up in Inbox within about a minute.
 - **System Tray** — Always running; tooltip shows Today + For Now count.
 
 ---
@@ -111,8 +111,8 @@ cortex/
 │   │   │   ├── reminders.ts      # Per-minute: fire remind_at notifications
 │   │   │   ├── midnight.ts       # Midnight: promote items forward
 │   │   │   └── morning-digest.ts # Once/day: summary notification
-│   │   └── telegram/
-│   │       └── poller.ts         # Poll Supabase every 60s, drain to SQLite
+│   │   └── discord/
+│   │       └── poller.ts         # Poll the Discord channel every 60s, drain to SQLite
 │   ├── preload/
 │   │   └── index.ts              # contextBridge — exposes IPC to renderer
 │   └── renderer/                 # React frontend (Vite)
@@ -159,10 +159,10 @@ cortex/
 |-------|---------|--------|
 | **1** | Core app — Electron + React + SQLite + Kanban + Edit modal + Search + Quick-add + Tray + Reminders | ✅ Done |
 | **1b** | Chrome Extension — `Ctrl+Shift+S` + auto-tag detection | ✅ Done |
-| **2** | Telegram Bot — mobile capture via Supabase queue | ✅ Done |
+| **2** | Mobile capture — Discord channel poller (replaced the original Telegram and Supabase route) | ✅ Done |
 | **3** | Cron + Notifications — midnight promotion + morning digest | ✅ Done |
 | **4** | Calendar Integration — "Add to Calendar" via `gws` CLI | ✅ Done |
-| **5** | Settings & Polish — auto-start toggle, digest time, Telegram config | ✅ Done |
+| **5** | Settings & Polish — auto-start toggle, digest time, Discord config | ✅ Done |
 
 ---
 
@@ -177,24 +177,29 @@ cortex/
 
 ---
 
-## Optional: Telegram Integration
+## Optional: Discord Capture
 
-1. Create a bot via `@BotFather` → save the token
-2. Create a free [Supabase](https://supabase.com) project → run the SQL from `docs/superpowers/plans/phase2.md`
-3. Deploy the webhook server to [Railway](https://railway.app) (free tier is fine)
-4. Register the webhook URL with Telegram
-5. Add to `.env` in the cortex root:
+Capture from your phone by posting in a Discord channel. The app polls that channel
+every 60 seconds and drains new messages into Inbox, so there is no webhook to host
+and no third-party queue in the path.
+
+1. Create an application and bot at the [Discord Developer Portal](https://discord.com/developers/applications) → save the bot token
+2. Invite the bot to your server with permission to read the capture channel
+3. Copy the channel ID (enable Developer Mode in Discord, then right-click the channel → Copy ID)
+4. Add to `.env` in the cortex root:
    ```
-   SUPABASE_URL=https://xxxx.supabase.co
-   SUPABASE_ANON_KEY=eyJ...
+   DISCORD_BOT_TOKEN=your-bot-token
+   DISCORD_CHANNEL_ID=your-channel-id
    ```
 
-Bot commands:
+Leave either variable unset and Discord polling stays off.
+
+Message format:
 - Any text → Inbox idea
-- Any URL → Inbox link
-- `/today finish the report` → Today column
-- `/now call back client` → For Now column
-- `/remind buy groceries tomorrow 6pm` → Inbox with reminder set
+- Any URL → Inbox link, title fetched automatically
+- A `!priority` token anywhere in the message routes it to that lane and is stripped
+  from the title: `!inbox`, `!now`, `!today`, `!tomorrow`, `!week`, `!someday`
+- `finish the report !today` → Today lane, saved as "finish the report"
 
 ---
 
