@@ -18,7 +18,7 @@ Local-first Electron+React+SQLite link/idea manager living in system tray. Prior
 - Nothing in flight — tree clean at a8ddab0, phase-5 plan written but not started
 
 ## Pipeline
-- Phase 5 "close the loop" — docs/superpowers/plans/2026-07-18-phase-5-close-the-loop.md (triage mode, Discord digest, receipts + ?today, Telegram teardown), not executed
+- Phase 5 "close the loop" — docs/exec-plans/active/2026-07-18-phase-5-close-the-loop.md (triage mode, Discord digest, receipts + ?today, Telegram teardown), not executed
 - Later: stale-item sweep + video/Reels→text (feature-backlog items 9-10); no new views until completions happen (item 11)
 
 ## Resume here
