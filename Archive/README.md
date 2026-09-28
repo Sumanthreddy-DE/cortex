@@ -16,3 +16,12 @@ All are cortex origin-design artifacts:
 
 `state/server.pid` files are dead — sandboxes' preview servers long stopped.
 Live source of truth: cortex app code in this repo.
+
+## design-system-export/ (added 2026-09-28)
+
+`SKILL.md` + `README.md` of a `cortex-design` design-system bundle, moved from
+`docs/superpowers/specs/` (gitignored there, dated 2026-05-02, never installed or invoked as a skill).
+Incomplete: the `colors_and_type.css`, `preview/` and `ui_kits/` it references never existed in the repo.
+The backfilled status block above its frontmatter was removed on the move.
+
+Live source of truth for design: `DESIGN.md` (+ `DESIGN.json`) at repo root.
