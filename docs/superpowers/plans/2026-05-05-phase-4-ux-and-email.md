@@ -1,10 +1,12 @@
 # Phase 4 — UX Fixes + Morning Email Plan
 
+**Status:** done
+**Last verified:** 2026-09-28
+**Status evidence:** tasks 1-5 = 9727fec, 028c18d, 6d50ce8, abe6894, 7716b88; tasks 1-4 runtime-verified 2026-07-18; task 5 gws email runtime unverified (phase-5 plan calls it never-working, replaces with Discord digest)
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Five independent tasks. Execute them in order. Each has its own commit. All tasks are in the same repo at `C:\Users\suman\Desktop\Docs\Job\Projects\cortex`. Use worktree `feature/phase-4`.
-
-**Status:** DONE — all 5 tasks committed (9727fec, 028c18d, 6d50ce8, abe6894, 7716b88). Tasks 1-4 runtime-verified 2026-07-18. Task 5 email path depends on gws CLI — see STATE.md.
 
 **Tech stack:** Electron, React, TypeScript, SQLite (better-sqlite3), Node.js cron.
 

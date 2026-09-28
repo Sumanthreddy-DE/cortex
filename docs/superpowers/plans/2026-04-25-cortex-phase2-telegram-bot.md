@@ -1,5 +1,9 @@
 # Cortex Phase 2 — Telegram Bot (Mobile Capture)
 
+**Status:** superseded
+**Last verified:** 2026-09-28
+**Status evidence:** src/main/telegram/poller.ts shipped, still wired at src/main/index.ts:369; replaced by Discord capture 81b234b; teardown = phase-5 plan Task 4
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Enable mobile capture via Telegram. Anything sent to the Cortex bot on phone lands in a Supabase queue table. Electron polls every 60 seconds, drains the queue into SQLite as Inbox items. Zero cost, works even when laptop is off — items wait in Supabase until Electron next runs.

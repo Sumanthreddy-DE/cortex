@@ -1,5 +1,9 @@
 # Ideas Bucket — Option C Visualization Plan
 
+**Status:** done
+**Last verified:** 2026-09-28
+**Status evidence:** shipped f713f71/d867e08/e829757; themes sidebar later removed deliberately in 67e1d93 (merge fix)
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the full-width IdeaCard scroll in the expanded Ideas bucket with a compact list (priority dot + title + tags) and a themes sidebar (tag name + count + bar), so all 25+ ideas are visible at once and tag-based connections are surfaced.

@@ -1,5 +1,9 @@
 # Cortex Phase 1b — Chrome Extension
 
+**Status:** done
+**Last verified:** 2026-09-28
+**Status evidence:** chrome-extension/ shipped in f596bcc, manifest.json:21 Ctrl+Shift+S capture; runtime never tested; domain auto-tag goal not built (no auto-tag.js, popup.js:56 sends tags: []) - see BACKLOG.md
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a Manifest V3 Chrome extension that captures the current tab's URL + title into Cortex Inbox with one shortcut press (`Ctrl+Shift+S`), auto-suggests tags from domain patterns, and falls back gracefully when the Cortex app is not running.

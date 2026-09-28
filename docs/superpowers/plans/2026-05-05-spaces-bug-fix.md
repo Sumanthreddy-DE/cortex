@@ -1,10 +1,12 @@
 # Spaces Bug Fix Implementation Plan
 
+**Status:** done
+**Last verified:** 2026-09-28
+**Status evidence:** 20bdc18, runtime-verified 2026-07-18; SpacesView.tsx filters on item.spaces only, no recently-opened gate
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Fix space cards so items added to a space but never opened are visible (not silently hidden).
-
-**Status:** DONE — already implemented in commit `20bdc18` (found during 2026-07-18 execution attempt). Runtime-verified 2026-07-18: never-opened item renders under "Items" heading in space card.
 
 **Architecture:** Single-file change in `SpacesView.tsx`. The bug is in the `recent` filter which requires `last_opened_at` to be non-null — ideas and companies never get touched so they vanish. Remove that guard, rename section to "Items", show all non-pinned members sorted by recency (nulls last).
 

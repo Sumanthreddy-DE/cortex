@@ -1,5 +1,9 @@
 # Issues + Research Tabs Implementation Plan
 
+**Status:** done
+**Last verified:** 2026-09-28
+**Status evidence:** IssuesView.tsx + ResearchView.tsx, ItemType includes issue|company (src/main/api/items.ts:5); commits c16317a..6318338
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add two new item types (`issue`, `company`) and two new nav tabs (Issues, Research) so the user can capture friction/bugs and interesting companies separately from their ideas and links.

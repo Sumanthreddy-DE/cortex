@@ -1,5 +1,9 @@
 # Cortex Phase 1 — Core App Implementation Plan
 
+**Status:** done
+**Last verified:** 2026-09-28
+**Status evidence:** all core files exist: src/main/{api/items,api/search,cron/reminders,db/connection,db/migrations,server,tray,quick-add-window}.ts, renderer QuickAdd/PriorityView/CategoryView/EditModal; predates history, first visible dc2b248
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the Cortex desktop app — Electron shell with React frontend, SQLite database, Priority view (Kanban), Category view (drag-and-drop), Edit modal, full-text search, card hover effect, system tray, and archive.

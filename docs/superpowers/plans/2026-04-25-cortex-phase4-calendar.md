@@ -2,7 +2,7 @@
 
 **Status:** done
 **Last verified:** 2026-09-28
-**Status evidence:** src/main/calendar.ts wired via src/main/index.ts:223 (calendar:add IPC) + preload + EditModal.tsx; tests/unit/calendar.test.ts 6/6 pass 2026-09-28; README.md:164 Phase 4 Done; landed in 1ab8b97
+**Status evidence:** src/main/calendar.ts wired via src/main/index.ts:223 (calendar:add IPC) + preload + EditModal.tsx; tests/unit/calendar.test.ts 6/6 pass 2026-09-28; landed in 1ab8b97; runtime never verified - needs gws auth
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

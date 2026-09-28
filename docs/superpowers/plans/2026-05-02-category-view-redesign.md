@@ -1,5 +1,9 @@
 # Category View Redesign Implementation Plan
 
+**Status:** done
+**Last verified:** 2026-09-28
+**Status evidence:** cat-accordion CategoryView.tsx; src/main/api/link-fetch.ts, src/shared/domain-rules.ts, TagAutocomplete.tsx exist and are used (src/main/index.ts:7, discord/poller.ts:4-5)
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the horizontal-column category view with a vertical accordion, add background link title fetching, domain auto-tagging, priority dots, inline quick-add per category, duplicate URL detection, and hashtag autocomplete for tag inputs.

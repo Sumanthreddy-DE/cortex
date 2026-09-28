@@ -1,5 +1,9 @@
 # Cortex — Feature Backlog
 
+**Status:** active
+**Last verified:** 2026-09-28
+**Status evidence:** backlog not a plan; items 9-10 open in STATE.md Pipeline
+
 > Status sweep 2026-07-18: items 1-5 all shipped (commits 9727fec, 028c18d, 6d50ce8, abe6894, 7716b88).
 
 Unplanned ideas. Not ordered by priority. Each entry has enough context to write a plan from.

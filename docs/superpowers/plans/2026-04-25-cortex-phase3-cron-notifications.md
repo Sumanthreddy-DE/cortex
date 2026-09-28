@@ -1,5 +1,9 @@
 # Cortex Phase 3 — Cron + Advanced Notifications
 
+**Status:** done
+**Last verified:** 2026-09-28
+**Status evidence:** src/main/cron/midnight.ts + morning-digest.ts + tests/unit/{midnight,morning-digest}.test.ts; wired at src/main/index.ts:9-10,399
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Implement the midnight priority promotion cron (with idempotency), the configurable morning digest notification, and wire both to the existing `meta` table. All notifications are Windows-native via Electron's `Notification` API, platform-guarded.

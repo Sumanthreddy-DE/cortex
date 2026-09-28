@@ -1,5 +1,9 @@
 # Cortex Phase 5 — Settings & Polish
 
+**Status:** done
+**Last verified:** 2026-09-28
+**Status evidence:** SettingsView.tsx + src/main/api/settings.ts; autostart IPC at src/main/index.ts:226-234 (openAtLogin); Settings button in TopBar.tsx:132
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add a Settings view accessible from TopBar, containing: auto-start toggle (Windows), configurable morning digest time, Telegram bot status / Supabase config, and a port display. Wire all settings to the existing `meta` table and Electron's `loginItemSettings`.

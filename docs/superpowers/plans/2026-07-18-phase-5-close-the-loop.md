@@ -1,5 +1,9 @@
 # Phase 5 — Close the Loop Implementation Plan
 
+**Status:** active
+**Last verified:** 2026-09-28
+**Status evidence:** not started: no src/renderer/components/TriageMode.tsx, @supabase/supabase-js still in package.json:28; named in STATE.md Resume here
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Make Cortex a loop, not a bucket: rapid keyboard triage for the 60-item inbox, morning digest delivered over Discord (replacing the never-working gws email), capture receipts so the phone knows a message landed, and removal of the dead Telegram pipeline.

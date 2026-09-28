@@ -1,7 +1,7 @@
 ---
 title: "Cortex — Phase 2: Priority view redesign (Field Notebook)"
 date: 2026-05-01
-status: ready
+
 depends_on:
   - 2026-05-01-cortex-design-phase1-token-migration.md (DONE — paper/ink tokens in :root, fonts loaded)
 mockup_reference: mockups/v3-buckets-bar.png
@@ -10,6 +10,11 @@ out_of_scope:
   - Completed/Spaces/Archive views (only inherit Topbar restyle)
   - SettingsView, SearchResults
 ---
+
+**Status:** done
+**Last verified:** 2026-09-28
+**Status evidence:** v3 shipped: buckets-bar + bucket-pill at src/renderer/components/PriorityView.tsx:280-289, Today hero at :478,496
+
 
 # Goal
 
