@@ -1,5 +1,9 @@
 # YouTube Distiller Prototype Implementation Plan
 
+**Status:** paused
+**Last verified:** 2026-09-28
+**Status evidence:** all deliverables built on unmerged branch feature/youtube-distiller-prototype (ae116c5..9c2c888, 2026-04-29) + uncommitted WIP in its worktree; not on main; resume via feature-backlog item 10 (STATE.md Pipeline)
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build an isolated `tools/youtube-distiller/` prototype that converts a YouTube URL into local `note.md`, `data.json`, and `transcript.txt` outputs using `yt-dlp` plus an OpenAI-compatible chat completions endpoint.

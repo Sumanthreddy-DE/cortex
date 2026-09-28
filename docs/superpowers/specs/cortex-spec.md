@@ -1,5 +1,9 @@
 # Cortex — Consolidated Spec & Status
 
+**Status:** superseded
+**Last verified:** 2026-09-28
+**Status evidence:** status snapshot of 2026-04-28; its Not-Yet-Implemented phases 2/4/5 since shipped or replaced (Discord 81b234b); live status is STATE.md + README.md
+
 **Last updated:** 2026-04-28
 **Replaces:** `2026-04-24-cortex-design.md`, `cortex-review.md`, `cortex-redesign-spec.md`
 

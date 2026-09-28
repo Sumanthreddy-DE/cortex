@@ -1,5 +1,9 @@
 # Cortex Design Phase 1: Token Migration
 
+**Status:** done
+**Last verified:** 2026-09-28
+**Status evidence:** src/renderer/styles/globals.css:4 --paper #f7f1e6 + legacy aliases (--bg/--text/--primary); Fraunces/Inter/JetBrains link in src/renderer/index.html:16 and quick-add.html:8
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. This plan is fully self-contained — every token value, font import, and CSS rule is spelled out below. You do NOT need to read DESIGN.md or DESIGN.json to complete this plan.
 
 **Goal:** Replace the dark slate-blue color palette and Inter-only typography in `src/renderer/styles/globals.css` with the warm Field-Notebook tokens defined in `DESIGN.md`. Keep all existing component class names and layout intact. Maintain backward-compatibility by aliasing legacy CSS variable names (`--bg`, `--text`, `--primary`, etc.) to new tokens (`--paper`, `--ink`, `--ink-stamp`, etc.) so existing components keep rendering without simultaneous edits.

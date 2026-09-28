@@ -1,7 +1,10 @@
 # YouTube Distiller Prototype Design
 
+**Status:** paused
+**Last verified:** 2026-09-28
+**Status evidence:** design for feature/youtube-distiller-prototype (ae116c5..9c2c888), unmerged; resume via feature-backlog item 10 (STATE.md Pipeline)
+
 Date: 2026-04-29
-Status: Draft for review
 
 ## Goal
 

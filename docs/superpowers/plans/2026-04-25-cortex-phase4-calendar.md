@@ -1,5 +1,9 @@
 # Cortex Phase 4 — Calendar Integration
 
+**Status:** done
+**Last verified:** 2026-09-28
+**Status evidence:** src/main/calendar.ts wired via src/main/index.ts:223 (calendar:add IPC) + preload + EditModal.tsx; tests/unit/calendar.test.ts 6/6 pass 2026-09-28; README.md:164 Phase 4 Done; landed in 1ab8b97
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add an "Add to Calendar" button to the Edit modal. Clicking it shells out to `gws calendar insert` with the item title and a date inferred from its priority. No OAuth in Cortex — `gws` CLI handles all Google auth. Button shows "Added ✓" after success.
