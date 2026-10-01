@@ -94,3 +94,21 @@ in a category that matters. Dedupe by URL.
 one Instagram Reel, one YouTube Short, one Reddit post, one GitHub repo, and some random
 thoughts. Claude reads each and assigns a category, reporting honestly what failed.
 The design is built on what actually worked, then continue with the Open questions.
+
+## Capability test — run 2026-10-01 (from the laptop, citadel session)
+
+| Item | Read? | What came back | Proposed category |
+|---|---|---|---|
+| Instagram carousel `instagram.com/p/Dd07Kv7EdBB` (@saadkhanads) | ~20% | Cover image only, via `og:image` — "Give Claude a WhatsApp number. Yes, seriously." Slides 2+ and the caption are behind the login wall; `yt-dlp` failed ("login required") | Claude / Hermes |
+| YouTube Short `ZvDTGkidXVI` (Kev Builds Apps, 32 s) | 100% | Title + description, which already held the spoken script and the repo link. Auto-captions hit HTTP 429 and were not needed | Side projects (or self-talk-coach / German) |
+| ↳ repo in that Short: `debpalash/VoiceStudio` | 100% | `gh api`: local ElevenLabs alternative, voice cloning/dubbing/dictation, 646 languages, AGPL-3.0, ~51k stars | — |
+| Reddit share link `r/hermesagent/s/Nu7NWNURhd` | ~10% | Share link resolves (curl GET) to `comments/1wt8blb` — title from the URL slug only: "Can you use a Claude subscription with Hermes yet". Body/comments blocked: `.json` 302, `api.reddit.com` HTML wall, defuddle empty, WebFetch "unable to fetch from www.reddit.com" | Hermes |
+| Website `resourcify.com` | 100% | defuddle: circular-economy waste-management SaaS ("operating system for a circular future"), 25k locations, 800+ recyclers | Job applications? — ask why it was saved |
+| Text "Sebastian Raschka build a reasoning model from scratch / Libgenis" | 100% | Book *Build a Reasoning Model (From Scratch)*; "Libgenis" = libgen.is. Code repo is free on GitHub (`rasbt/reasoning-from-scratch`, unverified) | Learning / AI — not in the category list |
+
+**Score: ~4 of 6 fully automatic.** The two failures are login walls, not tool gaps.
+
+Fixes, all the user's call (installs/accounts):
+- **Reddit:** free Reddit API "script" app (OAuth) — reliable; or the user pastes the post text / screenshots. Untested whether the VPS IP is blocked too (datacenter IPs usually are, worse than residential).
+- **Instagram:** `yt-dlp --cookies-from-browser` with a logged-in session — cookies are credentials, so never on the VPS without a throwaway account; or the user screenshots carousel slides (the Read tool reads text in images).
+- **Images:** user drops screenshots; Claude reads text and content from them directly. Image files need a home — open question.
