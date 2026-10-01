@@ -14,12 +14,8 @@
 > detect scripted access and ban the account, and the session cookie equals full account
 > access. Never the user's main accounts.
 >
-> **Agent-Reach: package installed 2026-10-01** in `~/.agent-reach-venv` (user-approved).
-> Running `agent-reach` itself was then blocked by the Claude Code auto-mode classifier
-> ("Untrusted Code Integration") — the user runs it, or allows it. Reminder saved to
-> Cortex memory (`feedback_throwaway-accounts-reminder.md`). Remaining: `agent-reach install --env=auto` (check-only)
-> → `--dry-run --channels=reddit,instagram` → `--system --channels=reddit,instagram` →
-> log in throwaway accounts in Chrome → re-test the Reddit + Instagram links below.
+> **Agent-Reach + OpenCLI: installed and working 2026-10-01** (venv `~/.agent-reach-venv`,
+> OpenCLI extension in a separate Chrome profile). See "Re-test" section at the bottom.
 
 ## The problem (user's words, condensed)
 
@@ -76,7 +72,7 @@ tool. "I don't want to sort anymore."
   approval-gated. Both go through OpenCLI reusing a logged-in desktop Chrome session (or
   rdt-cli + cookie), and the README itself warns of account-ban risk and says to use a
   throwaway account. So it wraps the login-session route, it does not bypass it. Default
-  install is check-only; `--system` / `--dry-run` flags exist. Not installed.
+  install is check-only; `--system` / `--dry-run` flags exist. Installed 2026-10-01 — see Re-test.
 
 ### Approach Claude argued for
 
