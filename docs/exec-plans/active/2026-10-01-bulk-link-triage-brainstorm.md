@@ -129,3 +129,24 @@ Fixes, all the user's call (installs/accounts):
 - **Reddit:** ~~free Reddit API "script" app~~ — per Agent-Reach README the official API is now approval-gated (unverified); login session via Agent-Reach/OpenCLI; or the user pastes the post text / screenshots. Untested whether the VPS IP is blocked too (datacenter IPs usually are, worse than residential).
 - **Instagram:** `yt-dlp --cookies-from-browser` with a logged-in session — cookies are credentials, so never on the VPS without a throwaway account; or the user screenshots carousel slides (the Read tool reads text in images).
 - **Images:** user drops screenshots; Claude reads text and content from them directly. Image files need a home — open question.
+
+## Re-test after Agent-Reach + OpenCLI — 2026-10-01
+
+OpenCLI v1.8.8, extension v1.0.24 in a **separate Chrome profile** with throwaway accounts.
+Needed `opencli daemon restart` before the extension connected.
+
+| Item | Now | Command |
+|---|---|---|
+| Reddit `1wt8blb` | **100%** — post + comment tree with scores | `opencli reddit read 1wt8blb` (logged in as throwaway `u/Commercial_Ear_5714`) |
+| Instagram carousel `Dd07Kv7EdBB` | **100%** — all 10 slides as JPGs; Claude reads them as images | `opencli instagram download <url> --path <dir>` (not `--output`). `instagram whoami` failed "Navigation rejected" — download works regardless |
+
+**Gist of the two:**
+- Reddit: Hermes has an official Claude-subscription plugin (`claude-subscription-directsdk`,
+  ~2 weeks old) routing through an installed Claude Code; every turn bills the subscription's
+  Agent SDK allowance; Anthropic paused its planned Agent-SDK billing change — "safe today,
+  watch the terms". Source: hermes-agent.nousresearch.com/docs/plugins/claude-subscription-directsdk
+- Instagram: an ad-style carousel for **Kapso** (kapso.ai) — a WhatsApp Cloud API wrapper:
+  instant US number, `npx skills add gokapso/agent-skills` for Claude Code, 11-line send,
+  webhook receive, WhatsApp Flows forms. Marketing account (@saadkhanads), not a tutorial.
+
+**Capability now: 6 of 6 sources automatic.** Remaining manual work = the user's note on why.
