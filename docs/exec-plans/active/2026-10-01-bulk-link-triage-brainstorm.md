@@ -8,6 +8,19 @@
 > paused at "capability test". Resume the brainstorm from **Next step**; the design and
 > spec come after, then writing-plans.
 
+> ⚠️ **Standing reminder (user asked for it, 2026-10-01):** whenever the user hands over
+> Reddit or Instagram links to read, remind them first — reading those goes through a
+> logged-in session (Agent-Reach / OpenCLI), so use **throwaway accounts**: platforms can
+> detect scripted access and ban the account, and the session cookie equals full account
+> access. Never the user's main accounts.
+>
+> **Agent-Reach: package installed 2026-10-01** in `~/.agent-reach-venv` (user-approved).
+> Running `agent-reach` itself was then blocked by the Claude Code auto-mode classifier
+> ("Untrusted Code Integration") — the user runs it, or allows it. Reminder saved to
+> Cortex memory (`feedback_throwaway-accounts-reminder.md`). Remaining: `agent-reach install --env=auto` (check-only)
+> → `--dry-run --channels=reddit,instagram` → `--system --channels=reddit,instagram` →
+> log in throwaway accounts in Chrome → re-test the Reddit + Instagram links below.
+
 ## The problem (user's words, condensed)
 
 Capture was never the problem — **organizing** is. Saved stuff is scattered: mostly
