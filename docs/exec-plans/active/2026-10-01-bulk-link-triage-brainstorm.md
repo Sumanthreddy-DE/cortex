@@ -57,9 +57,13 @@ tool. "I don't want to sort anymore."
 - **`bradautomates/claude-video`** — already installed. It *is* the `/watch` skill
   (`~/.claude/plugins/cache/claude-video/watch/0.2.0`). Nothing to add.
 - **`Panniantong/Agent-Reach`** (MIT, ~87k stars, pushed 2026-09-15) — "read Twitter,
-  Reddit, YouTube, GitHub, Bilibili, XiaoHongShu, one CLI". Lists **no Instagram**, which
-  is the only weak source. Overlaps defuddle + `gh` + `/watch`. Claude's take: skip
-  unless the capability test shows Reddit failing. Not installed.
+  Reddit, YouTube, GitHub, Bilibili, XiaoHongShu, one CLI". **Corrected after reading its
+  README:** it *does* cover Instagram, but for both Reddit and Instagram it states there
+  is **no zero-config path** — anonymous Reddit is blocked and the official API is
+  approval-gated. Both go through OpenCLI reusing a logged-in desktop Chrome session (or
+  rdt-cli + cookie), and the README itself warns of account-ban risk and says to use a
+  throwaway account. So it wraps the login-session route, it does not bypass it. Default
+  install is check-only; `--system` / `--dry-run` flags exist. Not installed.
 
 ### Approach Claude argued for
 
@@ -109,6 +113,6 @@ The design is built on what actually worked, then continue with the Open questio
 **Score: ~4 of 6 fully automatic.** The two failures are login walls, not tool gaps.
 
 Fixes, all the user's call (installs/accounts):
-- **Reddit:** free Reddit API "script" app (OAuth) — reliable; or the user pastes the post text / screenshots. Untested whether the VPS IP is blocked too (datacenter IPs usually are, worse than residential).
+- **Reddit:** ~~free Reddit API "script" app~~ — per Agent-Reach README the official API is now approval-gated (unverified); login session via Agent-Reach/OpenCLI; or the user pastes the post text / screenshots. Untested whether the VPS IP is blocked too (datacenter IPs usually are, worse than residential).
 - **Instagram:** `yt-dlp --cookies-from-browser` with a logged-in session — cookies are credentials, so never on the VPS without a throwaway account; or the user screenshots carousel slides (the Read tool reads text in images).
 - **Images:** user drops screenshots; Claude reads text and content from them directly. Image files need a home — open question.
