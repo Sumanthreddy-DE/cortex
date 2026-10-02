@@ -20,7 +20,7 @@ Local-first Electron+React+SQLite link/idea manager living in system tray. Prior
 
 ## Pipeline
 - Phase 5 "close the loop" — docs/exec-plans/active/2026-07-18-phase-5-close-the-loop.md (triage mode, Discord digest, receipts + ?today, Telegram teardown), not executed
-- Bulk link triage brainstorm (2026-10-01, paused at capability test) — docs/exec-plans/active/2026-10-01-bulk-link-triage-brainstorm.md; overlaps item 10 + distiller prototype
+- Bulk link triage brainstorm — superseded 2026-10-02: moved to Obsidian vault + /chips (see plan header)
 - Later: stale-item sweep + video/Reels→text (feature-backlog items 9-10); no new views until completions happen (item 11)
 
 ## Resume here

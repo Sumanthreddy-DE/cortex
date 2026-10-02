@@ -1,7 +1,11 @@
 # Bulk Link Triage — Brainstorm Handoff
 
-**Status:** active
-**Last verified:** 2026-10-01
+**Status:** superseded
+**Last verified:** 2026-10-02
+**Superseded by:** the Obsidian vault + `/chips` command (2026-10-02). Home moved from Cortex to
+`Obsidian-Brain/Claude_second_brain/Chips/`, laptop only, viewed in Graph view. No Hermes, no
+VPS, no WhatsApp bot for now. Intake = `citadel/harness/commands/chips.md`. The capability
+test results below stay valid.
 **Status evidence:** brainstorm only, no design approved, no code. Started in a citadel session 2026-10-01, moved here because Cortex is the chosen home.
 
 > Not an implementation plan. This is the state of a superpowers:brainstorming session,
