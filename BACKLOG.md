@@ -47,7 +47,7 @@ _(none yet)_
 - **specs-dir-gitignored** — `.gitignore:37` ignores `docs/superpowers/specs/`; only two specs are
   force-tracked. `CATEGORY_VIEW_REDESIGN_PLAN.md` is untracked, so its status edits never reach git.
   Track it, archive it, or drop the ignore rule. *(found 2026-09-28)*
-- **harness-memory-copy** — untracked `.harness/memory/` inside the repo is a stale copy of the
+- **harness-memory-copy** — *(2026-10-07: removed from the public repo and gitignored; the local copy stays. Still open: delete or archive the local copy.)* `.harness/memory/` inside the repo is a stale copy of the
   cortex memory, likely left from testing the OpenClaw port. Citadel
   (`citadel/harness/memory/cortex/`) is canonical and the copy already drifts from it (it still
   says priority view phase 2 is "NOT executed"). Diff against Citadel for anything unique, then

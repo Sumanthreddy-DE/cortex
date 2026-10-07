@@ -41,3 +41,6 @@ screenshots/
 mockups/categories_after_replit_pull.png
 mockups/categories_after_replit_pull_happening.png
 mockups/ideas_bucket.png
+
+# Stale local copy of Claude memory (canonical: citadel/harness/memory/cortex). Never publish.
+.harness/
